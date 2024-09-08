@@ -1,0 +1,206 @@
+{
+    "name": "Hola GOD",
+    "proposal": "Aprender las claves para crear un videojuego de éxito que se vuelva mainstream",
+    "tiles": [
+        {
+            "id": 0,
+            "type": "Start"
+        },
+        {
+            "id": 1,
+            "type": "LoseTurnsUntil"
+        },
+        {
+            "id": 2,
+            "type": "LoseTurnsUntil"
+        },
+        {
+            "id": 3,
+            "type": "TravelToTile"
+        },
+        {
+            "id": 4,
+            "type": "RollDicesAgain"
+        },
+        {
+            "id": 5,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Craft a branching narrative that offers players meaningful choices affecting the game outcome.",
+                "url_image": "https://i.ibb.co/p02pwwB/start3.png"
+            }
+        },
+        {
+            "id": 6,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Develop a community-driven feature, allowing players to create and share content within your game.",
+                "url_image": "https://i.ibb.co/C0FVn70/Satart2.png"
+            }
+        },
+        {
+            "id": 2,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Design a secret level that is hard to find and offers unique challenges and rewards.",
+                "url_image": "https://i.ibb.co/2MTDnTn/start4.png"
+            }
+        },
+        {
+            "id": 7,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Design a secret level that is hard to find and offers unique challenges and rewards.",
+                "url_image": "https://i.ibb.co/p02pwwB/start3.png"
+            }
+        },
+        {
+            "id": 8,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Design a cooperative gameplay feature that encourages player teamwork.",
+                "url_image": "https://i.ibb.co/C0FVn70/Satart2.png"
+            }
+        },
+        {
+            "id": 9,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Develop a community-driven feature, allowing players to create and share content within your game.",
+                "url_image": "https://i.ibb.co/BtqNXYb/Satart1.png"
+            }
+        },
+        {
+            "id": 10,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Develop a unique mechanic that becomes the signature feature of your game.",
+                "url_image": "https://i.ibb.co/c6wFWwh/start65.png"
+            }
+        },
+        {
+            "id": 11,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Design a secret level that is hard to find and offers unique challenges and rewards.",
+                "url_image": "https://i.ibb.co/c6wFWwh/start65.png"
+            }
+        },
+        {
+            "id": 12,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Develop a unique mechanic that becomes the signature feature of your game.",
+                "url_image": "https://i.ibb.co/C0FVn70/Satart2.png"
+            }
+        },
+        {
+            "id": 13,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Design a new character class with unique abilities and a distinctive play style.",
+                "url_image": "https://i.ibb.co/2MTDnTn/start4.png"
+            }
+        },
+        {
+            "id": 14,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Conduct a market analysis to identify current trends and potential audience for your game.",
+                "url_image": "https://i.ibb.co/BtqNXYb/Satart1.png"
+            }
+        },
+        {
+            "id": 15,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Develop an asset list that includes all necessary graphics, sounds, and other media.",
+                "url_image": "https://i.ibb.co/C0FVn70/Satart2.png"
+            }
+        },
+        {
+            "id": 16,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Create a budget estimate for the entire game development process, considering all departments.",
+                "url_image": "https://i.ibb.co/p02pwwB/start3.png"
+            }
+        },
+        {
+            "id": 17,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Develop an asset list that includes all necessary graphics, sounds, and other media.",
+                "url_image": "https://i.ibb.co/C0FVn70/Satart2.png"
+            }
+        },
+        {
+            "id": 18,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Organize a brainstorming session to come up with innovative gameplay ideas and features.",
+                "url_image": "https://i.ibb.co/p02pwwB/start3.png"
+            }
+        },
+        {
+            "id": 19,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Prepare a risk analysis document to identify potential issues and their mitigation strategies.",
+                "url_image": "https://i.ibb.co/C0FVn70/Satart2.png"
+            }
+        },
+        {
+            "id": 20,
+            "type": "LoseTurnsUntil"
+        },
+        {
+            "id": 21,
+            "type": "LoseTurnsUntil"
+        },
+        {
+            "id": 22,
+            "type": "TravelToTile"
+        },
+        {
+            "id": 23,
+            "type": "RollDicesAgain"
+        },
+        {
+            "id": 24,
+            "type": "RollDicesAgain"
+        },
+        {
+            "id": 25,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Design a preliminary game prototype using basic tools to test gameplay concepts.",
+                "url_image": "https://i.ibb.co/BtqNXYb/Satart1.png"
+            }
+        },
+        {
+            "id": 26,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Organize a brainstorming session to come up with innovative gameplay ideas and features.",
+                "url_image": "https://i.ibb.co/BtqNXYb/Satart1.png"
+            }
+        },
+        {
+            "id": 27,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Develop an asset list that includes all necessary graphics, sounds, and other media.",
+                "url_image": "https://i.ibb.co/BtqNXYb/Satart1.png"
+            }
+        },
+        {
+            "id": 28,
+            "type": "Challenge",
+            "challenge": {
+                "description": "Develop a project timeline with milestones and deadlines to ensure timely progress.",
+                "url_image": "https://i.ibb.co/C0FVn70/Satart2.png"
+            }
+        }
+    ]
+}
