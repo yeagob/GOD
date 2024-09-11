@@ -112,20 +112,12 @@ public class AIJsonGenerator
 	{
 		//"Responderás únicamente con un json, nada más. DAme una estructura json con una lista de nombres";
 		return
-		"Responderás únicamente con un json, nada más. La estructura del json es la siguiente:\n\n" +
-		"\n" +
-		"    string name;\n" +
-		"    string proposal;\n" +
-		"    List<string> players;\n" +
-		"    List<string> challenges;\n" +
-		"\n\n" +
-		"Inventa el contenido del campo name y define una proposal basadas en estos intereses y deseos:\n" +
-		_answer1 + "\n" +
-		"Teniendo en cuenta que el/los participantes de este juego es/son:\n" +
-		_answer2 + "\n" +
-		"Responderás únicamente con un json, nada más. Sigue la estructura anterior. Genera 15 desafíos sencillos, que impliquen un tiempo entre 1 y 3 min, relacionados con la 'proposal'. Siempre piensa en ayudar a las personas con desafíos adaptados a los participantes y a la proposal, sencillos, divertidos y originales.\n" +
-		"Intentarás rellenar la lista de players en base a esta información:\n" +
-		_answer2 + "\n\n" +
-		"Responderás únicamente con el json, nada más. Añade todas las comillas necesarias en el json, todo son strings.";
+		"Responderás únicamente con un json, nada más. La estructura del json es la siguiente:  string name; string proposal;   List string players;   List string challenges; Inventa el contenido del campo name y define una proposal basadas en estos intereses y deseos, buscando el crecimiento: "		
+		+ _answer1 + 
+		"Teniendo en cuenta que el/los participantes de este juego es/son:"
+		+ _answer2 + 
+		"Responderás únicamente con un json, nada más. Sigue la estructura anterior. Genera 15 desafíos sencillos, que impliquen un tiempo entre 1 y 3 min, relacionados con la 'proposal', de escribir, dibujar, actuar, realizar alguna acción con el movil o similar. Siempre piensa en ayudar a las personas con desafíos adaptados a los participantes y a la proposal, sencillos, divertidos y originales. Intentarás rellenar la lista de players en base a esta información:" +
+		_answer2 + 
+		"Responderás únicamente con el json, nada más. En texto plano, no snipet. ";
 	}
 }

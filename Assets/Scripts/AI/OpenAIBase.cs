@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.Rendering.VirtualTexturing;
-using UnityEngine.XR;
 
 public abstract class OpenAIBase
 {
@@ -58,16 +56,41 @@ public abstract class OpenAIBase
 	}
 }
 
-	public class GPT4Mini : OpenAIBase
+[Serializable]
+public class DataResponse
+{
+	public string id;
+	public long created;
+	public string model;
+	public List<Choice> choices;
+
+}
+
+[Serializable]
+public class Choice
+{
+	public int index;
+	public Message message;
+
+}
+
+[Serializable]
+public class Message
+{
+	public string role;
+	public string content;
+}
+
+
+public class GPT4Mini : OpenAIBase
 	{
 		public GPT4Mini(string apiKey) : base(apiKey) { }
 	public async Task<string> GetCompletion(string prompt)
 	{
 		string jsonData = "{\"model\": \"gpt-4o-mini\", \"messages\": [{\"role\": \"user\", \"content\": \""+prompt+"\"}, {\"role\":\"system\",\"content\": \"Eres un sistema de generación de estructuras json.\"}]}";
 		string response = await SendRequest("chat/completions", jsonData);
-		// Procesar la respuesta JSON y extraer el texto generado
-		// (Aquí deberías usar un parser JSON adecuado)
-			return response;
+		DataResponse dataResponse = JsonUtility.FromJson<DataResponse>(response);
+			return dataResponse.choices[0].message.content;
 		}
 	}
 
