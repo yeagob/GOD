@@ -1,5 +1,13 @@
 using System;
 
+public enum PlayerState
+{
+	OnChallenge,
+	Waiting,
+	Playing,
+	LostTurn
+}
+
 /// <summary>
 /// Defines the various effects a tile can have.
 /// </summary>
@@ -10,6 +18,7 @@ public enum TileType
 	TravelToTile,
 	LoseTurnsUntil,
 	RollDicesAgain,
+	Question,
 	End
 }
 
