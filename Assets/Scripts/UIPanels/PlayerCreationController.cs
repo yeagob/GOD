@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using System.Threading.Tasks;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class PlayerCreationController : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class PlayerCreationController : MonoBehaviour
 	[SerializeField] private TMP_InputField[] _playerNameInputs;
 	[SerializeField] private Image[] _playerImageColors;
 	[SerializeField] private Button _okButton;
+	[SerializeField] private PlayerToken _playerTokenPrefab;
 	private Color[] _playerColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.cyan, Color.black };
 	private List<Player> _players = new List<Player>();
 
@@ -24,7 +26,6 @@ public class PlayerCreationController : MonoBehaviour
 
 	private void Awake()
 	{
-		gameObject.SetActive(false);
 		for (int i = 0; i < _playerImageColors.Length; i++)
 		{
 			_playerImageColors[i].color = _playerColors[i];
@@ -45,7 +46,10 @@ public class PlayerCreationController : MonoBehaviour
 		{
 			if (!string.IsNullOrEmpty(_playerNameInputs[i].text))
 			{
-				PlayerToken token = new PlayerToken(_playerNameInputs[i].text, _playerColors[i], null);
+				PlayerToken token = Instantiate(_playerTokenPrefab);
+				token.Initialize(_playerNameInputs[i].text, _playerColors[i]);
+				token.transform.position = new Vector3(token.transform.position.x, ((float)i / 10f), token.transform.position.z);
+
 				_players.Add(new Player(_playerNameInputs[i].text, token));
 			}
 		}
@@ -75,6 +79,8 @@ public class PlayerCreationController : MonoBehaviour
 					_playerNameInputs[i].text = players[i];
 			}
 		}
+
+		EventSystem.current.SetSelectedGameObject(_playerNameInputs[0].gameObject);
 
 		_showingPanel = true;
 		gameObject.SetActive(true);

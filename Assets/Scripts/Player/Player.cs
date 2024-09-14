@@ -5,20 +5,15 @@ public class Player
 	private string _name;
 	private PlayerState _state;
 	private PlayerToken _token;
-	private Tile _currentTile;
 
 	#endregion
 
 	#region Properties
 
 	public string Name => _name;
-	public PlayerState State => _state;
+	public PlayerState State { get => _state; set => _state = value; }
 	public PlayerToken Token => _token;
-	public Tile CurrentTile
-	{
-		get => _currentTile;
-		set => _currentTile = value;
-	}
+	public Tile CurrentTile => Token.CurrentTile;
 
 	#endregion
 

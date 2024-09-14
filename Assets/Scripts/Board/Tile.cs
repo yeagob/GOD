@@ -12,6 +12,8 @@ public class Tile : MonoBehaviour
 	[SerializeField] private TextMeshProUGUI _tileNumberText;
 	[SerializeField] private Image _tileImage;
 	[SerializeField] private Button _tileButton;
+	
+	private TileData _tileData;
 
 	// Images
 	[Header("Start Tiles")]
@@ -25,14 +27,18 @@ public class Tile : MonoBehaviour
 
 	private int _tileID;
 
+	public TileType TileType { get => _tileType; }
+	public TileData TileData { get => _tileData;  }
+
 	public void Initialize(int i)
 	{
 		_tileID = i;
 		_tileNumberText.text = i.ToString();
 	}
 
-	internal void SetType(TileData tileData)
+	internal void SetTileData(TileData tileData)
 	{
+		_tileData = tileData;
 		_tileType = EnumConverter.StringToTileType(tileData.type);
 		_tileDescriptionText.text = "";
 

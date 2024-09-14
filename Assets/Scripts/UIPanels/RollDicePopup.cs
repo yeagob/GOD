@@ -1,18 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
+using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 public class RollDicePopup : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+	[SerializeField] private TextMeshProUGUI _diceText;
+	private float _showingTime = 1;//s
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+	public async Task ShowAsync(int diceValue)
+	{
+		gameObject.SetActive(true);
+		_diceText.text = diceValue.ToString();
+		float time = _showingTime;
+		while (time > 0)
+		{
+			time -= Time.deltaTime;
+			await Task.Yield();
+		}
+
+		gameObject.SetActive(false);
+
+
+	}
 }

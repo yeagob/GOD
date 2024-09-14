@@ -3,17 +3,23 @@ using System.Collections.Generic;
 public class TurnController
 {
 	#region Fields
+
 	private List<Player> _players;
 	private int _currentIndex = 0;
+	PopupsController _popupsController;
+	
 	#endregion
 
 	#region Properties
+	
 	public Player CurrentPlayer => _players[_currentIndex];
+	
 	#endregion
 
 	#region Public Methods
-	public TurnController(List<Player> players)
+	public TurnController(List<Player> players, PopupsController popupsController)
 	{
+		_popupsController = popupsController;//???????
 		_players = players;
 	}
 

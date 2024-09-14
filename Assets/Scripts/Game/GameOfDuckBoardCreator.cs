@@ -105,7 +105,7 @@ public class GameOfDuckBoardCreator : MonoBehaviour
 			_boardTiles.Add(tile);
 			if (i < data.tiles.Length)
 			{
-				tile.SetType(data.tiles[i]);
+				tile.SetTileData(data.tiles[i]);
 			}
 		}
 	}

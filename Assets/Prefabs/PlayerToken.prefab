@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2695509073317528485}
   - component: {fileID: 1562632668083072177}
+  - component: {fileID: 2671813839120227028}
+  - component: {fileID: 47363133872010575}
   m_Layer: 0
   m_Name: PlayerToken
   m_TagString: Untagged
@@ -45,6 +47,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48d7d3f3634fa5047ba5b68d8b187016, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _tokenRender: {fileID: 2065359207462563491}
+--- !u!135 &2671813839120227028
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379590424188413472}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1
+  m_Center: {x: 0, y: 0, z: -1}
+--- !u!54 &47363133872010575
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379590424188413472}
+  serializedVersion: 4
+  m_Mass: 5
+  m_Drag: 3
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
 --- !u!1001 &2065359207460271811
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -121,6 +172,12 @@ PrefabInstance:
 --- !u!4 &2065359207460662339 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 33d4f2fdf50a64e46a4e1a6feaba7f13,
+    type: 3}
+  m_PrefabInstance: {fileID: 2065359207460271811}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &2065359207462563491 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2300000, guid: 33d4f2fdf50a64e46a4e1a6feaba7f13,
     type: 3}
   m_PrefabInstance: {fileID: 2065359207460271811}
   m_PrefabAsset: {fileID: 0}

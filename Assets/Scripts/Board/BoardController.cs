@@ -1,6 +1,8 @@
 
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 /// <summary>
@@ -36,6 +38,31 @@ public class BoardController
 		// Deserialize JSON and construct Board
 		_board = new BoardData(jsonData);
 		_boardTiles = boardCreator.GetBoard(_board);
+	}
+
+	public async Task<Tile> MoveToken(Player currentPlayer, int diceValue)
+	{
+		int currentTileID = currentPlayer.CurrentTile.TileData.id;
+		int targetTileID = currentTileID + diceValue;
+
+		float jumpPower = 2f;
+		float jumpDuration = 0.7f;      
+
+		Sequence tokenMoveSequence = DOTween.Sequence();
+
+		for (int i = currentTileID+1; i <= targetTileID; i++)
+		{
+			Vector3 targetPosition = _boardTiles[i].transform.position;
+
+			// Add each jump to the sequence
+			tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, jumpPower, 1, jumpDuration).SetEase(Ease.OutQuad));
+		}
+
+		await tokenMoveSequence.AsyncWaitForCompletion();
+
+		currentPlayer.Token.MoveToTile(_boardTiles[targetTileID]);
+
+		return _boardTiles[targetTileID];
 	}
 
 	#endregion
