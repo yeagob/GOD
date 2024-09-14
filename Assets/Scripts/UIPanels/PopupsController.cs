@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -26,6 +27,11 @@ public class PopupsController : MonoBehaviour
 	public async Task<string[]> ShowWelcome()
 	{
 		 return await _welcomePopups.ShowAsync();
+	}
+
+	internal void HideWelcome()
+	{
+		_welcomePopups.gameObject.SetActive(false);
 	}
 
 	//public async Task<int> ShowRollDicePopup()

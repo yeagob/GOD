@@ -38,12 +38,16 @@ public class Tile : MonoBehaviour
 
 		switch (_tileType)
 		{
-			case TileType.Challenge:
-				GetURLImage(tileData.challenge.url_image);
-				_tileDescriptionText.text = tileData.challenge.description;
-				break;
 			case TileType.Start:
 				_tileImage.sprite = _startSpriteTiles[UnityEngine.Random.Range(0, _startSpriteTiles.Length)];
+				break;
+			case TileType.Challenge:
+				//GetURLImage(tileData.challenge.url_image);
+				_tileDescriptionText.text = tileData.challenge.description;
+				break;
+			case TileType.Question:
+				//GetURLImage(tileData.challenge.url_image);
+				_tileDescriptionText.text = tileData.question.statement;
 				break;
 			case TileType.LoseTurnsUntil:
 				_tileImage.sprite = _turnSpriteTiles[UnityEngine.Random.Range(0, _turnSpriteTiles.Length)];

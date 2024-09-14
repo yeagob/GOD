@@ -3,13 +3,15 @@ using System;
 using UnityEngine.UI;
 using UnityEngine;
 using System.Threading.Tasks;
+using TMPro;
 
 public class PlayerCreationController : MonoBehaviour
 {
 
 	#region Fields
 
-	[SerializeField] private InputField[] _playerNameInputs;
+	[SerializeField] private TMP_InputField[] _playerNameInputs;
+	[SerializeField] private Image[] _playerImageColors;
 	[SerializeField] private Button _okButton;
 	private Color[] _playerColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.cyan, Color.black };
 	private List<Player> _players = new List<Player>();
@@ -23,6 +25,10 @@ public class PlayerCreationController : MonoBehaviour
 	private void Awake()
 	{
 		gameObject.SetActive(false);
+		for (int i = 0; i < _playerImageColors.Length; i++)
+		{
+			_playerImageColors[i].color = _playerColors[i];
+		}
 	}
 
 	private void Start()
@@ -61,10 +67,13 @@ public class PlayerCreationController : MonoBehaviour
 
 	private void ShowInputPlayers(List<string> players)
 	{
-		for (int i = 0; i < players.Count; i++)
+		if (players != null)
 		{
-			if (_playerNameInputs.Length > i)
-				_playerNameInputs[i].text = players[i];
+			for (int i = 0; i < players.Count; i++)
+			{
+				if (_playerNameInputs.Length > i)
+					_playerNameInputs[i].text = players[i];
+			}
 		}
 
 		_showingPanel = true;

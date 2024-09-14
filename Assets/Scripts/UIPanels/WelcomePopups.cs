@@ -8,6 +8,7 @@ public class WelcomePopups : MonoBehaviour
     //Panels
     [SerializeField] private GameObject _initialPanel;
     [SerializeField] private QuestionPanel _questionPanel;
+    [SerializeField] private GameObject _creatingPanel;
 
     //Buttons
     [SerializeField] private Button _letsgoButton;
@@ -19,10 +20,14 @@ public class WelcomePopups : MonoBehaviour
 	private void Awake()
 	{
         _letsgoButton.onClick.AddListener(CloseInitial);
-	}
+        _initialPanel.SetActive(false);
+        _creatingPanel.SetActive(false);
+    }
 
-	internal async Task<string[]> ShowAsync()
+    internal async Task<string[]> ShowAsync()
 	{
+        gameObject.SetActive(true);
+
         _initialPanel.SetActive(true);
 
         while (_initialPanel.activeSelf)
@@ -30,6 +35,8 @@ public class WelcomePopups : MonoBehaviour
 
 		_answer1 = await _questionPanel.ShowQuestionOne();
 		_answer2 = await _questionPanel.ShowQuestionTwo();
+
+        _creatingPanel.SetActive(true);
 
         string[] answers = new string[2]
         {

@@ -54,12 +54,13 @@ public class BoardData
 		// Resto de Tiles aleatorias entre los otros tipos
 		System.Random rand = new System.Random();
 		List<string> availableChallenges = new List<string>(data.challenges);
-		int challengeCount = 0;
+		List<QuestionData> availableQuestions = new List<QuestionData>(data.questions);
 
 		for (int i = 1; i < 39; i++) // Excluyendo Start y End
 		{
 			// Determinar si esta tile será de tipo Challenge (25% de probabilidades)
-			bool isChallenge = rand.Next(100) < 25 && availableChallenges.Count > 0;
+			bool isChallenge = rand.Next(100) < 30 && availableChallenges.Count > 0;
+			bool isQuestion = !isChallenge && rand.Next(100) < 50 && availableQuestions.Count > 0;
 
 			if (isChallenge)
 			{
@@ -78,7 +79,24 @@ public class BoardData
 					}
 				};
 
-				challengeCount++;
+			}
+			else if (isQuestion)
+			{
+				// Seleccionar una question de la lista y asignarlo
+				QuestionData question = availableQuestions[0];
+				availableQuestions.RemoveAt(0); // Remover el challenge usado
+
+				tiles[i] = new TileData
+				{
+					id = i,
+					type = TileType.Question.ToString(),
+					question = new QuestionData
+					{
+						statement = question.statement,
+						options = question.options,
+						correctId = question.correctId
+					}
+				};
 			}
 			else
 			{
@@ -91,6 +109,8 @@ public class BoardData
 				};
 			}
 		}
+
+		Debug.Log("Board Data: " + JsonUtility.ToJson(this));
 	}
 
 	private TileType GetRandomTileType()
@@ -101,7 +121,6 @@ public class BoardData
 			TileType.TravelToTile,
 			TileType.LoseTurnsUntil,
 			TileType.RollDicesAgain,
-			TileType.Question
 		};
 
 		System.Random rand = new System.Random();
@@ -118,13 +137,13 @@ public class TileData
 	public int id; // PK readonly
 	public string type;
 	public ChallengeData challenge;
+	public QuestionData question;
+
 	#region Future
 
 	//public string url_image;
 	//public byte next_tile_direction;
 	#endregion
-
-
 }
 
 /// <summary>

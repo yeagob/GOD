@@ -17,6 +17,7 @@ public class QuestionPanel : MonoBehaviour
 	private void Awake()
 	{
 		_answerButton.onClick.AddListener(Done);
+		gameObject.SetActive(false);
 	}
 
 	private void Done()
@@ -48,16 +49,4 @@ public class QuestionPanel : MonoBehaviour
 		return _answerInput.text;
 
 	}
-
-	// Start is called before the first frame update
-	void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

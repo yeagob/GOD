@@ -18,7 +18,7 @@ public enum TileType
 	TravelToTile,
 	LoseTurnsUntil,
 	RollDicesAgain,
-//	Question,
+	Question,
 	End
 }
 

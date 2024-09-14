@@ -10,8 +10,6 @@ public class GameController: MonoBehaviour
 {
 	#region Fields
 
-	[SerializeField] private string _json;
-
 	[SerializeField] private BoardController _boardController;
 	[SerializeField] private GameOfDuckBoardCreator _boardCreator;
 	[SerializeField] private PopupsController _popupsController;
@@ -43,6 +41,7 @@ public class GameController: MonoBehaviour
 		//Generate Board
 		PlayersBoardData playersBoardData = await _aiJsonGenerator.GetJsonBoardAndPlayers();
 		CreateBoard(playersBoardData.board);
+		_popupsController.HideWelcome();
 
 		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers(playersBoardData.players);
 		_turnController = new TurnController(players);	

@@ -13,6 +13,15 @@ public class GameData
 	public string proposal;
 	public List<string> players;
 	public List<string> challenges;
+	public List<QuestionData> questions;
+}
+
+[Serializable]
+public class QuestionData
+{
+	public string statement;
+	public List<string> options;
+	public int correctId;
 }
 
 [Serializable]
@@ -50,8 +59,13 @@ public class AIJsonGenerator
 	public async Task<PlayersBoardData> GetJsonBoardAndPlayers()
 	{
 		PlayersBoardData playersBoardData = new PlayersBoardData();
-		string response = await GetGPTResponse(_prompt);
-		bool error = false;
+		string response = "";
+		bool loadDefault = false;
+		if (!string.IsNullOrEmpty(_answer1) || !string.IsNullOrEmpty(_answer2))
+			response = await GetGPTResponse(_prompt);
+		else
+			loadDefault = true;
+
 		GameData data = null;
 
 		try
@@ -61,10 +75,11 @@ public class AIJsonGenerator
 		}
 		catch
 		{
-			error = true;
+			//TODO: meter al menos 1 retry!!
+			loadDefault = true;
 		}
 
-		if (error)
+		if (loadDefault)
 		{
 			BoardData boardData = new BoardData(LoadDefaultData());
 			playersBoardData.board = boardData;
@@ -110,14 +125,10 @@ public class AIJsonGenerator
 	//}
 	private string CreatePrompt()
 	{
-		//"Responderás únicamente con un json, nada más. DAme una estructura json con una lista de nombres";
-		return
-		"Responderás únicamente con un json, nada más. La estructura del json es la siguiente:  string name; string proposal;   List string players;   List string challenges; Inventa el contenido del campo name y define una proposal basadas en estos intereses y deseos, buscando el crecimiento: "		
-		+ _answer1 + 
-		"Teniendo en cuenta que el/los participantes de este juego es/son:"
-		+ _answer2 + 
-		"Responderás únicamente con un json, nada más. Sigue la estructura anterior. Genera 15 desafíos sencillos, que impliquen un tiempo entre 1 y 3 min, relacionados con la 'proposal', de escribir, dibujar, actuar, realizar alguna acción con el movil o similar. Siempre piensa en ayudar a las personas con desafíos adaptados a los participantes y a la proposal, sencillos, divertidos y originales. Intentarás rellenar la lista de players en base a esta información:" +
-		_answer2 + 
-		"Responderás únicamente con el json, nada más. En texto plano, no snipet. ";
+		return "Responde únicamente con un JSON siguiendo esta estructura exacta: La clase principal tiene los siguientes campos: name de tipo string, proposal de tipo string que es la descripción basada en los intereses y deseos proporcionados en: "
+			+ _answer1 + ". players es una lista de strings que contiene el/los nombres de el/los jugador(es) basado en este input: "
+			+ _answer2 + ". challenges es una lista de strings donde cada elemento es la descripción de un desafío breve y claro, de entre 1 y 3 minutos de duración. Ejemplos de challenges: 'descripción breve y clara de un desafío relevante a la propuesta', 'descripción breve y clara de un deafío relevante a la propuesta)'. questions es una lista de objetos, donde cada objeto tiene tres campos: statement de tipo string que es el enunciado de la pregunta relacionada con la propuesta, options que es una lista de cuatro strings representando las opciones de respuesta, y correctId que es un entero entre 0 y 3 indicando el índice de la respuesta correcta. Ejemplos de preguntas: { statement: 'enunciado de la pregunta 1', options: ['opción 1', 'opción 2', 'opción 3', 'opción 4'], correctId: índice de la respuesta correcta }. Genera 10 challenges y 10 questions siguiendo esta estructura. La proposal basada en: "
+			+ _answer1 + ", será el tema de la sesión, en el que se basarán los challenges y las questions. Los challenges pueden implicar a otros jugadores(solo si los hay!), pueden ser pruebas de dibujar, actuar, hacer algo o incluso ver un video de internet. El tono es divertido e informal. Siempre se intentará buscar el crecimiento en relación a la proposal. Recuerda: debes responder únicamente con un JSON siguiendo exactamente la estructura indicada, sin comentarios adicionales ni explicaciones. Todo el contenido en castellano y en texto normal, no snipet de código!";
+
 	}
 }
