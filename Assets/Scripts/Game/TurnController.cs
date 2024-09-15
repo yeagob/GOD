@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
+[Serializable]
 public class TurnController
 {
 	#region Fields
 
-	private List<Player> _players;
+	[SerializeField] private List<Player> _players;
 	private int _currentIndex = 0;
 	PopupsController _popupsController;
 	

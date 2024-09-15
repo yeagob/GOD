@@ -12,6 +12,7 @@ public class PopupsController : MonoBehaviour
 	[SerializeField] private QuestionPopup _questionPopup;
 	[SerializeField] private PlayerTurnPopup _playerTurnPopup;
 	[SerializeField] private VictoryPopup _victoryPopup;
+	[SerializeField] private BoardDataPopup _boardDataPopup;
 	[SerializeField] private PlayerCreationController _playerCreationController;
 
 	#endregion
@@ -57,6 +58,12 @@ public class PopupsController : MonoBehaviour
 	public async Task<bool> ShowQuestion(QuestionData question)
 	{
 		return await _questionPopup.ShowAsync(question);
+
+	}	
+
+	public async Task ShowBoardDataPopup(BoardData board)
+	{
+		await _boardDataPopup.ShowAsync(board);
 
 	}
 

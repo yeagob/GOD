@@ -1,9 +1,13 @@
+using System;
+using UnityEngine;
+
+[Serializable]
 public class Player
 {
 	#region Fields
 
-	private string _name;
-	private PlayerState _state;
+	[SerializeField] private string _name;
+	[SerializeField] private PlayerState _state;
 	private PlayerToken _token;
 
 	#endregion

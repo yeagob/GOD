@@ -1,5 +1,6 @@
 
 using DG.Tweening;
+using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,14 +14,14 @@ public class BoardController
 {
 	#region Fields
 
-	[SerializeField] private BoardData _board;
+	[SerializeField, ReadOnly] private BoardData _boardData;
 	private List<Tile> _boardTiles = new List<Tile>();
 
 	#endregion
 
 	#region Properties
 
-	public BoardData Board { get; private set; }
+	public BoardData BoardData => _boardData;
 	public List<Tile> BoardTiles { get => _boardTiles; }
 
 	#endregion
@@ -29,15 +30,15 @@ public class BoardController
 
 	public BoardController(BoardData boardData, GameOfDuckBoardCreator boardCreator)
 	{
-		_board = boardData;
-		_boardTiles = boardCreator.GetBoard(_board);
+		_boardData = boardData;
+		_boardTiles = boardCreator.GetBoard(_boardData);
 	}
 
 	public BoardController(string jsonData, GameOfDuckBoardCreator boardCreator)
 	{
 		// Deserialize JSON and construct Board
-		_board = new BoardData(jsonData);
-		_boardTiles = boardCreator.GetBoard(_board);
+		_boardData = new BoardData(jsonData);
+		_boardTiles = boardCreator.GetBoard(_boardData);
 	}
 
 	public async Task<Tile> MoveToken(Player currentPlayer, int diceValue)

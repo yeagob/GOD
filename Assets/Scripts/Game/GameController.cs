@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ public class GameController: MonoBehaviour
 	[SerializeField] private GameOfDuckBoardCreator _boardCreator;
 	[SerializeField] private PopupsController _popupsController;
 	[SerializeField] private AIJsonGenerator _aiJsonGenerator;
-	private TurnController _turnController;
+	[SerializeField, ReadOnly] private TurnController _turnController;
 
 	private int _round = 1;
 
@@ -44,6 +45,8 @@ public class GameController: MonoBehaviour
 		PlayersBoardData playersBoardData = await _aiJsonGenerator.GetJsonBoardAndPlayers();
 		CreateBoard(playersBoardData.board);
 		_popupsController.HideWelcome();
+
+		await _popupsController.ShowBoardDataPopup(_boardController.BoardData);
 
 		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers(playersBoardData.players);
 		_turnController = new TurnController(players, _popupsController);	
@@ -103,8 +106,6 @@ public class GameController: MonoBehaviour
 			if (playAgain)
 				continue;
 
-			CurrentPlayer.State = PlayerState.Waiting;
-
 			_turnController.NextTurn();
 
 		}
@@ -121,17 +122,24 @@ public class GameController: MonoBehaviour
 
 			case TileType.Question:
 				bool playAgain = await _popupsController.ShowQuestion(targetTile.TileData.question);
-				if (!playAgain)
+				if (playAgain)
+					CurrentPlayer.State = PlayerState.PlayAgain;
+				else
 					CurrentPlayer.State = PlayerState.OnQuestion;
+
 				return playAgain;
 
 			case TileType.TravelToTile:
 				await _boardController.TravelToNextTravelTile(CurrentPlayer);
+				CurrentPlayer.State = PlayerState.PlayAgain;
 				return true;
+
 			case TileType.LoseTurnsUntil:
 				CurrentPlayer.State = PlayerState.LostTurn;
 				break;
+
 			case TileType.RollDicesAgain:
+				CurrentPlayer.State = PlayerState.PlayAgain;
 				return true;
 		}
 
@@ -150,9 +158,9 @@ public class GameController: MonoBehaviour
 
 	#region Private Methods
 
-	private void CreateBoard(BoardData board)
+	private void CreateBoard(BoardData boardData)
 	{
-			_boardController = new BoardController(board, _boardCreator);
+			_boardController = new BoardController(boardData, _boardCreator);
 	}
 
 	#endregion

@@ -46,7 +46,7 @@ public class ChallengePopup : MonoBehaviour
             _noButton.gameObject.SetActive(false);
             _yesButton.gameObject.SetActive(false);
             _okButton.gameObject.SetActive(true);
-            _titleText.text = currentPlayer.Name + " tienes hasta el proximo turno para completar el siguiente desafío: ";
+            _titleText.text = currentPlayer.Name + " tienes hasta el proximo turno para completar el siguiente desafio: ";
 		}
 		else
 		{

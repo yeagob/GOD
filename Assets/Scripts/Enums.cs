@@ -2,10 +2,11 @@ using System;
 
 public enum PlayerState
 {
+	Waiting,
 	OnChallenge,
 	OnQuestion,
-	Waiting,
 	Playing,
+	PlayAgain,
 	LostTurn
 }
 
