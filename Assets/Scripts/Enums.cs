@@ -3,6 +3,7 @@ using System;
 public enum PlayerState
 {
 	OnChallenge,
+	OnQuestion,
 	Waiting,
 	Playing,
 	LostTurn

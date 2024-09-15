@@ -9,6 +9,7 @@ public class PopupsController : MonoBehaviour
 	[SerializeField] private WelcomePopups _welcomePopups;
 	[SerializeField] private ChallengePopup _challengePopup;
 	[SerializeField] private RollDicePopup _rollDicePopup;
+	[SerializeField] private QuestionPopup _questionPopup;
 	[SerializeField] private PlayerTurnPopup _playerTurnPopup;
 	[SerializeField] private VictoryPopup _victoryPopup;
 	[SerializeField] private PlayerCreationController _playerCreationController;
@@ -42,9 +43,9 @@ public class PopupsController : MonoBehaviour
 		await _playerTurnPopup.ShowAsync(currentPlayer);
 	}
 
-	public async Task<bool> ShowChallengePlayer(Player currentPlayer)
+	public async Task<bool> ShowChallengePlayer(Player currentPlayer, bool firstTime)
 	{
-		return await _challengePopup.ShowAsync(currentPlayer);
+		return await _challengePopup.ShowAsync(currentPlayer, firstTime);
 	}
 
 	public async Task ShowPlayerDiceValue(int diceValue)
@@ -52,11 +53,12 @@ public class PopupsController : MonoBehaviour
 		await _rollDicePopup.ShowAsync(diceValue);
 
 	}
+	
+	public async Task<bool> ShowQuestion(QuestionData question)
+	{
+		return await _questionPopup.ShowAsync(question);
 
-	//public async Task<int> ShowRollDicePopup()
-	//{
-	//	return await _rollDicePopup.ShowAsync(false, false, true);
-	//}
+	}
 
 	//public void ShowVictoryPopup()
 	//{

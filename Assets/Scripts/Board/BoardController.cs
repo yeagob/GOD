@@ -65,6 +65,25 @@ public class BoardController
 		return _boardTiles[targetTileID];
 	}
 
+	internal async Task TravelToNextTravelTile(Player currentPlayer)
+	{
+		int currentTileID = currentPlayer.CurrentTile.TileData.id;
+		int nextTileID = 0;
+		for (int i = currentTileID + 1; i <= _boardTiles.Count; i++)
+		{
+			if (_boardTiles[i].TileType == TileType.TravelToTile)
+			{
+				nextTileID = i;
+				break;
+			}
+		}
+
+		if (nextTileID != 0)
+		{
+			int value = nextTileID - currentTileID;
+			await MoveToken(currentPlayer, value);
+		}
+	}
 	#endregion
 
 	#region Private Methods

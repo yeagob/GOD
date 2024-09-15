@@ -70,13 +70,26 @@ public class GameController: MonoBehaviour
 			//Player on Challenge
 			if (CurrentPlayer.State == PlayerState.OnChallenge)
 			{
-				bool completed = await _popupsController.ShowChallengePlayer(CurrentPlayer);
+				bool completed = await _popupsController.ShowChallengePlayer(CurrentPlayer, false);
 				if (!completed)
 				{
 					_turnController.NextTurn();
 					continue;
 				}
 			}
+			
+			//Player on Question Tile
+			if (CurrentPlayer.State == PlayerState.OnQuestion)
+			{
+				bool play = await _popupsController.ShowQuestion(CurrentTile.TileData.question);
+				if (!play)
+				{
+					_turnController.NextTurn();
+					continue;
+				}
+			}
+
+			CurrentPlayer.State = PlayerState.Playing;
 
 			//Roll Dice
 			int diceValue = await _diceController.RollDice();
@@ -85,30 +98,44 @@ public class GameController: MonoBehaviour
 			//Move Token
 			Tile targetTile = await _boardController.MoveToken(CurrentPlayer, diceValue);
 
-			await ApplyTileEffect(targetTile);
+			bool playAgain = await ApplyTileEffect(targetTile);
+
+			if (playAgain)
+				continue;
+
+			CurrentPlayer.State = PlayerState.Waiting;
 
 			_turnController.NextTurn();
 
 		}
 	}
 
-	private async Task ApplyTileEffect(Tile targetTile)
+	private async Task<bool> ApplyTileEffect(Tile targetTile)
 	{
 		switch (targetTile.TileType)
 		{
 			case TileType.Challenge:
-				break;
+				CurrentPlayer.State = PlayerState.OnChallenge;
+				await _popupsController.ShowChallengePlayer(CurrentPlayer, true);
+				return false;
+
 			case TileType.Question:
-				break;
+				bool playAgain = await _popupsController.ShowQuestion(targetTile.TileData.question);
+				if (!playAgain)
+					CurrentPlayer.State = PlayerState.OnQuestion;
+				return playAgain;
+
 			case TileType.TravelToTile:
-				break;
+				await _boardController.TravelToNextTravelTile(CurrentPlayer);
+				return true;
 			case TileType.LoseTurnsUntil:
+				CurrentPlayer.State = PlayerState.LostTurn;
 				break;
 			case TileType.RollDicesAgain:
-				break;
+				return true;
 		}
 
-		await Task.Yield();
+		return false;
 	}
 
 	private void MovePlayerToInitialTile(List<Player> players)
