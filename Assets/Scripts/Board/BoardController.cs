@@ -69,8 +69,8 @@ public class BoardController
 		if (targetTileID > FinishTileID + 1)
 		{
 			// Rebota: Calculamos el exceso y retrocedemos esa cantidad desde la meta + 1
-			int excess = targetTileID - (FinishTileID + 1);
-			int bounceBackTileID = (FinishTileID + 1) - excess;
+			int excess = targetTileID - FinishTileID;
+			int bounceBackTileID = FinishTileID - excess;
 
 			// Movemos el token hacia atrás desde la meta hasta la casilla correcta
 			for (int i = FinishTileID; i >= bounceBackTileID; i--)

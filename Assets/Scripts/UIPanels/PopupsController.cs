@@ -75,10 +75,11 @@ public class PopupsController : MonoBehaviour
 
 	}
 
-	public async Task ShowGenericMessage(string message, float time = 3)
+	public async Task ShowGenericMessage(string message, float time = 3, Color color = default)
 	{
 		_genericText.gameObject.SetActive(true);
 		_genericText.text = message;
+		_genericText.color = color;
 		_genericText.transform.localScale = Vector3.zero;
 
 		// Animar de pequeño a grande (scale=1)

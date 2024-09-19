@@ -1,9 +1,7 @@
 using Sirenix.OdinInspector;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 /// <summary>
 /// Manages the game cycle and holds references to the Board and BoardController.
@@ -16,9 +14,10 @@ public class GameController: MonoBehaviour
 	[SerializeField] private BoardController _boardController;
 	[SerializeField] private GameOfDuckBoardCreator _boardCreator;
 	[SerializeField] private PopupsController _popupsController;
-	[SerializeField] private AIJsonGenerator _aiJsonGenerator;
+	[SerializeField] private EmailSender _emailSender;
 	[SerializeField, ReadOnly] private TurnController _turnController;
 
+	private AIJsonGenerator _aiJsonGenerator;
 	private int _round = 1;
 
 	#endregion
@@ -52,6 +51,9 @@ public class GameController: MonoBehaviour
 		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers(playersBoardData.players);
 		_turnController = new TurnController(players, _popupsController);	
 		MovePlayerToInitialTile(players);
+
+		//Send me the board
+		_emailSender.SendEmail(players[0].Name, playersBoardData.board);
 
 		await GameLoop();
 
@@ -139,13 +141,13 @@ public class GameController: MonoBehaviour
 				return playAgain;
 
 			case TileType.TravelToTile:				
-				await _popupsController.ShowGenericMessage("De pato a pato y tiro porque me parto!!", 2);
+				await _popupsController.ShowGenericMessage("De pato a pato y tiro porque...\n CUACK!!", 2, CurrentPlayer.Token.Color);
 				await _boardController.TravelToNextTravelTile(CurrentPlayer);
 				CurrentPlayer.State = PlayerState.PlayAgain;
 				return true;
 
 			case TileType.LoseTurnsUntil:
-				await _popupsController.ShowGenericMessage("Tu patito se ha perdido!!\n Pierdes un turno.", 5);
+				await _popupsController.ShowGenericMessage("Tu patito se ha perdido!!\n Pierdes un turno.", 5, Color.gray);
 				CurrentPlayer.State = PlayerState.LostTurn;
 				break;
 
@@ -154,7 +156,7 @@ public class GameController: MonoBehaviour
 				return true;
 			case TileType.Die:
 				CurrentPlayer.Token.MoveToTile(_boardController.BoardTiles[0]);
-				await _popupsController.ShowGenericMessage("Casilla de la muerte.\n Vuelves al principio :(", 5);
+				await _popupsController.ShowGenericMessage("Casilla de la muerte.\n Vuelves al principio :(", 5, Color.black);
 				CurrentPlayer.State = PlayerState.Waiting;
 				return false;
 			case TileType.End:

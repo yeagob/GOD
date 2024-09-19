@@ -59,7 +59,7 @@ public class QuestionPopup : MonoBehaviour
         else
         {
             _isCorrectAnswer = false;
-            _resultText.text = "Has Fallado!\n Pierdes un turno...";
+            _resultText.text = "Has Fallado...\n Pasa turno!";
             _resultText.color = Color.red;
         }
 

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System;
 using UnityEngine.UI;
 using UnityEngine;
 using System.Threading.Tasks;
@@ -8,6 +7,7 @@ using UnityEngine.EventSystems;
 
 public class PlayerCreationController : MonoBehaviour
 {
+
 	#region Fields
 
 	[SerializeField] private TMP_InputField[] _playerNameInputs;
@@ -100,4 +100,5 @@ public class PlayerCreationController : MonoBehaviour
 
 	}
 	#endregion
+
 }

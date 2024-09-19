@@ -8,8 +8,8 @@ using UnityEngine.UI;
 
 public class QuestionPanel : MonoBehaviour
 {
-	const string QUIESTION1 = "Escribe de que quieres que vaya el juego. Algo que te apasione o que quieras mejorar en la vida";
-	const string QUIESTION2 = "Escribe con quien vas a jugar esta partida. Puedes jugar solo, pon tu nombre en ese caso.";
+	const string QUIESTION1 = "Escribe detalladamente de que quiers que vaya el juego.";
+	const string QUIESTION2 = "Escribe con quien vas a jugar esta partida. Pon los nombres de los players.";
 
 	[SerializeField] private TextMeshProUGUI _questionText;
 	[SerializeField] private TMP_InputField _answerInput;
