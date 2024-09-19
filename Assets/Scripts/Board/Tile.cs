@@ -18,6 +18,12 @@ public class Tile : MonoBehaviour
 	// Images
 	[Header("Start Tiles")]
 	[SerializeField] private Sprite[] _startSpriteTiles;
+	[Header("Challenges")]
+	[SerializeField] private Sprite[] _challengeSpriteTiles;
+	[Header("Questions")]
+	[SerializeField] private Sprite[] _questionSpriteTiles;
+	[Header("Die")]
+	[SerializeField] private Sprite[] _dieSpriteTiles;
 	[Header("Lost Turn")]
 	[SerializeField] private Sprite[] _turnSpriteTiles;
 	[Header("Dice Again")]
@@ -50,10 +56,12 @@ public class Tile : MonoBehaviour
 			case TileType.Challenge:
 				//GetURLImage(tileData.challenge.url_image);
 				_tileDescriptionText.text = tileData.challenge.description;
+				_tileImage.sprite = _challengeSpriteTiles[UnityEngine.Random.Range(0, _challengeSpriteTiles.Length)];
 				break;
 			case TileType.Question:
 				//GetURLImage(tileData.challenge.url_image);
 				_tileDescriptionText.text = tileData.question.statement;
+				_tileImage.sprite = _questionSpriteTiles[UnityEngine.Random.Range(0, _questionSpriteTiles.Length)];
 				break;
 			case TileType.LoseTurnsUntil:
 				_tileImage.sprite = _turnSpriteTiles[UnityEngine.Random.Range(0, _turnSpriteTiles.Length)];
@@ -64,8 +72,11 @@ public class Tile : MonoBehaviour
 			case TileType.TravelToTile:
 				_tileImage.sprite = _travelSpriteTiles[UnityEngine.Random.Range(0, _travelSpriteTiles.Length)];
 				break;
+			case TileType.Die:
+				_tileImage.sprite = _dieSpriteTiles[UnityEngine.Random.Range(0, _dieSpriteTiles.Length)];
+				break;
 			case TileType.End:
-				// Assuming no image for End or handled differently
+				Destroy(_tileImage);
 				break;
 		}
 	}

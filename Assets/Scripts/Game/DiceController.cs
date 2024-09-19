@@ -45,13 +45,13 @@ public class DiceController : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        gameObject.SetActive(false);
+		_diceCamera.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
     public async Task<int> RollDice()
     {
-        gameObject.SetActive(true);
+		_diceCamera.gameObject.SetActive(true);
 
         _diceRb.WakeUp();
         _diceRb.transform.localPosition = _initialRollPosition;
@@ -66,7 +66,7 @@ public class DiceController : MonoBehaviour
             await Task.Yield();
         }
 
-        gameObject.SetActive(false);
+		_diceCamera.gameObject.SetActive(false);
 
         for (int i = 0; i < 6; i++)
 		{

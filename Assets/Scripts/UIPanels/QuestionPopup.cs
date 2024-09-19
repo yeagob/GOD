@@ -53,13 +53,13 @@ public class QuestionPopup : MonoBehaviour
         if (index == _currentQuestion.correctId)
         {
             _isCorrectAnswer = true;
-            _resultText.text = "Correcto! Tira de nuevo!";
+            _resultText.text = "Correcto!\n Tira de nuevo!";
             _resultText.color = Color.blue;
         }
         else
         {
             _isCorrectAnswer = false;
-            _resultText.text = "No has acertado, pierdes un turno...";
+            _resultText.text = "Has Fallado!\n Pierdes un turno...";
             _resultText.color = Color.red;
         }
 
@@ -98,7 +98,7 @@ public class QuestionPopup : MonoBehaviour
         _questionText.text = question.statement;
         for (int i = 0; i < _answersText.Length; i++)
         {
-            if (i < question.options.Count)
+            if (i < question.options.Length)
             {
                 _answersText[i].text = question.options[i];
             }

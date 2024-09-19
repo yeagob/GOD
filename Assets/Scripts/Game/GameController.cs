@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Manages the game cycle and holds references to the Board and BoardController.
@@ -53,6 +54,15 @@ public class GameController: MonoBehaviour
 		MovePlayerToInitialTile(players);
 
 		await GameLoop();
+
+		await _popupsController.ShowGenericMessage("Ha Ganado "+CurrentPlayer.Name+"!!!", 10);
+		await _popupsController.ShowGenericMessage("Ahora se creara el Nivel 2 de este tablero!!", 10);
+		await _popupsController.ShowGenericMessage("No, que va, hasta aqui llega la demo, te reinicio la partida por si quieres echar otra...", 10);
+
+		MovePlayerToInitialTile(players);
+
+		await GameLoop();
+
 	}
 
 	private async Task GameLoop()
@@ -107,7 +117,6 @@ public class GameController: MonoBehaviour
 				continue;
 
 			_turnController.NextTurn();
-
 		}
 	}
 
@@ -129,28 +138,39 @@ public class GameController: MonoBehaviour
 
 				return playAgain;
 
-			case TileType.TravelToTile:
+			case TileType.TravelToTile:				
+				await _popupsController.ShowGenericMessage("De pato a pato y tiro porque me parto!!", 2);
 				await _boardController.TravelToNextTravelTile(CurrentPlayer);
 				CurrentPlayer.State = PlayerState.PlayAgain;
 				return true;
 
 			case TileType.LoseTurnsUntil:
+				await _popupsController.ShowGenericMessage("Tu patito se ha perdido!!\n Pierdes un turno.", 5);
 				CurrentPlayer.State = PlayerState.LostTurn;
 				break;
 
 			case TileType.RollDicesAgain:
 				CurrentPlayer.State = PlayerState.PlayAgain;
 				return true;
+			case TileType.Die:
+				CurrentPlayer.Token.MoveToTile(_boardController.BoardTiles[0]);
+				await _popupsController.ShowGenericMessage("Casilla de la muerte.\n Vuelves al principio :(", 5);
+				CurrentPlayer.State = PlayerState.Waiting;
+				return false;
+			case TileType.End:
+				return true;
 		}
 
 		return false;
 	}
 
+	//TODO: Move to Board!!
 	private void MovePlayerToInitialTile(List<Player> players)
 	{
-		foreach (var item in players)
+		foreach (Player player in players)
 		{
-			item.Token.MoveToTile(_boardController.BoardTiles[0]);
+			player.State = PlayerState.Waiting;
+			player.Token.MoveToTile(_boardController.BoardTiles[0]);
 		}
 	}
 

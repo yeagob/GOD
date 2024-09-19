@@ -126,14 +126,26 @@ MonoBehaviour:
   _tileImage: {fileID: 7399170056351690281}
   _tileButton: {fileID: 7999709140126930288}
   _startSpriteTiles:
-  - {fileID: 21300000, guid: 97dad446e42e182418e7cc7aaebf5a65, type: 3}
   - {fileID: 21300000, guid: 21651676a2269e54e9cf16ef8531a30d, type: 3}
-  - {fileID: 21300000, guid: 611655e7d5108c24ba3a8b5ff5eeb3d6, type: 3}
-  - {fileID: 21300000, guid: 2493aee11f20ce84fbf0324da742ed40, type: 3}
-  - {fileID: 21300000, guid: d6a5efe022685444ea95c2ddd1a1679f, type: 3}
+  _challengeSpriteTiles:
+  - {fileID: 21300000, guid: caaa476f3ae4e8547819a0b2d20feabb, type: 3}
+  - {fileID: 21300000, guid: cf225eec42d7ad84cb4f04fa51e3764e, type: 3}
+  - {fileID: 21300000, guid: 4c5336e112359fc48b121c10d3096af9, type: 3}
+  - {fileID: 21300000, guid: c9d27485dad1f104c83e58f609bc1c4c, type: 3}
+  - {fileID: 21300000, guid: 685a030b171e891468a671b591874a9a, type: 3}
+  _questionSpriteTiles:
+  - {fileID: 21300000, guid: 294f0e96505d3a644820a8a02c7b4e7e, type: 3}
+  - {fileID: 21300000, guid: 53a385107e44b7f49ac213fdb3cd1dc1, type: 3}
+  - {fileID: 21300000, guid: eca572692c1fee84b99d70851053864f, type: 3}
+  - {fileID: 21300000, guid: 8f625aaa384f4854a8ee42a10cbeea43, type: 3}
+  _dieSpriteTiles:
+  - {fileID: 21300000, guid: 5de629e087cca6444912aeca078f9c41, type: 3}
+  - {fileID: 21300000, guid: dbcc3d2f6381ccf4793e63952f940399, type: 3}
+  - {fileID: 21300000, guid: 4e83d86dac8d9614fbde84c178b91e93, type: 3}
   _turnSpriteTiles:
-  - {fileID: 21300000, guid: bf4133098f52ebe45bd14a849f670b41, type: 3}
-  - {fileID: 21300000, guid: c780e5dcc2949b24fa5d068980942673, type: 3}
+  - {fileID: 21300000, guid: 46f28815c8946bc4e807359afe779366, type: 3}
+  - {fileID: 21300000, guid: c371aea65f9d06242bcb498622fd6269, type: 3}
+  - {fileID: 21300000, guid: b924999d4445cc447806cfbcf42421b9, type: 3}
   _diceSpriteTiles:
   - {fileID: 21300000, guid: 8658624ab07ce234195a80cae9d2c904, type: 3}
   - {fileID: 21300000, guid: 5b6ad2794302bec43b80e8baccc5fa50, type: 3}

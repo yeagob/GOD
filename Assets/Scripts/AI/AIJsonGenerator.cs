@@ -17,14 +17,6 @@ public class GameData
 }
 
 [Serializable]
-public class QuestionData
-{
-	public string statement;
-	public List<string> options;
-	public int correctId;
-}
-
-[Serializable]
 
 public class PlayersBoardData
 {
@@ -127,8 +119,7 @@ public class AIJsonGenerator
 	{
 		return "Responde únicamente con un JSON siguiendo esta estructura exacta: La clase principal tiene los siguientes campos: name de tipo string, proposal de tipo string que es la descripción basada en los intereses y deseos proporcionados en: "
 			+ _answer1 + ". players es una lista de strings que contiene el/los nombres de el/los jugador(es) basado en este input: "
-			+ _answer2 + ". challenges es una lista de strings donde cada elemento es la descripción de un desafío breve y claro, de entre 1 y 3 minutos de duración. Ejemplos de challenges: 'descripción breve y clara de un desafío relevante a la propuesta'. questions es una lista de objetos, donde cada objeto tiene tres campos: statement de tipo string que es el enunciado de la pregunta relacionada con la propuesta, options que es una lista de cuatro strings representando las opciones de respuesta, y correctId que es un entero entre 0 y 3 indicando el índice de la respuesta correcta. Ejemplos de preguntas: { statement: 'enunciado de la dificil pregunta', options: ['opción 1', 'opción 2', 'opción 3', 'opción 4'], correctId: índice de la respuesta correcta }. Genera 10 challenges y 10 questions siguiendo esta estructura. La proposal basada en: "
-			+ _answer1 + ", será el tema de la sesión, en el que se basarán los challenges y las questions. Los challenges pueden implicar a otros jugadores(solo si los hay!), pueden ser pruebas de dibujar, actuar, hacer algo o incluso ver un video de internet. El tono es divertido e informal. Siempre se intentará buscar el crecimiento en relación a la proposal. Recuerda: debes responder únicamente con un JSON siguiendo exactamente la estructura indicada, sin comentarios adicionales ni explicaciones. Todo el contenido en castellano y en texto normal, no snipet de código!";
-
+			+ _answer2 + ". challenges es una lista de strings donde cada elemento es la descripción de un desafío breve y claro, de entre 1 y 3 minutos de duración, pequeños juegos psicomágicos, que persigan el proposal. Ejemplo de challenges: 'descripción breve y clara de un desafío relevante a la propuesta'. questions es una lista de objetos, donde cada objeto tiene tres campos: statement de tipo string que es el enunciado de la pregunta relacionada con la propuesta, options que es una lista de cuatro strings representando las opciones de respuesta, y correctId que es un entero entre 0 y 3 indicando el índice de la respuesta correcta. Ejemplos de preguntas: { statement: 'enunciado de la dificil pregunta', options: ['opción 0 la correcta', 'opción 1 probable pero incorrecta', 'opción 2 opción trampa', 'opción 3 sería corrcta en otro context'], correctId: 0 }. Genera 10 challenges y 10 questions, profundas, la respuesta correcta no es siempre la 0. La proposal basada en: "
+			+ _answer1 + ", que será el tema de la sesión, en el que se basarán los challenges y las questions( que son de tipo quiz, pensadas para APRENDER en profundidad sobre el proposal!). Los challenges pueden implicar a otros jugadores(solo si los hay!), pueden ser pruebas de dibujar, actuar, hacer algo o incluso ver un video de internet, PERO CON EL ESPÍRITU PSICOMÁGICO. El tono es divertido e informal. Siempre se intentará buscar el crecimiento en relación a la proposal. Recuerda: debes responder únicamente con un JSON siguiendo exactamente la estructura indicada, sin comentarios adicionales ni explicaciones. Usa genero con @(ej: jugador@s) siempre que puedas.  Todo el contenido en castellano y en texto normal, no snipet de código!";
 	}
 }

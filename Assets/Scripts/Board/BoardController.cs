@@ -12,6 +12,7 @@ using UnityEngine;
 [Serializable]
 public class BoardController
 {
+	const int FinishTileID = 39;
 	#region Fields
 
 	[SerializeField, ReadOnly] private BoardData _boardData;
@@ -23,6 +24,8 @@ public class BoardController
 
 	public BoardData BoardData => _boardData;
 	public List<Tile> BoardTiles { get => _boardTiles; }
+
+	public event Action<Player> OnPlayerEndsBoard;
 
 	#endregion
 
@@ -47,30 +50,60 @@ public class BoardController
 		int targetTileID = currentTileID + diceValue;
 
 		float jumpPower = 2f;
-		float jumpDuration = 0.7f;      
+		float jumpDuration = 0.7f;
 
 		Sequence tokenMoveSequence = DOTween.Sequence();
 
-		for (int i = currentTileID+1; i <= targetTileID; i++)
+		// Primero, movemos el token hacia adelante hasta la casilla de meta o hasta donde pueda
+		int forwardEndTileID = Mathf.Min(targetTileID, FinishTileID);
+
+		for (int i = currentTileID + 1; i <= forwardEndTileID; i++)
 		{
 			Vector3 targetPosition = _boardTiles[i].transform.position;
 
-			// Add each jump to the sequence
+			// Agregamos cada salto hacia adelante a la secuencia
 			tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, jumpPower, 1, jumpDuration).SetEase(Ease.OutQuad));
+		}
+
+		// Verificamos si el jugador se pasa de la meta + 1
+		if (targetTileID > FinishTileID + 1)
+		{
+			// Rebota: Calculamos el exceso y retrocedemos esa cantidad desde la meta + 1
+			int excess = targetTileID - (FinishTileID + 1);
+			int bounceBackTileID = (FinishTileID + 1) - excess;
+
+			// Movemos el token hacia atrás desde la meta hasta la casilla correcta
+			for (int i = FinishTileID; i >= bounceBackTileID; i--)
+			{
+				Vector3 targetPosition = _boardTiles[i].transform.position;
+
+				// Agregamos cada salto hacia atrás a la secuencia
+				tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, jumpPower, 1, jumpDuration).SetEase(Ease.OutQuad));
+			}
+
+			targetTileID = bounceBackTileID; // Actualizamos la casilla objetivo
+		}
+		else if (targetTileID == FinishTileID || targetTileID == FinishTileID + 1)
+		{
+			// El jugador llega exactamente a la meta o a la meta + 1
+			// Emitimos el evento de fin de juego
+			OnPlayerEndsBoard?.Invoke(currentPlayer);
+			targetTileID = FinishTileID; // Aseguramos que el jugador esté en la casilla de meta
 		}
 
 		await tokenMoveSequence.AsyncWaitForCompletion();
 
+		// Actualizamos la posición del token y la casilla actual del jugador
 		currentPlayer.Token.MoveToTile(_boardTiles[targetTileID]);
 
 		return _boardTiles[targetTileID];
 	}
 
-	internal async Task TravelToNextTravelTile(Player currentPlayer)
+	public async Task TravelToNextTravelTile(Player currentPlayer)
 	{
 		int currentTileID = currentPlayer.CurrentTile.TileData.id;
 		int nextTileID = 0;
-		for (int i = currentTileID + 1; i <= _boardTiles.Count; i++)
+		for (int i = currentTileID + 1; i < _boardTiles.Count; i++)
 		{
 			if (_boardTiles[i].TileType == TileType.TravelToTile)
 			{

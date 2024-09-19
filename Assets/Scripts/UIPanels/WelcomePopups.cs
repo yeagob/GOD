@@ -14,8 +14,8 @@ public class WelcomePopups : MonoBehaviour
     [SerializeField] private Button _letsgoButton;
 
     //Answers
-    private string _answer1;
-    private string _answer2;
+    private string _answer1 = "";
+    private string _answer2  = "";
 
 	private void Awake()
 	{
@@ -34,7 +34,8 @@ public class WelcomePopups : MonoBehaviour
             await Task.Yield();
 
 		_answer1 = await _questionPanel.ShowQuestionOne();
-		_answer2 = await _questionPanel.ShowQuestionTwo();
+        if (_answer1 != "") 
+		    _answer2 = await _questionPanel.ShowQuestionTwo();
 
         _creatingPanel.SetActive(true);
 

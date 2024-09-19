@@ -21,6 +21,7 @@ public enum TileType
 	LoseTurnsUntil,
 	RollDicesAgain,
 	Question,
+	Die,
 	End
 }
 

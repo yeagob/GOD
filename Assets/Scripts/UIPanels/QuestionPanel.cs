@@ -14,10 +14,18 @@ public class QuestionPanel : MonoBehaviour
 	[SerializeField] private TextMeshProUGUI _questionText;
 	[SerializeField] private TMP_InputField _answerInput;
 	[SerializeField] private Button _answerButton;
+	[SerializeField] private Button _defaultButton;
 	private void Awake()
 	{
 		_answerButton.onClick.AddListener(Done);
+		_defaultButton.onClick.AddListener(Default);
 		gameObject.SetActive(false);
+	}
+
+	private void Default()
+	{
+		_answerInput.text = "";
+		Done();
 	}
 
 	private void Done()
@@ -30,9 +38,11 @@ public class QuestionPanel : MonoBehaviour
 		gameObject.SetActive(true);
 		_questionText.text = QUIESTION1;
 		_answerInput.text = string.Empty;
+
 		while (gameObject.activeSelf)
 			await Task.Yield();
 
+		_defaultButton.gameObject.SetActive(false);
 		return _answerInput.text;
 	}
 

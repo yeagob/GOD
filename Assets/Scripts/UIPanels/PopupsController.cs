@@ -1,10 +1,18 @@
-using System;
+using DG.Tweening;
+using DG.Tweening.Core;
+using DG.Tweening.Core.Enums;
+using DG.Tweening.CustomPlugins;
+using DG.Tweening.Plugins.Core;
+using DG.Tweening.Plugins.Core.PathCore;
+using DG.Tweening.Plugins.Options;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 public class PopupsController : MonoBehaviour
 {
 	#region Fields
+	[SerializeField] private TextMeshProUGUI _genericText;
 
 	[SerializeField] private WelcomePopups _welcomePopups;
 	[SerializeField] private ChallengePopup _challengePopup;
@@ -65,6 +73,41 @@ public class PopupsController : MonoBehaviour
 	{
 		await _boardDataPopup.ShowAsync(board);
 
+	}
+
+	public async Task ShowGenericMessage(string message, float time = 3)
+	{
+		_genericText.gameObject.SetActive(true);
+		_genericText.text = message;
+		_genericText.transform.localScale = Vector3.zero;
+
+		// Animar de pequeño a grande (scale=1)
+		Tween scaleUp = _genericText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
+
+		// Esperar a que la animación de escala hacia arriba se complete
+		await scaleUp.AsyncWaitForCompletion();
+
+		// Crear tareas para el retraso y la entrada del usuario		
+		await WaitForInput(time);
+
+		// Animar de grande a pequeño
+		Tween scaleDown = _genericText.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack);
+		await scaleDown.AsyncWaitForCompletion();
+
+		_genericText.gameObject.SetActive(false);
+	}
+
+	private async Task WaitForInput(float time)
+	{		
+		while (time > 0)
+		{
+			if (Input.anyKeyDown || Input.GetMouseButtonDown(0))
+			{
+				break;
+			}
+			await Task.Yield();
+			time -= Time.deltaTime;
+		}
 	}
 
 	//public void ShowVictoryPopup()

@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static Michsky.DreamOS.GameHubData;
 
 /// <summary>
-/// Represents a game board containing tiles and managing its lifecycle.
+/// Representa un tablero de juego que contiene tiles y gestiona su ciclo de vida.
 /// </summary>
 [Serializable]
 public class BoardData
@@ -28,6 +29,10 @@ public class BoardData
 
 	public BoardData(GameData data)
 	{
+		int[] rollAgainIds = new int[] { 2, 10, 17, 24, 29 };
+		int[] travelToIds = new int[] { 1, 7, 13, 21, 25, 33 };
+		int[] loseTurnIds = new int[] { 6, 18, 22, 30, 27, 34};
+
 		// Asignar el name y proposal de GameData
 		this.name = data.name;
 		this.proposal = data.proposal;
@@ -40,7 +45,6 @@ public class BoardData
 		{
 			id = 0,
 			type = TileType.Start.ToString(),
-			challenge = null // No challenge for Start
 		};
 
 		// La última Tile es de tipo End
@@ -48,88 +52,149 @@ public class BoardData
 		{
 			id = 39,
 			type = TileType.End.ToString(),
-			challenge = null // No challenge for End
 		};
 
-		// Resto de Tiles aleatorias entre los otros tipos
-		System.Random rand = new System.Random();
+		// Listas de challenges y questions disponibles
 		List<string> availableChallenges = new List<string>(data.challenges);
 		List<QuestionData> availableQuestions = new List<QuestionData>(data.questions);
 
+		// Mezclar las listas para asegurar aleatoriedad
+		Shuffle(availableChallenges);
+		Shuffle(availableQuestions);
+
+		// Asignar las tiles fijas y las restantes
 		for (int i = 1; i < 39; i++) // Excluyendo Start y End
 		{
-			// Determinar si esta tile será de tipo Challenge (25% de probabilidades)
-			bool isChallenge = rand.Next(100) < 30 && availableChallenges.Count > 0;
-			bool isQuestion = !isChallenge && rand.Next(100) < 50 && availableQuestions.Count > 0;
-
-			if (isChallenge)
+			if (Array.Exists(rollAgainIds, id => id == i))
 			{
-				// Seleccionar un challenge de la lista y asignarlo
-				string challengeDescription = availableChallenges[0];
-				availableChallenges.RemoveAt(0); // Remover el challenge usado
-
 				tiles[i] = new TileData
 				{
 					id = i,
-					type = TileType.Challenge.ToString(),
-					challenge = new ChallengeData
-					{
-						description = challengeDescription,
-						url_image = "" // Asignar URL si es necesario
-					}
+					type = TileType.RollDicesAgain.ToString()
 				};
-
 			}
-			else if (isQuestion)
+			else if (Array.Exists(travelToIds, id => id == i))
 			{
-				// Seleccionar una question de la lista y asignarlo
-				QuestionData question = availableQuestions[0];
-				availableQuestions.RemoveAt(0); // Remover el challenge usado
-
 				tiles[i] = new TileData
 				{
 					id = i,
-					type = TileType.Question.ToString(),
-					question = new QuestionData
-					{
-						statement = question.statement,
-						options = question.options,
-						correctId = question.correctId
-					}
+					type = TileType.TravelToTile.ToString()
+				};
+			}
+			else if (Array.Exists(loseTurnIds, id => id == i))
+			{
+				tiles[i] = new TileData
+				{
+					id = i,
+					type = TileType.LoseTurnsUntil.ToString()
 				};
 			}
 			else
 			{
-				// Tile aleatoria entre los otros tipos (sin contar Start y End)
-				TileType randomType = GetRandomTileType();
-				tiles[i] = new TileData
+				// Asignar aleatoriamente entre Question y Challenge, 50% cada uno
+				if (availableChallenges.Count == 0 && availableQuestions.Count == 0)
 				{
-					id = i,
-					type = randomType.ToString(),
-				};
+					string challengeDescription = data.challenges[UnityEngine.Random.Range(0, data.challenges.Count)];
+					// Si no quedan challenges ni questions disponibles. Asignamos un challenge random extra.
+					tiles[i] = new TileData
+					{
+						id = i,
+						type = TileType.Challenge.ToString(),
+						challenge = new ChallengeData
+						{
+							description = challengeDescription,
+							url_image = "" // Asignar URL si es necesario
+						},
+						question = null
+					};				
+				}
+				else if (availableChallenges.Count == 0)
+				{
+					// Solo quedan questions
+					AssignQuestionTile(i, availableQuestions);
+				}
+				else if (availableQuestions.Count == 0)
+				{
+					// Solo quedan challenges
+					AssignChallengeTile(i, availableChallenges);
+				}
+				else
+				{
+					// Ambos disponibles
+					System.Random rand = new System.Random();
+					if (rand.Next(100) < 50)
+					{
+						AssignChallengeTile(i, availableChallenges);
+					}
+					else
+					{
+						AssignQuestionTile(i, availableQuestions);
+					}
+				}
 			}
 		}
+
+		// La última 37 es de tipo Die
+		tiles[37] = new TileData
+		{
+			id = 37,
+			type = TileType.Die.ToString(),
+		};
 
 		Debug.Log("Board Data: " + JsonUtility.ToJson(this));
 	}
 
-	private TileType GetRandomTileType()
+	private void AssignChallengeTile(int index, List<string> availableChallenges)
 	{
-		// Excluyendo Start, End, y Challenge de las opciones aleatorias
-		TileType[] tileTypes = new TileType[]
-		{
-			TileType.TravelToTile,
-			TileType.LoseTurnsUntil,
-			TileType.RollDicesAgain,
-		};
+		// Seleccionar un challenge de la lista y asignarlo
+		string challengeDescription = availableChallenges[0];
+		availableChallenges.RemoveAt(0); // Remover el challenge usado
 
+		tiles[index] = new TileData
+		{
+			id = index,
+			type = TileType.Challenge.ToString(),
+			challenge = new ChallengeData
+			{
+				description = challengeDescription,
+				url_image = "" // Asignar URL si es necesario
+			},
+			question = null
+		};
+	}
+
+	private void AssignQuestionTile(int index, List<QuestionData> availableQuestions)
+	{
+		// Seleccionar una question de la lista y asignarla
+		QuestionData question = availableQuestions[0];
+		availableQuestions.RemoveAt(0); // Remover la question usada
+
+		tiles[index] = new TileData
+		{
+			id = index,
+			type = TileType.Question.ToString(),
+			question = question,
+			challenge = null
+		};
+	}
+
+	// Método para mezclar listas
+	private void Shuffle<T>(List<T> list)
+	{
 		System.Random rand = new System.Random();
-		return tileTypes[rand.Next(tileTypes.Length)];
+		int n = list.Count;
+		while (n > 1)
+		{
+			int k = rand.Next(n--);
+			T temp = list[n];
+			list[n] = list[k];
+			list[k] = temp;
+		}
 	}
 }
 
 /// <summary>
-/// Represents a tile within the board.
+/// Representa una tile dentro del tablero.
 /// </summary>
 [Serializable]
 public class TileData
@@ -147,7 +212,7 @@ public class TileData
 }
 
 /// <summary>
-/// Represents a challenge associated with a tile.
+/// Representa un challenge asociado a una tile.
 /// </summary>
 [Serializable]
 public class ChallengeData
@@ -159,5 +224,16 @@ public class ChallengeData
 	//public int id;
 	//	public float time_in_minutes;
 	#endregion
+}
+
+/// <summary>
+/// Representa una pregunta asociada a una tile.
+/// </summary>
+[Serializable]
+public class QuestionData
+{
+	public string statement;
+	public string[] options;
+	public int correctId;
 }
 

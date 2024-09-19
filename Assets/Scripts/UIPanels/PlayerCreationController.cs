@@ -8,7 +8,6 @@ using UnityEngine.EventSystems;
 
 public class PlayerCreationController : MonoBehaviour
 {
-
 	#region Fields
 
 	[SerializeField] private TMP_InputField[] _playerNameInputs;
@@ -37,6 +36,15 @@ public class PlayerCreationController : MonoBehaviour
 		_okButton.onClick.AddListener(CreatePlayers);
 	}
 
+
+	private void Update()
+	{
+		bool play = false;
+		for (int i = 0; i < _playerNameInputs.Length; i++)
+			if (_playerNameInputs[i].text != "")
+				play = true;
+		_okButton.gameObject.SetActive(play);
+	}
 	#endregion
 
 	#region Private Methods
