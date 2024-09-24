@@ -1,13 +1,17 @@
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 
 /// <summary>
 /// Manages the game cycle and holds references to the Board and BoardController.
 /// </summary>
 public class GameController: MonoBehaviour
 {
+	public bool LoadDefault = false;
+
 	#region Fields
 
 	[SerializeField] private DiceController _diceController;
@@ -38,13 +42,28 @@ public class GameController: MonoBehaviour
 
 	private async void Start()
 	{
-		//Welcome
-		string [] answers = await _popupsController.ShowWelcome();
-		_aiJsonGenerator = new AIJsonGenerator(answers[0], answers[1]);
-		//Generate Board
-		PlayersBoardData playersBoardData = await _aiJsonGenerator.GetJsonBoardAndPlayers();
-		CreateBoard(playersBoardData.board);
-		_popupsController.HideWelcome();
+		PlayersBoardData playersBoardData;
+		if (Application.absoluteURL.Contains("board") || LoadDefault)
+		{
+			string boardData = await LoadTextFileAsync("adolescencia.json");
+			
+			CreateBoard(JsonUtility.FromJson<BoardData>(boardData));
+			_popupsController.HideWelcome();
+			 playersBoardData = new PlayersBoardData();
+			playersBoardData.players = new List<string>();
+
+		}
+		else
+		{
+			//Welcome
+			string[] answers = await _popupsController.ShowWelcome();
+			_aiJsonGenerator = new AIJsonGenerator(answers[0], answers[1]);
+			//Generate Board
+			playersBoardData = await _aiJsonGenerator.GetJsonBoardAndPlayers();
+			CreateBoard(playersBoardData.board);
+			_popupsController.HideWelcome();
+		}
+
 
 		await _popupsController.ShowBoardDataPopup(_boardController.BoardData);
 
@@ -183,6 +202,52 @@ public class GameController: MonoBehaviour
 	private void CreateBoard(BoardData boardData)
 	{
 			_boardController = new BoardController(boardData, _boardCreator);
+	}
+
+	/// <summary>
+	/// Loads a text file asynchronously from StreamingAssets and returns its content.
+	/// </summary>
+	private async Task<string> LoadTextFileAsync(string fileName)
+	{
+		string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
+
+		// For WebGL, we need to access the file via UnityWebRequest
+		if (filePath.Contains("://") || filePath.Contains(":///"))
+		{
+			using (UnityWebRequest www = UnityWebRequest.Get(filePath))
+			{
+				var request = www.SendWebRequest();
+
+				// Wait until the request is done
+				while (!request.isDone)
+				{
+					await Task.Yield();
+				}
+
+				if (www.result != UnityWebRequest.Result.Success)
+				{
+					Debug.LogError("Error loading file: " + www.error);
+					return null;
+				}
+				else
+				{
+					return www.downloadHandler.text;
+				}
+			}
+		}
+		else
+		{
+			// For non-WebGL platforms, we can read directly from the file system
+			if (File.Exists(filePath))
+			{
+				return await Task.Run(() => File.ReadAllText(filePath));
+			}
+			else
+			{
+				Debug.LogError("File not found: " + filePath);
+				return null;
+			}
+		}
 	}
 
 	#endregion
