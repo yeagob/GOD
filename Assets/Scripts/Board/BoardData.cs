@@ -11,6 +11,7 @@ public class BoardData
 {
 	public string name;
 	public string proposal;
+	public string autor;
 	public TileData[] tiles;
 
 	#region Future
@@ -103,7 +104,7 @@ public class BoardData
 						challenge = new ChallengeData
 						{
 							description = challengeDescription,
-							url_image = "" // Asignar URL si es necesario
+							//url_image = "" // Asignar URL si es necesario
 						},
 						question = null
 					};				
@@ -157,7 +158,7 @@ public class BoardData
 			challenge = new ChallengeData
 			{
 				description = challengeDescription,
-				url_image = "" // Asignar URL si es necesario
+				//url_image = "" // Asignar URL si es necesario
 			},
 			question = null
 		};
@@ -218,7 +219,7 @@ public class TileData
 public class ChallengeData
 {
 	public string description;
-	public string url_image;
+	//public string url_image;
 	#region Future
 
 	//public int id;

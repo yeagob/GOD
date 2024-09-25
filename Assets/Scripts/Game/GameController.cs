@@ -72,7 +72,11 @@ public class GameController: MonoBehaviour
 		MovePlayerToInitialTile(players);
 
 		//Send me the board
-		_emailSender.SendEmail(players[0].Name, playersBoardData.board);
+		if (!LoadDefault)
+		{
+			playersBoardData.board.autor = players[0].Name;
+			_emailSender.SendEmail(playersBoardData.board);
+		}
 
 		await GameLoop();
 

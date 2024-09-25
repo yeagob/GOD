@@ -35,12 +35,12 @@ public class EmailSender : MonoBehaviour
         }
     }
 
-    public void SendEmail(string player, BoardData data)
+    public void SendEmail(BoardData data)
     {
-        StartCoroutine(SendEmailCoroutine(player, JsonUtility.ToJson(data)));
+        StartCoroutine(SendEmailCoroutine(JsonUtility.ToJson(data)));
     }
 
-    IEnumerator SendEmailCoroutine(string player, string json)
+    IEnumerator SendEmailCoroutine(string json)
     {
         string url = "https://api.emailjs.com/api/v1.0/email/send";
 
@@ -49,7 +49,7 @@ public class EmailSender : MonoBehaviour
             "service_qbqixup",
             "template_h2d8gfe",
             "dq3pJiZPbQSZlH44C",
-            player,
+            "Duck",
             json
         );
 
