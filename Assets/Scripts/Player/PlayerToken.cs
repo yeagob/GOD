@@ -12,50 +12,68 @@ public class PlayerToken : MonoBehaviour
 	private string _name;
 	private Color _color;
 	private Tile _currentTile;
+	private Quaternion _initialRotation;
+
+	// Secuencia para encadenar múltiples Tweens
+	Sequence _danceSequence;
 
 	#endregion
 
 	#region Properties
+
 	public string Name => _name;
 	public Color Color => _color;
 	public Tile CurrentTile { get => _currentTile;  }
-	
+
 	#endregion
+
+	private void Start()
+	{
+		_initialRotation = transform.rotation;
+	}
 
 	#region Private Methods
 
-	private void ResetDuckState()
-	{
-		DOTween.Kill(transform);
-		HideEffects();
-	}
-
-	private void HideEffects()
-	{
-		_winEffect.SetActive(false);
-		_losseEffect.SetActive(false);
-	}
-
 	private void AnimateDuckDance()
 	{
-		// Sequence to chain multiple Tweens
-		Sequence danceSequence = DOTween.Sequence();
+		// Reiniciar rotación a la identidad
+		transform.rotation = Quaternion.identity;
 
-		// Rotation: Duck bobs head back (up in world, back relative to the duck)
-		danceSequence.Append(transform.DORotate(new Vector3(-30, 0, 0), 0.5f).SetEase(Ease.InOutQuad)); // Backwards rotation
-		danceSequence.Append(transform.DORotate(new Vector3(30, 0, 0), 0.5f).SetEase(Ease.InOutQuad));  // Forward rotation
+		_danceSequence = DOTween.Sequence();
 
-		// Translation: Duck moves forward and back in the defined axis
-		danceSequence.Append(transform.DOMove(transform.position + transform.forward * -0.5f, 0.5f).SetEase(Ease.InOutQuad)); // Moves back (relative forward)
-		danceSequence.Append(transform.DOMove(transform.position + transform.forward * 0.5f, 0.5f).SetEase(Ease.InOutQuad));  // Moves forward (relative back)
+		// Movimiento 1: El pato inclina la cabeza hacia atrás y se mueve hacia atrás
+		_danceSequence.Append(transform.DORotate(new Vector3(-30, 0, 0), 0.5f)
+			.SetRelative()
+			.SetEase(Ease.InOutSine));
+		_danceSequence.Join(transform.DOMove(transform.position + transform.forward * -0.5f, 0.5f)
+			.SetEase(Ease.InOutSine));
 
-		// Rotation around Y axis for some twist
-		danceSequence.Append(transform.DORotate(new Vector3(0, 45, 0), 0.5f).SetEase(Ease.InOutQuad));  // Twist right
-		danceSequence.Append(transform.DORotate(new Vector3(0, -45, 0), 0.5f).SetEase(Ease.InOutQuad)); // Twist left
+		// Movimiento 2: El pato inclina la cabeza hacia adelante y se mueve hacia adelante
+		_danceSequence.Append(transform.DORotate(new Vector3(30, 0, 0), 0.5f)
+			.SetRelative()
+			.SetEase(Ease.InOutSine));
+		_danceSequence.Join(transform.DOMove(transform.position + transform.forward * 0.5f, 0.5f)
+			.SetEase(Ease.InOutSine));
 
-		// Loop the sequence
-		danceSequence.SetLoops(-1, LoopType.Yoyo);
+		// Movimiento 3: El pato gira a la derecha
+		_danceSequence.Append(transform.DORotate(new Vector3(0, 45, 0), 0.5f)
+			.SetRelative()
+			.SetEase(Ease.InOutSine));
+
+		// Movimiento 4: El pato gira a la izquierda
+		_danceSequence.Append(transform.DORotate(new Vector3(0, -90, 0), 1.0f)
+			.SetRelative()
+			.SetEase(Ease.InOutSine));
+
+		// Movimiento 5: El pato vuelve al centro
+		_danceSequence.Append(transform.DORotate(new Vector3(0, 45, 0), 0.5f)
+			.SetRelative()
+			.SetEase(Ease.InOutSine));
+
+		// Bucle infinito sin pausas
+		_danceSequence.SetLoops(-1, LoopType.Restart);
 	}
+
 
 	#endregion
 
@@ -72,10 +90,16 @@ public class PlayerToken : MonoBehaviour
 	{
 		_currentTile = tile;
 		transform.position = tile.transform.position;
-
-		ResetDuckState();		
+	
 	}
 
+	public void ResetState()
+	{
+		_danceSequence.Kill();
+		_winEffect.SetActive(false);
+		_losseEffect.SetActive(false);
+		transform.rotation = _initialRotation;
+	}
 
 	//TODO ESTO DEBERÍA IR EN PLAYER, NO AQUI!
 	public void Win()
@@ -86,7 +110,7 @@ public class PlayerToken : MonoBehaviour
 
 	public void Loose()
 	{
-		_losseEffect.SetActive(false);
+		_losseEffect.SetActive(true);
 	}
 
 	#endregion

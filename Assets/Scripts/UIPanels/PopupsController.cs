@@ -76,8 +76,9 @@ public class PopupsController : MonoBehaviour
 
 	}
 
-	public async Task ShowGenericMessage(string message, float time = 3, Color color = default)
+	public async Task<bool> ShowGenericMessage(string message, float time = 3, Color color = default)
 	{
+		bool userInteraction = false;
 		if (color == default)
 			color = Color.white;
 
@@ -93,26 +94,29 @@ public class PopupsController : MonoBehaviour
 		await scaleUp.AsyncWaitForCompletion();
 
 		// Crear tareas para el retraso y la entrada del usuario		
-		await WaitForInput(time);
+		userInteraction = await WaitForInput(time);
 
 		// Animar de grande a pequeño
 		Tween scaleDown = _genericText.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack);
 		await scaleDown.AsyncWaitForCompletion();
 
 		_genericText.gameObject.SetActive(false);
+
+		return userInteraction;
 	}
 
-	private async Task WaitForInput(float time)
+	private async Task<bool> WaitForInput(float time)
 	{		
 		while (time > 0)
 		{
 			if (Input.anyKeyDown || Input.GetMouseButtonDown(0))
 			{
-				break;
+				return true;
 			}
 			await Task.Yield();
 			time -= Time.deltaTime;
 		}
+		return false;
 	}
 
 	internal void HideAll()

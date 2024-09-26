@@ -11185,7 +11185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98768138d33a9b8449bde4a37eccec01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LoadDefault: 0
+  LoadDefault: 1
   _saveButton: {fileID: 1376670835}
   _winEffects: {fileID: 685978521}
   _diceController: {fileID: 1116584185}

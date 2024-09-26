@@ -149,9 +149,9 @@ public class GameController: MonoBehaviour
 	private async Task FinishGame()
 	{
 		_winEffects.gameObject.SetActive(true);
-
-		while(!Input.anyKeyDown && !Input.GetMouseButtonDown(0))
-			await _popupsController.ShowGenericMessage("Ha Ganado "+CurrentPlayer.Name+"!!!", 3);
+		bool usrInteraction = false;
+		while(!usrInteraction)
+			usrInteraction = await _popupsController.ShowGenericMessage("Ha Ganado "+CurrentPlayer.Name+"!!!", 2);
 
 		_winEffects.gameObject.SetActive(false);
 	}
@@ -270,7 +270,8 @@ public class GameController: MonoBehaviour
 		foreach (Player player in players)
 		{
 			player.State = PlayerState.Waiting;
-			player.Token.MoveToTile(_boardController.BoardTiles[0]);
+			player.Token.ResetState();
+			_boardController.JumptToTile(player, 0).WrapErrors();
 		}
 	}
 

@@ -55,7 +55,7 @@ public class BoardController
 		Vector3 targetPosition = _boardTiles[targetTileID].transform.position;
 		Sequence tokenMoveSequence = DOTween.Sequence();
 
-		tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, _jumpPower * 5, 1, _jumpDuration*2).SetEase(Ease.OutQuad));
+		tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, _jumpPower * 3, 1, _jumpDuration*2).SetEase(Ease.OutQuad));
 
 		await tokenMoveSequence.AsyncWaitForCompletion();
 
