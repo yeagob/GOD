@@ -37,7 +37,7 @@ public class PopupsController : MonoBehaviour
 
 	#region Public Methods
 
-	public async Task<string[]> ShowWelcome()
+	public async Task<string> ShowWelcome()
 	{
 		 return await _welcomePopups.ShowAsync();
 	}
@@ -69,7 +69,7 @@ public class PopupsController : MonoBehaviour
 
 	}	
 
-	public async Task ShowBoardDataPopup(BoardData board)
+	public async Task ShowBoardInfoPopup(BoardData board)
 	{
 		await _boardDataPopup.ShowAsync(board);
 

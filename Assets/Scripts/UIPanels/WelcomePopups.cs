@@ -14,7 +14,7 @@ public class WelcomePopups : MonoBehaviour
     [SerializeField] private Button _letsgoButton;
 
     //Answers
-    private string _answer1 = "";
+    private string _answer = "";
     private string _answer2  = "";
 
 	private void Awake()
@@ -24,7 +24,7 @@ public class WelcomePopups : MonoBehaviour
         _creatingPanel.SetActive(false);
     }
 
-    internal async Task<string[]> ShowAsync()
+    internal async Task<string> ShowAsync()
 	{
         gameObject.SetActive(true);
 
@@ -33,18 +33,12 @@ public class WelcomePopups : MonoBehaviour
         while (_initialPanel.activeSelf)
             await Task.Yield();
 
-		_answer1 = await _questionPanel.ShowQuestionOne();
-        if (_answer1 != "") 
-		    _answer2 = await _questionPanel.ShowQuestionTwo();
+		_answer = await _questionPanel.ShowQuestion();
 
+        //TODO: Show Board Config
         _creatingPanel.SetActive(true);
 
-        string[] answers = new string[2]
-        {
-            _answer1, _answer2
-        };
-
-        return answers;
+        return _answer;
 	}
 
 	private void CloseInitial()

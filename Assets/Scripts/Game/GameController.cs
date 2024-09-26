@@ -1,9 +1,12 @@
+using Sc.Utils;
 using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 /// <summary>
 /// Manages the game cycle and holds references to the Board and BoardController.
@@ -14,15 +17,22 @@ public class GameController: MonoBehaviour
 
 	#region Fields
 
+	[Header("TEMP UI Elements")]
+	[SerializeField] private Button _saveButton;
+
+	[Header("Controllers")]
 	[SerializeField] private DiceController _diceController;
 	[SerializeField] private BoardController _boardController;
 	[SerializeField] private GameOfDuckBoardCreator _boardCreator;
 	[SerializeField] private PopupsController _popupsController;
 	[SerializeField] private EmailSender _emailSender;
+	
 	[SerializeField, ReadOnly] private TurnController _turnController;
 
 	private AIJsonGenerator _aiJsonGenerator;
 	private int _round = 1;
+
+	private static GameStateState _gameState;
 
 	#endregion
 
@@ -36,63 +46,98 @@ public class GameController: MonoBehaviour
 
 	public int Round => _round;
 
+	public static GameStateState GameState { get => _gameState; set => _gameState = value; }
+
 	#endregion
 
 	#region Unity Callbacks
 
 	private async void Start()
 	{
-		PlayersBoardData playersBoardData;
+		BoardData boardData;
+		_gameState = GameStateState.Welcome;
+
+		//LOAD / CREATE BOARD
 		if (Application.absoluteURL.Contains("board") || LoadDefault)
 		{
-			string boardData = await LoadTextFileAsync("adolescencia.json");
-			
-			CreateBoard(JsonUtility.FromJson<BoardData>(boardData));
+			string boardJson = await LoadTextFileAsync("adolescencia.json");
+			boardData = new BoardData(boardJson);
+			CreateBoard(boardData);
 			_popupsController.HideWelcome();
-			 playersBoardData = new PlayersBoardData();
-			playersBoardData.players = new List<string>();
-
 		}
 		else
 		{
-			//Welcome
-			string[] answers = await _popupsController.ShowWelcome();
-			_aiJsonGenerator = new AIJsonGenerator(answers[0], answers[1]);
+			//WELCOME
+			string prompt = await _popupsController.ShowWelcome();
+			_aiJsonGenerator = new AIJsonGenerator(prompt);
+
+			//TODO: Send by mail BoardData? prompt?
+
 			//Generate Board
-			playersBoardData = await _aiJsonGenerator.GetJsonBoardAndPlayers();
-			CreateBoard(playersBoardData.board);
+			boardData = await _aiJsonGenerator.GetJsonBoard();
+			CreateBoard(boardData);
 			_popupsController.HideWelcome();
 		}
 
-
-		await _popupsController.ShowBoardDataPopup(_boardController.BoardData);
-
-		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers(playersBoardData.players);
-		_turnController = new TurnController(players, _popupsController);	
-		MovePlayerToInitialTile(players);
-
-		//Send me the board
-		if (!LoadDefault)
+		//BOARD INFO
+		await _popupsController.ShowBoardInfoPopup(_boardController.BoardData);
+		
+		//EDIT BOARD
+		if (_gameState == GameStateState.Editing)
 		{
-			playersBoardData.board.autor = players[0].Name;
-			_emailSender.SendEmail(playersBoardData.board);
+			_saveButton.gameObject.SetActive(true);
+			_saveButton.onClick.AddListener(SaveBoard);
+			while(_gameState == GameStateState.Editing)
+				await Task.Yield();
 		}
+		else
+			_saveButton.gameObject.SetActive(false);
 
-		await GameLoop();
+		//PLAYER LIST
+		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers();
 
+		//TURN CONTROLLER
+		_turnController = new TurnController(players, _popupsController);
+
+		while (true)
+		{
+
+			StartGame(players);
+			
+			await GameLoop();
+			
+			await FinishGame();
+
+		}
+	}
+
+	private void SaveBoard()
+	{
+		//TODO: Show Edit Tittle & Descriptin
+		//TODO: Show Send Mail popup
+		//TODO: _boardController.BoardData.autor = email;
+
+		_emailSender.SendEmail(_boardController.BoardData);
+		_popupsController.ShowBoardInfoPopup(_boardController.BoardData).WrapErrors();
+
+	}
+
+	private async Task FinishGame()
+	{
 		await _popupsController.ShowGenericMessage("Ha Ganado "+CurrentPlayer.Name+"!!!", 10);
 		await _popupsController.ShowGenericMessage("Ahora se creara el Nivel 2 de este tablero!!", 10);
 		await _popupsController.ShowGenericMessage("No, que va, hasta aqui llega la demo, te reinicio la partida por si quieres echar otra...", 10);
+	}
 
+	private void StartGame(List<Player> players)
+	{
 		MovePlayerToInitialTile(players);
-
-		await GameLoop();
-
+		_gameState = GameStateState.Playing;
 	}
 
 	private async Task GameLoop()
 	{
-		while(CurrentTile.TileType != TileType.End)//TODO: Game States...
+		while(_gameState == GameStateState.Playing)
 		{
 			//Lost Turn Control
 			if (CurrentPlayer.State == PlayerState.LostTurn)
@@ -101,9 +146,6 @@ public class GameController: MonoBehaviour
 				_turnController.NextTurn();
 				continue;
 			}
-
-			//Show player Turn
-			await _popupsController.ShowPlayerTurn(CurrentPlayer);
 
 			//Player on Challenge
 			if (CurrentPlayer.State == PlayerState.OnChallenge)
@@ -115,7 +157,10 @@ public class GameController: MonoBehaviour
 					continue;
 				}
 			}
-			
+
+			//Show player Turn
+			await _popupsController.ShowPlayerTurn(CurrentPlayer);
+
 			//Player on Question Tile
 			if (CurrentPlayer.State == PlayerState.OnQuestion)
 			{
@@ -177,12 +222,16 @@ public class GameController: MonoBehaviour
 			case TileType.RollDicesAgain:
 				CurrentPlayer.State = PlayerState.PlayAgain;
 				return true;
+
 			case TileType.Die:
-				CurrentPlayer.Token.MoveToTile(_boardController.BoardTiles[0]);
 				await _popupsController.ShowGenericMessage("Casilla de la muerte.\n Vuelves al principio :(", 5, Color.black);
+				await _boardController.JumptToTile(CurrentPlayer, 0);
 				CurrentPlayer.State = PlayerState.Waiting;
 				return false;
+
 			case TileType.End:
+				_gameState = GameStateState.EndGame;
+
 				return true;
 		}
 

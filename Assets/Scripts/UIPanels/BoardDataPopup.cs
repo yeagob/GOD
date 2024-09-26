@@ -9,17 +9,34 @@ public class BoardDataPopup : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _tittleText;
     [SerializeField] private TextMeshProUGUI _proposalText;
     [SerializeField] private Button _playButton;
+    [SerializeField] private Button _editButton;    
 
 
     // Start is called before the first frame update
     void Start()
     {
-        _playButton.onClick.AddListener(ClosePanel);
+        _playButton.onClick.AddListener(PlayGame);
+		_editButton.onClick.AddListener(EditMode);
     }
 
-	private void ClosePanel()
+	private void EditMode()
 	{
-        gameObject.SetActive(false);
+        GameController.GameState = GameStateState.Editing;
+        ClosePanel();
+	}
+
+	private void PlayGame()
+	{
+		GameController.GameState = GameStateState.Playing;
+
+		ClosePanel() ;  
+    }
+
+    private void ClosePanel()
+	{
+		GameController.GameState = GameStateState.Playing;
+
+		gameObject.SetActive(false);
     }
 
     public async Task ShowAsync(BoardData board)
