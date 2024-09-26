@@ -66,8 +66,7 @@ public class PopupsController : MonoBehaviour
 	
 	public async Task<bool> ShowQuestion(QuestionData question)
 	{
-		return await _questionPopup.ShowAsync(question);
-
+		return await _questionPopup.ShowAsync(question, this);
 	}	
 
 	public async Task ShowBoardInfoPopup(BoardData board)
