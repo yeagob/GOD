@@ -1,24 +1,38 @@
+using Sc.Utils;
 using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
 
 /// <summary>
 /// Manages the game cycle and holds references to the Board and BoardController.
 /// </summary>
 public class GameController: MonoBehaviour
 {
+	public bool LoadDefault = false;
+
 	#region Fields
 
+	[Header("TEMP UI Elements")]
+	[SerializeField] private Button _saveButton;
+
+	[Header("Controllers")]
 	[SerializeField] private DiceController _diceController;
 	[SerializeField] private BoardController _boardController;
 	[SerializeField] private GameOfDuckBoardCreator _boardCreator;
 	[SerializeField] private PopupsController _popupsController;
 	[SerializeField] private EmailSender _emailSender;
+	
 	[SerializeField, ReadOnly] private TurnController _turnController;
 
 	private AIJsonGenerator _aiJsonGenerator;
 	private int _round = 1;
+
+	private static GameStateState _gameState;
 
 	#endregion
 
@@ -32,44 +46,98 @@ public class GameController: MonoBehaviour
 
 	public int Round => _round;
 
+	public static GameStateState GameState { get => _gameState; set => _gameState = value; }
+
 	#endregion
 
 	#region Unity Callbacks
 
 	private async void Start()
 	{
-		//Welcome
-		string [] answers = await _popupsController.ShowWelcome();
-		_aiJsonGenerator = new AIJsonGenerator(answers[0], answers[1]);
-		//Generate Board
-		PlayersBoardData playersBoardData = await _aiJsonGenerator.GetJsonBoardAndPlayers();
-		CreateBoard(playersBoardData.board);
-		_popupsController.HideWelcome();
+		BoardData boardData;
+		_gameState = GameStateState.Welcome;
 
-		await _popupsController.ShowBoardDataPopup(_boardController.BoardData);
+		//LOAD / CREATE BOARD
+		if (Application.absoluteURL.Contains("board") || LoadDefault)
+		{
+			string boardJson = await LoadTextFileAsync("adolescencia.json");
+			boardData = new BoardData(boardJson);
+			CreateBoard(boardData);
+			_popupsController.HideWelcome();
+		}
+		else
+		{
+			//WELCOME
+			string prompt = await _popupsController.ShowWelcome();
+			_aiJsonGenerator = new AIJsonGenerator(prompt);
 
-		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers(playersBoardData.players);
-		_turnController = new TurnController(players, _popupsController);	
-		MovePlayerToInitialTile(players);
+			//TODO: Send by mail BoardData? prompt?
 
-		//Send me the board
-		_emailSender.SendEmail(players[0].Name, playersBoardData.board);
+			//Generate Board
+			boardData = await _aiJsonGenerator.GetJsonBoard();
+			CreateBoard(boardData);
+			_popupsController.HideWelcome();
+		}
 
-		await GameLoop();
+		//BOARD INFO
+		await _popupsController.ShowBoardInfoPopup(_boardController.BoardData);
+		
+		//EDIT BOARD
+		if (_gameState == GameStateState.Editing)
+		{
+			_saveButton.gameObject.SetActive(true);
+			_saveButton.onClick.AddListener(SaveBoard);
+			while(_gameState == GameStateState.Editing)
+				await Task.Yield();
+		}
+		else
+			_saveButton.gameObject.SetActive(false);
 
+		//PLAYER LIST
+		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers();
+
+		//TURN CONTROLLER
+		_turnController = new TurnController(players, _popupsController);
+
+		while (true)
+		{
+
+			StartGame(players);
+			
+			await GameLoop();
+			
+			await FinishGame();
+
+		}
+	}
+
+	private void SaveBoard()
+	{
+		//TODO: Show Edit Tittle & Descriptin
+		//TODO: Show Send Mail popup
+		//TODO: _boardController.BoardData.autor = email;
+
+		_emailSender.SendEmail(_boardController.BoardData);
+		_popupsController.ShowBoardInfoPopup(_boardController.BoardData).WrapErrors();
+
+	}
+
+	private async Task FinishGame()
+	{
 		await _popupsController.ShowGenericMessage("Ha Ganado "+CurrentPlayer.Name+"!!!", 10);
 		await _popupsController.ShowGenericMessage("Ahora se creara el Nivel 2 de este tablero!!", 10);
 		await _popupsController.ShowGenericMessage("No, que va, hasta aqui llega la demo, te reinicio la partida por si quieres echar otra...", 10);
+	}
 
+	private void StartGame(List<Player> players)
+	{
 		MovePlayerToInitialTile(players);
-
-		await GameLoop();
-
+		_gameState = GameStateState.Playing;
 	}
 
 	private async Task GameLoop()
 	{
-		while(CurrentTile.TileType != TileType.End)//TODO: Game States...
+		while(_gameState == GameStateState.Playing)
 		{
 			//Lost Turn Control
 			if (CurrentPlayer.State == PlayerState.LostTurn)
@@ -78,9 +146,6 @@ public class GameController: MonoBehaviour
 				_turnController.NextTurn();
 				continue;
 			}
-
-			//Show player Turn
-			await _popupsController.ShowPlayerTurn(CurrentPlayer);
 
 			//Player on Challenge
 			if (CurrentPlayer.State == PlayerState.OnChallenge)
@@ -92,7 +157,10 @@ public class GameController: MonoBehaviour
 					continue;
 				}
 			}
-			
+
+			//Show player Turn
+			await _popupsController.ShowPlayerTurn(CurrentPlayer);
+
 			//Player on Question Tile
 			if (CurrentPlayer.State == PlayerState.OnQuestion)
 			{
@@ -154,12 +222,16 @@ public class GameController: MonoBehaviour
 			case TileType.RollDicesAgain:
 				CurrentPlayer.State = PlayerState.PlayAgain;
 				return true;
+
 			case TileType.Die:
-				CurrentPlayer.Token.MoveToTile(_boardController.BoardTiles[0]);
 				await _popupsController.ShowGenericMessage("Casilla de la muerte.\n Vuelves al principio :(", 5, Color.black);
+				await _boardController.JumptToTile(CurrentPlayer, 0);
 				CurrentPlayer.State = PlayerState.Waiting;
 				return false;
+
 			case TileType.End:
+				_gameState = GameStateState.EndGame;
+
 				return true;
 		}
 
@@ -183,6 +255,52 @@ public class GameController: MonoBehaviour
 	private void CreateBoard(BoardData boardData)
 	{
 			_boardController = new BoardController(boardData, _boardCreator);
+	}
+
+	/// <summary>
+	/// Loads a text file asynchronously from StreamingAssets and returns its content.
+	/// </summary>
+	private async Task<string> LoadTextFileAsync(string fileName)
+	{
+		string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
+
+		// For WebGL, we need to access the file via UnityWebRequest
+		if (filePath.Contains("://") || filePath.Contains(":///"))
+		{
+			using (UnityWebRequest www = UnityWebRequest.Get(filePath))
+			{
+				var request = www.SendWebRequest();
+
+				// Wait until the request is done
+				while (!request.isDone)
+				{
+					await Task.Yield();
+				}
+
+				if (www.result != UnityWebRequest.Result.Success)
+				{
+					Debug.LogError("Error loading file: " + www.error);
+					return null;
+				}
+				else
+				{
+					return www.downloadHandler.text;
+				}
+			}
+		}
+		else
+		{
+			// For non-WebGL platforms, we can read directly from the file system
+			if (File.Exists(filePath))
+			{
+				return await Task.Run(() => File.ReadAllText(filePath));
+			}
+			else
+			{
+				Debug.LogError("File not found: " + filePath);
+				return null;
+			}
+		}
 	}
 
 	#endregion

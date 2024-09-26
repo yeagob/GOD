@@ -17,6 +17,10 @@ public class RollDicePopup : MonoBehaviour
 		{
 			time -= Time.deltaTime;
 			await Task.Yield();
+			if (Input.anyKeyDown || Input.GetMouseButtonDown(0))
+			{
+				break;
+			}
 		}
 
 		gameObject.SetActive(false);

@@ -4,6 +4,7 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 /// <summary>
@@ -13,10 +14,14 @@ using UnityEngine;
 public class BoardController
 {
 	const int FinishTileID = 39;
+
 	#region Fields
 
 	[SerializeField, ReadOnly] private BoardData _boardData;
 	private List<Tile> _boardTiles = new List<Tile>();
+
+	float _jumpPower = 2f;
+	float _jumpDuration = 0.7f;
 
 	#endregion
 
@@ -39,9 +44,25 @@ public class BoardController
 
 	public BoardController(string jsonData, GameOfDuckBoardCreator boardCreator)
 	{
+
 		// Deserialize JSON and construct Board
 		_boardData = new BoardData(jsonData);
 		_boardTiles = boardCreator.GetBoard(_boardData);
+	}
+
+	public async Task<Tile> JumptToTile(Player currentPlayer, int targetTileID)
+	{
+		Vector3 targetPosition = _boardTiles[targetTileID].transform.position;
+		Sequence tokenMoveSequence = DOTween.Sequence();
+
+		tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, _jumpPower * 10, 1, _jumpDuration*2).SetEase(Ease.OutQuad));
+
+		await tokenMoveSequence.AsyncWaitForCompletion();
+
+		// Actualizamos la posición del token y la casilla actual del jugador
+		currentPlayer.Token.MoveToTile(_boardTiles[targetTileID]);
+
+		return _boardTiles[targetTileID];
 	}
 
 	public async Task<Tile> MoveToken(Player currentPlayer, int diceValue)
@@ -49,8 +70,7 @@ public class BoardController
 		int currentTileID = currentPlayer.CurrentTile.TileData.id;
 		int targetTileID = currentTileID + diceValue;
 
-		float jumpPower = 2f;
-		float jumpDuration = 0.7f;
+
 
 		Sequence tokenMoveSequence = DOTween.Sequence();
 
@@ -62,7 +82,7 @@ public class BoardController
 			Vector3 targetPosition = _boardTiles[i].transform.position;
 
 			// Agregamos cada salto hacia adelante a la secuencia
-			tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, jumpPower, 1, jumpDuration).SetEase(Ease.OutQuad));
+			tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, _jumpPower, 1, _jumpDuration).SetEase(Ease.OutQuad));
 		}
 
 		// Verificamos si el jugador se pasa de la meta + 1
@@ -78,7 +98,7 @@ public class BoardController
 				Vector3 targetPosition = _boardTiles[i].transform.position;
 
 				// Agregamos cada salto hacia atrás a la secuencia
-				tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, jumpPower, 1, jumpDuration).SetEase(Ease.OutQuad));
+				tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, _jumpPower, 1, _jumpDuration).SetEase(Ease.OutQuad));
 			}
 
 			targetTileID = bounceBackTileID; // Actualizamos la casilla objetivo
@@ -115,7 +135,7 @@ public class BoardController
 		if (nextTileID != 0)
 		{
 			int value = nextTileID - currentTileID;
-			await MoveToken(currentPlayer, value);
+			await JumptToTile (currentPlayer, value);
 		}
 	}
 	#endregion

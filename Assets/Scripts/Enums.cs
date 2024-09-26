@@ -1,5 +1,13 @@
 using System;
 
+public enum GameStateState
+{
+	Welcome,
+	Editing,
+	Playing,
+	EndGame,
+}
+
 public enum PlayerState
 {
 	Waiting,

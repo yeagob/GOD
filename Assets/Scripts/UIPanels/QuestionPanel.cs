@@ -9,23 +9,14 @@ using UnityEngine.UI;
 public class QuestionPanel : MonoBehaviour
 {
 	const string QUIESTION1 = "Escribe detalladamente de que quiers que vaya el juego.";
-	const string QUIESTION2 = "Escribe con quien vas a jugar esta partida. Pon los nombres de los players.";
 
 	[SerializeField] private TextMeshProUGUI _questionText;
 	[SerializeField] private TMP_InputField _answerInput;
 	[SerializeField] private Button _answerButton;
-	[SerializeField] private Button _defaultButton;
 	private void Awake()
 	{
 		_answerButton.onClick.AddListener(Done);
-		_defaultButton.onClick.AddListener(Default);
 		gameObject.SetActive(false);
-	}
-
-	private void Default()
-	{
-		_answerInput.text = "";
-		Done();
 	}
 
 	private void Done()
@@ -33,7 +24,7 @@ public class QuestionPanel : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	internal async Task<string> ShowQuestionOne()
+	internal async Task<string> ShowQuestion()
 	{
 		gameObject.SetActive(true);
 		_questionText.text = QUIESTION1;
@@ -42,21 +33,6 @@ public class QuestionPanel : MonoBehaviour
 		while (gameObject.activeSelf)
 			await Task.Yield();
 
-		_defaultButton.gameObject.SetActive(false);
 		return _answerInput.text;
-	}
-
-	internal async Task<string> ShowQuestionTwo()
-	{
-		gameObject.SetActive(true);
-
-		_questionText.text = QUIESTION2;
-		_answerInput.text = string.Empty;
-
-		while (gameObject.activeSelf)
-			await Task.Yield();
-
-		return _answerInput.text;
-
 	}
 }
