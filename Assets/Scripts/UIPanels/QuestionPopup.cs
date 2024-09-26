@@ -1,7 +1,5 @@
 using DG.Tweening;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Sc.Utils;//NOP!!
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -12,12 +10,12 @@ public class QuestionPopup : MonoBehaviour
     [SerializeField] private Button[] _answersButton;
     [SerializeField] private TextMeshProUGUI[] _answersText;
     [SerializeField] private TextMeshProUGUI _questionText;
-    [SerializeField] private TextMeshProUGUI _resultText;
     [SerializeField] private AudioClip _errorSound;
     [SerializeField] private AudioClip _successSound;
 
     private bool _isCorrectAnswer;
     private QuestionData _currentQuestion;
+    private PopupsController _popupsController;
 
     // Start is called before the first frame update
     void Start()
@@ -30,66 +28,44 @@ public class QuestionPopup : MonoBehaviour
 
     private void Answer0()
     {
-        ProcessAnswer(0);
+        ProcessAnswer(0).WrapErrors();
     }
 
     private void Answer1()
     {
-        ProcessAnswer(1);
+        ProcessAnswer(1).WrapErrors();
     }
 
     private void Answer2()
     {
-        ProcessAnswer(2);
+        ProcessAnswer(2).WrapErrors();
     }
 
     private void Answer3()
     {
-        ProcessAnswer(3);
+        ProcessAnswer(3).WrapErrors();
     }
 
-    private void ProcessAnswer(int index)
+    private async Task ProcessAnswer(int index)
     {
         if (index == _currentQuestion.correctId)
         {
             _isCorrectAnswer = true;
-            _resultText.text = "Correcto!\n Tira de nuevo!";
-            _resultText.color = Color.blue;
+            await _popupsController.ShowGenericMessage("Correcto!\n Tira de nuevo!", 2, Color.white);
         }
         else
         {
             _isCorrectAnswer = false;
-            _resultText.text = "Has Fallado...\n Pasa turno!";
-            _resultText.color = Color.red;
+            await _popupsController.ShowGenericMessage("Has Fallado...\n Pasa turno!", 2, Color.black);
         }
 
-        ShowResultAndClose();
+        gameObject.SetActive(false);
     }
 
-    private void ShowResultAndClose()
+    public async Task<bool> ShowAsync(QuestionData question, PopupsController popupsController)
     {
-        _resultText.gameObject.SetActive(true);
-        _resultText.transform.localScale = Vector3.zero;
+        _popupsController = popupsController;
 
-        // Animar de pequeño a grande (scale=1)
-        _resultText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack).OnComplete(() =>
-        {
-            // Esperar 2 segundos
-            DOVirtual.DelayedCall(2f, () =>
-            {
-                // Animar de grande a pequeño
-                _resultText.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack).OnComplete(() =>
-                {
-                    _resultText.gameObject.SetActive(false);
-                    gameObject.SetActive(false);
-                });
-            });
-        });
-    }
-
-
-    public async Task<bool> ShowAsync(QuestionData question)
-    {
         gameObject.SetActive(true);
         _isCorrectAnswer = false;
         _currentQuestion = question;
@@ -107,9 +83,6 @@ public class QuestionPopup : MonoBehaviour
                 _answersButton[i].gameObject.SetActive(false);
             }
         }
-
-        // Hide the result text initially
-        _resultText.gameObject.SetActive(false);
 
         // Wait until the game object is deactivated
         while (gameObject.activeSelf)

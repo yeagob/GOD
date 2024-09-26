@@ -118,19 +118,21 @@ public class GameController: MonoBehaviour
 
 		while (true)
 		{
-
 			StartGame(players);
-			
+
 			await GameLoop();
 			
-			await FinishGame();
-
-			//BOARD INFO
-			await _popupsController.ShowBoardInfoPopup(_boardController.BoardData);
-
 			await CheckEditMode();
-
+			
+			if (_gameState == GameStateState.EndGame)
+			{
+				await FinishGame();
+				break;
+			}
 		}
+
+		//Start GAme flow again
+		Start();
 	}
 
 	private async Task CheckEditMode()
