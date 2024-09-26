@@ -26,6 +26,8 @@ public class AIJsonGenerator
 	private string _answer1;
 	private string _prompt;
 
+	private bool _tryAgain = true;
+
 
 	public AIJsonGenerator(string answer1)
 	{
@@ -47,6 +49,8 @@ public class AIJsonGenerator
 		if (!string.IsNullOrEmpty(_answer1))
 			response = await GetGPTResponse(_prompt);
 
+		response.Replace("```", string.Empty);
+
 		GameData data = null;
 
 		try
@@ -56,8 +60,13 @@ public class AIJsonGenerator
 		}
 		catch
 		{
-			//TODO: meter al menos 1 retry!!
-			loadDefault = true;
+			if (_tryAgain)
+			{
+				_tryAgain = false;
+				return await GetJsonBoard();
+			}
+			else
+				return null;
 		}
 
 		if (loadDefault)

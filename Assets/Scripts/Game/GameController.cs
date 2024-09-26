@@ -17,8 +17,9 @@ public class GameController: MonoBehaviour
 
 	#region Fields
 
-	[Header("TEMP UI Elements")]
+	[Header("TEMP Elements")]
 	[SerializeField] private Button _saveButton;
+	[SerializeField] private GameObject _winEffects;
 
 	[Header("Controllers")]
 	[SerializeField] private DiceController _diceController;
@@ -75,23 +76,25 @@ public class GameController: MonoBehaviour
 
 			//Generate Board
 			boardData = await _aiJsonGenerator.GetJsonBoard();
+
+			//ERROR CONTROL
+			if(boardData == null)
+			{
+				await _popupsController.ShowGenericMessage("error generando el tablero!\n Inténtalo de nuevo!", 7);
+				Start();
+				return;
+			}
+
 			CreateBoard(boardData);
 			_popupsController.HideWelcome();
 		}
 
 		//BOARD INFO
 		await _popupsController.ShowBoardInfoPopup(_boardController.BoardData);
-		
+
 		//EDIT BOARD
-		if (_gameState == GameStateState.Editing)
-		{
-			_saveButton.gameObject.SetActive(true);
-			_saveButton.onClick.AddListener(SaveBoard);
-			while(_gameState == GameStateState.Editing)
-				await Task.Yield();
-		}
-		else
-			_saveButton.gameObject.SetActive(false);
+		await CheckEditMode();
+
 
 		//PLAYER LIST
 		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers();
@@ -108,7 +111,28 @@ public class GameController: MonoBehaviour
 			
 			await FinishGame();
 
+			//BOARD INFO
+			await _popupsController.ShowBoardInfoPopup(_boardController.BoardData);
+
+			await CheckEditMode();
+
 		}
+	}
+
+	private async Task CheckEditMode()
+	{
+		if (_gameState == GameStateState.Editing)
+		{
+			_saveButton.gameObject.SetActive(true);
+			_saveButton.onClick.AddListener(SaveBoard);
+
+			_popupsController.HideAll();
+
+			while (_gameState == GameStateState.Editing)
+				await Task.Yield();
+		}
+		else
+			_saveButton.gameObject.SetActive(false);
 	}
 
 	private void SaveBoard()
@@ -124,9 +148,12 @@ public class GameController: MonoBehaviour
 
 	private async Task FinishGame()
 	{
-		await _popupsController.ShowGenericMessage("Ha Ganado "+CurrentPlayer.Name+"!!!", 10);
-		await _popupsController.ShowGenericMessage("Ahora se creara el Nivel 2 de este tablero!!", 10);
-		await _popupsController.ShowGenericMessage("No, que va, hasta aqui llega la demo, te reinicio la partida por si quieres echar otra...", 10);
+		_winEffects.gameObject.SetActive(true);
+
+		while(!Input.anyKeyDown && !Input.GetMouseButtonDown(0))
+			await _popupsController.ShowGenericMessage("Ha Ganado "+CurrentPlayer.Name+"!!!", 3);
+
+		_winEffects.gameObject.SetActive(false);
 	}
 
 	private void StartGame(List<Player> players)
@@ -231,8 +258,7 @@ public class GameController: MonoBehaviour
 
 			case TileType.End:
 				_gameState = GameStateState.EndGame;
-
-				return true;
+				return false;
 		}
 
 		return false;

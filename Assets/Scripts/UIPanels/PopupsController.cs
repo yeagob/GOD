@@ -5,6 +5,7 @@ using DG.Tweening.CustomPlugins;
 using DG.Tweening.Plugins.Core;
 using DG.Tweening.Plugins.Core.PathCore;
 using DG.Tweening.Plugins.Options;
+using System;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -77,6 +78,9 @@ public class PopupsController : MonoBehaviour
 
 	public async Task ShowGenericMessage(string message, float time = 3, Color color = default)
 	{
+		if (color == default)
+			color = Color.white;
+
 		_genericText.gameObject.SetActive(true);
 		_genericText.text = message;
 		_genericText.color = color;
@@ -109,6 +113,18 @@ public class PopupsController : MonoBehaviour
 			await Task.Yield();
 			time -= Time.deltaTime;
 		}
+	}
+
+	internal void HideAll()
+	{
+		_welcomePopups.gameObject.SetActive(false);
+		_challengePopup.gameObject.SetActive(false);
+		_rollDicePopup.gameObject.SetActive(false);
+		_questionPopup.gameObject.SetActive(false);
+		_playerTurnPopup.gameObject.SetActive(false);
+		_victoryPopup.gameObject.SetActive(false);
+		_boardDataPopup.gameObject.SetActive(false);
+		_playerCreationController.gameObject.SetActive(false);
 	}
 
 	//public void ShowVictoryPopup()
