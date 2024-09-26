@@ -16,7 +16,9 @@ public class TurnController
 	#region Properties
 	
 	public Player CurrentPlayer => _players[_currentIndex];
-	
+
+	public List<Player> Players { get => _players; set => _players = value; }
+
 	#endregion
 
 	#region Public Methods

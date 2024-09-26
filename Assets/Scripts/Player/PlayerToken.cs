@@ -13,9 +13,7 @@ public class PlayerToken : MonoBehaviour
 	private Color _color;
 	private Tile _currentTile;
 	private Quaternion _initialRotation;
-
-	// Secuencia para encadenar múltiples Tweens
-	Sequence _danceSequence;
+	private Sequence _danceSequence;
 
 	#endregion
 
@@ -95,7 +93,10 @@ public class PlayerToken : MonoBehaviour
 
 	public void ResetState()
 	{
+		_danceSequence.Pause();
 		_danceSequence.Kill();
+		_danceSequence = null;
+		transform.DOKill();
 		_winEffect.SetActive(false);
 		_losseEffect.SetActive(false);
 		transform.rotation = _initialRotation;

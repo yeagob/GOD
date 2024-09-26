@@ -13,13 +13,25 @@ using UnityEngine.UI;
 /// </summary>
 public class GameController: MonoBehaviour
 {
+	//TEMP
 	public bool LoadDefault = false;
+
+	[Button]
+	public async void MoveCurrentPLayer(int tileId)
+	{
+		Tile targetTile = await _boardController.JumptToTile(CurrentPlayer, tileId);
+		await ApplyTileEffect(targetTile);
+		_turnController.NextTurn();
+	}
+
+
 
 	#region Fields
 
 	[Header("TEMP Elements")]
 	[SerializeField] private Button _saveButton;
 	[SerializeField] private GameObject _winEffects;
+	[SerializeField] private MusicController _musicController;
 
 	[Header("Controllers")]
 	[SerializeField] private DiceController _diceController;
@@ -57,6 +69,8 @@ public class GameController: MonoBehaviour
 	{
 		BoardData boardData;
 		_gameState = GameStateState.Welcome;
+
+		_musicController.PlayBase();
 
 		//LOAD / CREATE BOARD
 		if (Application.absoluteURL.Contains("board") || LoadDefault)
@@ -148,18 +162,22 @@ public class GameController: MonoBehaviour
 
 	private async Task FinishGame()
 	{
+		_musicController.PlayDrumBass();
 		_winEffects.gameObject.SetActive(true);
 		bool usrInteraction = false;
 		while(!usrInteraction)
 			usrInteraction = await _popupsController.ShowGenericMessage("Ha Ganado "+CurrentPlayer.Name+"!!!", 2);
 
 		_winEffects.gameObject.SetActive(false);
+		_musicController.PlayBase();
+		MovePlayersToInitialTile(_turnController.Players);
 	}
 
 	private void StartGame(List<Player> players)
 	{
-		MovePlayerToInitialTile(players);
+		MovePlayersToInitialTile(players);
 		_gameState = GameStateState.Playing;
+		_musicController.PlayRock();
 	}
 
 	private async Task GameLoop()
@@ -264,8 +282,8 @@ public class GameController: MonoBehaviour
 		return false;
 	}
 
-	//TODO: Move to Board!!
-	private void MovePlayerToInitialTile(List<Player> players)
+	//TODO: Move to Board o turn?!!
+	private void MovePlayersToInitialTile(List<Player> players)
 	{
 		foreach (Player player in players)
 		{
