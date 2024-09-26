@@ -46,6 +46,7 @@ public class DiceController : MonoBehaviour
     void Awake()
     {
 		_diceCamera.gameObject.SetActive(false);
+        _diceRb.transform.rotation = Quaternion.Euler(Random.insideUnitSphere);
     }
 
     // Update is called once per frame

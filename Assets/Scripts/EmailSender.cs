@@ -25,12 +25,12 @@ public class EmailSender : MonoBehaviour
     [System.Serializable]
     public class TemplateParams
     {
-        public string from_name;
+        public string username;
         public string message;
 
         public TemplateParams(string fromName, string messageContent)
         {
-            from_name = fromName;
+            username = fromName;
             message = messageContent;
         }
     }
