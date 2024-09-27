@@ -125,7 +125,6 @@ public class PopupsController : MonoBehaviour
 		_rollDicePopup.gameObject.SetActive(false);
 		_questionPopup.gameObject.SetActive(false);
 		_playerTurnPopup.gameObject.SetActive(false);
-		_victoryPopup.gameObject.SetActive(false);
 		_boardDataPopup.gameObject.SetActive(false);
 		_playerCreationController.gameObject.SetActive(false);
 	}

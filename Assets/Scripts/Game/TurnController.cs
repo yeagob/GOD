@@ -50,9 +50,6 @@ public class TurnController
 			GameObject.Destroy(player.Token.gameObject);
 	}
 
-	internal void PlayersModification(List<Player> players)
-	{
-		throw new NotImplementedException();
-	}
+	
 	#endregion
 }

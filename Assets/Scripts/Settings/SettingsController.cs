@@ -19,6 +19,7 @@ public class SettingsController : MonoBehaviour
     [SerializeField] private Button _shareButton;
     [SerializeField] private Button _extraButton;
 
+    [SerializeField] private Button _okButton;
     #endregion
 
     #region Unity Callbacks
@@ -32,6 +33,7 @@ public class SettingsController : MonoBehaviour
         _editBoardButton.onClick.AddListener(OnEditBoardClicked);
         _shareButton.onClick.AddListener(OnShareClicked);
         _extraButton.onClick.AddListener(OnExtraClicked);
+        _okButton.onClick.AddListener(ClosePanel);
 
         InvokeRepeating(nameof(CheckGameState), 1, 1);
     }

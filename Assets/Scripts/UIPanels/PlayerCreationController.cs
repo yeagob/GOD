@@ -89,11 +89,12 @@ public class PlayerCreationController : MonoBehaviour
 				_players.Add(newPlayer);
 			}
 		}
+
 		//Destroy old players
 		if (_previousPlayers.Count > 0)
 		{
 			foreach (Player player in _previousPlayers)
-				Destroy(player.Token);
+				Destroy(player.Token.gameObject);
 			_previousPlayers.Clear();
 		}
 
@@ -104,7 +105,7 @@ public class PlayerCreationController : MonoBehaviour
 	internal async Task<List<Player>> GetPlayers(List<Player> players = null)
 	{
 		if (players != null)
-			_previousPlayers = players;
+			_previousPlayers = new List<Player>(players);
 
 		_players.Clear();
 		ShowInputPlayers();
@@ -144,7 +145,6 @@ public class PlayerCreationController : MonoBehaviour
 		//Editing
 		if (previousPlayers != null)
 		{
-
 			foreach (Player player in previousPlayers)
 			{
 					_playerNameInputs[player.Id].text = player.Name;

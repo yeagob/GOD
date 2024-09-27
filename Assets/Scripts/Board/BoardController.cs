@@ -72,6 +72,10 @@ public class BoardController
 
 	public async Task<Tile> MoveToken(Player currentPlayer, int diceValue)
 	{
+		//PArchecillo
+		if (currentPlayer.CurrentTile == null)
+			currentPlayer.Token.MoveToTile(_boardTiles[0]);
+
 		int currentTileID = currentPlayer.CurrentTile.TileData.id;
 		int targetTileID = currentTileID + diceValue;
 
@@ -147,6 +151,13 @@ public class BoardController
 		{
 			await JumptToTile (currentPlayer, nextTileID);
 		}
+	}
+
+	public void ResetBoard()
+	{
+		_boardData = null;
+		foreach (Tile tile in _boardTiles)
+			GameObject.Destroy(tile);
 	}
 	#endregion
 

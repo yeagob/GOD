@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
@@ -30,6 +31,11 @@ public class VolumeControl : MonoBehaviour
 		_fxVolumeSlider.onValueChanged.AddListener(SetFXVolume);
 	}
 
+	private void OnDisable()
+	{
+		PlayerPrefs.SetFloat("MusicVolume", _musicVolumeSlider.value);
+		PlayerPrefs.SetFloat("FXVolume", _fxVolumeSlider.value);
+	}
 	#endregion
 
 	#region Public Methods
@@ -50,6 +56,17 @@ public class VolumeControl : MonoBehaviour
 	{
 		float volumeInDb = value == 0? -50 : Mathf.Log10(value) * 20;
 		_audioMixer.SetFloat("FXVolume", volumeInDb);
+	}
+
+	internal void Initialize()
+	{
+		if (PlayerPrefs.HasKey("MusicVolume"))
+		{
+			_fxVolumeSlider.value = PlayerPrefs.GetFloat("FXVolume");
+			_musicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume");
+			SetFXVolume(_fxVolumeSlider.value);
+			SetMusicVolume(_musicVolumeSlider.value);
+		}
 	}
 
 	#endregion

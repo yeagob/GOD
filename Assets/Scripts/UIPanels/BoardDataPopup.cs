@@ -15,7 +15,7 @@ public class BoardDataPopup : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _playButton.onClick.AddListener(PlayGame);
+        _playButton.onClick.AddListener(ClosePanel);
 		_editButton.onClick.AddListener(EditMode);
     }
 
@@ -25,17 +25,8 @@ public class BoardDataPopup : MonoBehaviour
         ClosePanel();
 	}
 
-	private void PlayGame()
-	{
-		GameController.GameState = GameStateState.Playing;
-
-		ClosePanel() ;  
-    }
-
     private void ClosePanel()
 	{
-		GameController.GameState = GameStateState.Playing;
-
 		gameObject.SetActive(false);
     }
 

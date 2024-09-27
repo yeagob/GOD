@@ -10,6 +10,7 @@ public class Player
 	[SerializeField, ReadOnly] private int _id;
 	[SerializeField,ReadOnly] private string _name;
 	[SerializeField, ReadOnly] private PlayerState _state;
+
 	private PlayerToken _token;
 
 	#endregion

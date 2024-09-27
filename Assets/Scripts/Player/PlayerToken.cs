@@ -1,5 +1,5 @@
 using DG.Tweening;
-using System;
+using TMPro;
 using UnityEngine;
 
 public class PlayerToken : MonoBehaviour
@@ -9,6 +9,7 @@ public class PlayerToken : MonoBehaviour
 	[SerializeField] private Renderer _tokenRender;
 	[SerializeField] private GameObject _winEffect;
 	[SerializeField] private GameObject _losseEffect;
+	[SerializeField] private TextMeshProUGUI _nameLabel;
 	[SerializeField] private ParticleSystem _fartSystem;
 	private string _name;
 	private Color _color;
@@ -87,6 +88,7 @@ public class PlayerToken : MonoBehaviour
 		_name = name;
 		_color = color;
 		_tokenRender.material.color = color;
+		_nameLabel.text = name;
 	}
 
 	public void MoveToTile(Tile tile)

@@ -28,6 +28,7 @@ public class GameController : MonoBehaviour
 	[SerializeField] private GameOfDuckBoardCreator _boardCreator;
 	[SerializeField] private PopupsController _popupsController;
 	[SerializeField] private EmailSender _emailSender;
+	[SerializeField] private VolumeControl _volumeControl;
 
 	[SerializeField, ReadOnly] private TurnController _turnController;
 
@@ -72,6 +73,7 @@ public class GameController : MonoBehaviour
 	{
 		BoardData boardData;
 		_gameState = GameStateState.Welcome;
+		_volumeControl.Initialize();
 
 		_musicController.PlayBase();
 		OnCuack.Invoke();
@@ -120,7 +122,6 @@ public class GameController : MonoBehaviour
 
 		//EDIT BOARD
 		await CheckEditMode();
-
 
 		//PLAYER LIST
 		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers();
@@ -328,7 +329,6 @@ public class GameController : MonoBehaviour
 		return false;
 	}
 
-
 	private async Task CheckEditMode()
 	{
 		if (_gameState == GameStateState.Editing)
@@ -451,6 +451,7 @@ public class GameController : MonoBehaviour
 		if (_gameState == GameStateState.Editing)
 			Debug.Log("Salir del modo edición??");
 
+		_boardController.ResetBoard();
 		_gameState = GameStateState.Welcome;
 		_popupsController.HideAll();
 	}
@@ -466,7 +467,7 @@ public class GameController : MonoBehaviour
 	{
 		//PLAYER LIST
 		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers(_turnController.Players);
-		_turnController.PlayersModification(players);
+		_turnController.Players = players;
 
 		OnCuack.Invoke();
 
