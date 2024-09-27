@@ -31,6 +31,7 @@ public class BoardController
 	public List<Tile> BoardTiles { get => _boardTiles; }
 
 	public event Action<Player> OnPlayerEndsBoard;
+	public event Action OnMoveStep;
 
 	#endregion
 
@@ -49,6 +50,10 @@ public class BoardController
 		_boardData = new BoardData(jsonData);
 		_boardTiles = boardCreator.GetBoard(_boardData);
 	}
+
+	#endregion
+
+	#region public Methods
 
 	public async Task<Tile> JumptToTile(Player currentPlayer, int targetTileID)
 	{
@@ -70,8 +75,6 @@ public class BoardController
 		int currentTileID = currentPlayer.CurrentTile.TileData.id;
 		int targetTileID = currentTileID + diceValue;
 
-
-
 		Sequence tokenMoveSequence = DOTween.Sequence();
 
 		// Primero, movemos el token hacia adelante hasta la casilla de meta o hasta donde pueda
@@ -81,6 +84,9 @@ public class BoardController
 		{
 			Vector3 targetPosition = _boardTiles[i].transform.position;
 
+			// Invocamos el evento OnMoveStep antes de que el token salte hacia atrás
+			tokenMoveSequence.AppendCallback(() => OnMoveStep?.Invoke());
+
 			// Agregamos cada salto hacia adelante a la secuencia
 			tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, _jumpPower, 1, _jumpDuration).SetEase(Ease.OutQuad));
 		}
@@ -88,16 +94,15 @@ public class BoardController
 		// Verificamos si el jugador se pasa de la meta + 1
 		if (targetTileID > FinishTileID + 1)
 		{
-			// Rebota: Calculamos el exceso y retrocedemos esa cantidad desde la meta + 1
 			int excess = targetTileID - FinishTileID;
 			int bounceBackTileID = FinishTileID - excess;
-
-			// Movemos el token hacia atrás desde la meta hasta la casilla correcta
+			
+			// Rebota: Calculamos el exceso y retrocedemos esa cantidad desde la meta + 1
 			for (int i = FinishTileID; i >= bounceBackTileID; i--)
 			{
 				Vector3 targetPosition = _boardTiles[i].transform.position;
 
-				// Agregamos cada salto hacia atrás a la secuencia
+				// Agregamos cada salto a la secuencia
 				tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, _jumpPower, 1, _jumpDuration).SetEase(Ease.OutQuad));
 			}
 

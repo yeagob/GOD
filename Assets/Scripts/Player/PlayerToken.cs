@@ -9,6 +9,7 @@ public class PlayerToken : MonoBehaviour
 	[SerializeField] private Renderer _tokenRender;
 	[SerializeField] private GameObject _winEffect;
 	[SerializeField] private GameObject _losseEffect;
+	[SerializeField] private ParticleSystem _fartSystem;
 	private string _name;
 	private Color _color;
 	private Tile _currentTile;
@@ -25,10 +26,14 @@ public class PlayerToken : MonoBehaviour
 
 	#endregion
 
+	#region Unity Callbacks
+
 	private void Start()
 	{
 		_initialRotation = transform.rotation;
 	}
+
+	#endregion
 
 	#region Private Methods
 
@@ -114,6 +119,10 @@ public class PlayerToken : MonoBehaviour
 		_losseEffect.SetActive(true);
 	}
 
+	public void Fart()
+	{
+		_fartSystem.Emit(1);
+	}
 	#endregion
 
 }

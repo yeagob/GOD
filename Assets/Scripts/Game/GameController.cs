@@ -7,24 +7,15 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 /// <summary>
 /// Manages the game cycle and holds references to the Board and BoardController.
 /// </summary>
-public class GameController: MonoBehaviour
+public class GameController : MonoBehaviour
 {
 	//TEMP
 	public bool LoadDefault = false;
-
-	[Button]
-	public async void MoveCurrentPLayer(int tileId)
-	{
-		Tile targetTile = await _boardController.JumptToTile(CurrentPlayer, tileId);
-		await ApplyTileEffect(targetTile);
-		_turnController.NextTurn();
-	}
-
-
 
 	#region Fields
 
@@ -39,7 +30,7 @@ public class GameController: MonoBehaviour
 	[SerializeField] private GameOfDuckBoardCreator _boardCreator;
 	[SerializeField] private PopupsController _popupsController;
 	[SerializeField] private EmailSender _emailSender;
-	
+
 	[SerializeField, ReadOnly] private TurnController _turnController;
 
 	private AIJsonGenerator _aiJsonGenerator;
@@ -51,8 +42,8 @@ public class GameController: MonoBehaviour
 
 	#region Properties
 
-	public BoardController BoardController { get; private set; }
-	public TurnController TurnController { get => _turnController;  }
+	public BoardController BoardController => _boardController;
+	public TurnController TurnController { get => _turnController; }
 
 	private Player CurrentPlayer => _turnController.CurrentPlayer;
 	private Tile CurrentTile => CurrentPlayer.CurrentTile;
@@ -61,9 +52,21 @@ public class GameController: MonoBehaviour
 
 	public static GameStateState GameState { get => _gameState; set => _gameState = value; }
 
+	public event Action OnCuack;
+	public event Action OnHappy;
+	public event Action OnSad;
+	public event Action OnRollDices;
+	public event Action OnGameStarts;
+
 	#endregion
 
 	#region Unity Callbacks
+
+	//MOVER!
+	private void Fart()
+	{
+		CurrentPlayer.Token.Fart();
+	}
 
 	private async void Start()
 	{
@@ -71,6 +74,7 @@ public class GameController: MonoBehaviour
 		_gameState = GameStateState.Welcome;
 
 		_musicController.PlayBase();
+		OnCuack.Invoke();
 
 		//LOAD / CREATE BOARD
 		if (Application.absoluteURL.Contains("board") || LoadDefault)
@@ -84,6 +88,7 @@ public class GameController: MonoBehaviour
 		{
 			//WELCOME
 			string prompt = await _popupsController.ShowWelcome();
+			OnCuack.Invoke();
 			_aiJsonGenerator = new AIJsonGenerator(prompt);
 
 			//TODO: Send by mail BoardData? prompt?
@@ -92,9 +97,11 @@ public class GameController: MonoBehaviour
 			boardData = await _aiJsonGenerator.GetJsonBoard();
 
 			//ERROR CONTROL
-			if(boardData == null)
+			if (boardData == null)
 			{
+				OnSad.Invoke();
 				await _popupsController.ShowGenericMessage("error generando el tablero!\n Inténtalo de nuevo!", 7);
+				OnCuack.Invoke();
 				Start();
 				return;
 			}
@@ -103,8 +110,13 @@ public class GameController: MonoBehaviour
 			_popupsController.HideWelcome();
 		}
 
+		_boardController.OnMoveStep += Fart;
+		OnCuack.Invoke();
+
 		//BOARD INFO
 		await _popupsController.ShowBoardInfoPopup(_boardController.BoardData);
+
+		OnCuack.Invoke();
 
 		//EDIT BOARD
 		await CheckEditMode();
@@ -112,6 +124,8 @@ public class GameController: MonoBehaviour
 
 		//PLAYER LIST
 		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers();
+
+		OnCuack.Invoke();
 
 		//TURN CONTROLLER
 		_turnController = new TurnController(players, _popupsController);
@@ -121,15 +135,15 @@ public class GameController: MonoBehaviour
 			StartGame(players);
 
 			await GameLoop();
-			
+
 			await CheckEditMode();
-			
+
 			if (_gameState == GameStateState.EndGame)
 			{
 				await FinishGame();
 				break;
 			}
-		}
+		}		
 
 		//Start GAme flow again
 		Start();
@@ -167,12 +181,16 @@ public class GameController: MonoBehaviour
 		_musicController.PlayDrumBass();
 		_winEffects.gameObject.SetActive(true);
 		bool usrInteraction = false;
-		while(!usrInteraction)
-			usrInteraction = await _popupsController.ShowGenericMessage("Ha Ganado "+CurrentPlayer.Name+"!!!", 2);
+		while (!usrInteraction)
+		{
+			OnHappy.Invoke();
+			usrInteraction = await _popupsController.ShowGenericMessage("Ha Ganado " + CurrentPlayer.Name + "!!!", 2);
+		}
 
 		_winEffects.gameObject.SetActive(false);
 		_musicController.PlayBase();
-		MovePlayersToInitialTile(_turnController.Players);
+
+		_turnController.DestroyPlayerTokens();
 	}
 
 	private void StartGame(List<Player> players)
@@ -180,11 +198,13 @@ public class GameController: MonoBehaviour
 		MovePlayersToInitialTile(players);
 		_gameState = GameStateState.Playing;
 		_musicController.PlayRock();
+
+		OnGameStarts.Invoke();
 	}
 
 	private async Task GameLoop()
 	{
-		while(_gameState == GameStateState.Playing)
+		while (_gameState == GameStateState.Playing)
 		{
 			//Lost Turn Control
 			if (CurrentPlayer.State == PlayerState.LostTurn)
@@ -198,8 +218,16 @@ public class GameController: MonoBehaviour
 			if (CurrentPlayer.State == PlayerState.OnChallenge)
 			{
 				bool completed = await _popupsController.ShowChallengePlayer(CurrentPlayer, false);
-				if (!completed)
+
+				OnCuack.Invoke();
+
+				if (completed)
 				{
+					OnHappy.Invoke();
+				}
+				else
+				{
+					OnSad.Invoke();
 					_turnController.NextTurn();
 					continue;
 				}
@@ -208,12 +236,20 @@ public class GameController: MonoBehaviour
 			//Show player Turn
 			await _popupsController.ShowPlayerTurn(CurrentPlayer);
 
+			OnCuack.Invoke();
+
 			//Player on Question Tile
 			if (CurrentPlayer.State == PlayerState.OnQuestion)
 			{
-				bool play = await _popupsController.ShowQuestion(CurrentTile.TileData.question);
-				if (!play)
+				bool play = await _popupsController.ShowQuestion(CurrentTile.TileData.question);				
+
+				if (play) 
 				{
+					OnHappy.Invoke();
+				}
+				else
+				{
+					OnSad.Invoke();	
 					_turnController.NextTurn();
 					continue;
 				}
@@ -222,6 +258,7 @@ public class GameController: MonoBehaviour
 			CurrentPlayer.State = PlayerState.Playing;
 
 			//Roll Dice
+			OnRollDices.Invoke();
 			int diceValue = await _diceController.RollDice();
 			await _popupsController.ShowPlayerDiceValue(diceValue);
 
@@ -244,34 +281,52 @@ public class GameController: MonoBehaviour
 			case TileType.Challenge:
 				CurrentPlayer.State = PlayerState.OnChallenge;
 				await _popupsController.ShowChallengePlayer(CurrentPlayer, true);
+
+				OnCuack.Invoke();
+
 				return false;
 
 			case TileType.Question:
-				bool playAgain = await _popupsController.ShowQuestion(targetTile.TileData.question);
+				bool playAgain = await _popupsController.ShowQuestion(targetTile.TileData.question);				
+
 				if (playAgain)
+				{
+					OnHappy.Invoke();
 					CurrentPlayer.State = PlayerState.PlayAgain;
+				}
 				else
+				{
+					OnSad.Invoke();
 					CurrentPlayer.State = PlayerState.OnQuestion;
+				}
 
 				return playAgain;
 
-			case TileType.TravelToTile:				
+			case TileType.TravelToTile:
 				await _popupsController.ShowGenericMessage("De pato a pato y tiro porque...\n CUACK!!", 2, CurrentPlayer.Token.Color);
+
+				OnHappy.Invoke();
+
 				await _boardController.TravelToNextTravelTile(CurrentPlayer);
 				CurrentPlayer.State = PlayerState.PlayAgain;
 				return true;
 
 			case TileType.LoseTurnsUntil:
+				OnSad.Invoke();
 				await _popupsController.ShowGenericMessage("Tu patito se ha perdido!!\n Pierdes un turno.", 5, Color.gray);
 				CurrentPlayer.State = PlayerState.LostTurn;
 				break;
 
 			case TileType.RollDicesAgain:
 				CurrentPlayer.State = PlayerState.PlayAgain;
+				OnHappy.Invoke();
 				return true;
 
 			case TileType.Die:
+				OnSad.Invoke();
 				await _popupsController.ShowGenericMessage("Casilla de la muerte.\n Vuelves al principio :(", 5, Color.black);
+				OnHappy.Invoke();
+
 				await _boardController.JumptToTile(CurrentPlayer, 0);
 				CurrentPlayer.State = PlayerState.Waiting;
 				return false;
@@ -301,7 +356,7 @@ public class GameController: MonoBehaviour
 
 	private void CreateBoard(BoardData boardData)
 	{
-			_boardController = new BoardController(boardData, _boardCreator);
+		_boardController = new BoardController(boardData, _boardCreator);
 	}
 
 	/// <summary>
@@ -350,6 +405,16 @@ public class GameController: MonoBehaviour
 		}
 	}
 
+	#endregion
+
+	#region EDITOR
+	[Button]
+	public async void MoveCurrentPLayer(int tileId)
+	{
+		Tile targetTile = await _boardController.JumptToTile(CurrentPlayer, tileId);
+		await ApplyTileEffect(targetTile);
+		_turnController.NextTurn();
+	}
 	#endregion
 }
 

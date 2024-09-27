@@ -42,5 +42,12 @@ public class TurnController
 			}
 		}
 	}
+
+	//Esto no va aqui!!
+	internal void DestroyPlayerTokens()
+	{
+		foreach (Player player in _players)
+			GameObject.Destroy(player.Token.gameObject);
+	}
 	#endregion
 }

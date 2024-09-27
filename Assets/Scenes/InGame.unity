@@ -931,6 +931,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1424854854}
+  - {fileID: 382878108}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &181895322
@@ -2309,6 +2310,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 376335332}
   m_CullTransparentMesh: 1
+--- !u!1 &382878107
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 382878108}
+  - component: {fileID: 382878109}
+  m_Layer: 0
+  m_Name: FXController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &382878108
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 382878107}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 137173083}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &382878109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 382878107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a354a0d547d0d2448af38aef78d29b20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _gameController: {fileID: 1783539860}
+  _group: {fileID: -3825647495123950510, guid: b9dd9d2cebc25d4449601bb8d01c7e45, type: 2}
+  _fart: {fileID: 8300000, guid: f562d2a16b082e14b87452483d833902, type: 3}
+  _jump: {fileID: 8300000, guid: 0cb3dc5beceda7d4da13cf402ea15ad9, type: 3}
+  _cuack: {fileID: 8300000, guid: f49fb63df14aa6545a0b99e07d903dfc, type: 3}
+  _loseTurn: {fileID: 8300000, guid: dd2c2b0fb0c6d0e49a55d73ff3034ee0, type: 3}
+  _rollDices: {fileID: 8300000, guid: 4a8669926f8a21c41b9266ab28e230f2, type: 3}
 --- !u!1 &395566935
 GameObject:
   m_ObjectHideFlags: 0
@@ -3874,7 +3926,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 120468488355309059, guid: d7f02d58169cc8742be7c76e3bb50e58, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -6142,7 +6195,6 @@ MonoBehaviour:
   - {fileID: 874592506}
   - {fileID: 1440094155}
   _questionText: {fileID: 476102919}
-  _resultText: {fileID: 1834274243}
   _errorSound: {fileID: 0}
   _successSound: {fileID: 0}
 --- !u!1 &981696742

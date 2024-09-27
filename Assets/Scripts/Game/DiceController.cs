@@ -80,7 +80,8 @@ public class DiceController : MonoBehaviour
 		}
 
         //en caso de duda, jejeje
-        return 6;
+        return Random.Range(1,7);
 
     }
+
 }

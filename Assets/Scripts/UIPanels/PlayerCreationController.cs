@@ -82,7 +82,8 @@ public class PlayerCreationController : MonoBehaviour
 
 
 	internal async Task<List<Player>> GetPlayers()
-	{		
+	{
+		_players.Clear();
 		ShowInputPlayers();
 
 		while(_showingPanel)
