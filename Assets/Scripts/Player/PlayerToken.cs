@@ -93,7 +93,6 @@ public class PlayerToken : MonoBehaviour
 	{
 		_currentTile = tile;
 		transform.position = tile.transform.position;
-	
 	}
 
 	public void ResetState()
