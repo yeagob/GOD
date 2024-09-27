@@ -1,5 +1,5 @@
 using DG.Tweening;
-using Sc.Utils;//NOP!!
+using GOD.Utils;//NOP!!
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;

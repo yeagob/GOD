@@ -49,5 +49,10 @@ public class TurnController
 		foreach (Player player in _players)
 			GameObject.Destroy(player.Token.gameObject);
 	}
+
+	internal void PlayersModification(List<Player> players)
+	{
+		throw new NotImplementedException();
+	}
 	#endregion
 }

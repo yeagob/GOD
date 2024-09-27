@@ -12,6 +12,7 @@ public class BoardData
 	public string name;
 	public string proposal;
 	public string autor;
+	public string imageURL;
 	public TileData[] tiles;
 
 	#region Future

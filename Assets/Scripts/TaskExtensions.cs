@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Threading.Tasks;
 
-namespace Sc.Utils
+namespace GOD.Utils
 {
 	public static class TaskExtensions
 	{

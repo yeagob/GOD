@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Sc.InputManager
+namespace GOD.InputManager
 {
     public class InputFieldHandler : MonoBehaviour, ISelectHandler, IPointerClickHandler
     {

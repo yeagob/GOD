@@ -1,4 +1,4 @@
-using Sc.Utils;
+using GOD.Utils;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -14,12 +14,10 @@ using static UnityEditor.Experimental.GraphView.GraphView;
 /// </summary>
 public class GameController : MonoBehaviour
 {
-	//TEMP
-	public bool LoadDefault = false;
-
 	#region Fields
 
 	[Header("TEMP Elements")]
+	[SerializeField] private bool _loadDefault = false;
 	[SerializeField] private Button _saveButton;	
 	[SerializeField] private GameObject _winEffects;
 	[SerializeField] private MusicController _musicController;
@@ -43,6 +41,7 @@ public class GameController : MonoBehaviour
 	#region Properties
 
 	public BoardController BoardController => _boardController;
+
 	public TurnController TurnController { get => _turnController; }
 
 	private Player CurrentPlayer => _turnController.CurrentPlayer;
@@ -54,6 +53,7 @@ public class GameController : MonoBehaviour
 
 	public event Action OnCuack;
 	public event Action OnHappy;
+
 	public event Action OnSad;
 	public event Action OnRollDices;
 	public event Action OnGameStarts;
@@ -62,10 +62,10 @@ public class GameController : MonoBehaviour
 
 	#region Unity Callbacks
 
-	//MOVER!
-	private void Fart()
+	private void Awake()
 	{
-		CurrentPlayer.Token.Fart();
+		if (Application.absoluteURL.Contains("board"))
+			_loadDefault = true;
 	}
 
 	private async void Start()
@@ -77,7 +77,7 @@ public class GameController : MonoBehaviour
 		OnCuack.Invoke();
 
 		//LOAD / CREATE BOARD
-		if (Application.absoluteURL.Contains("board") || LoadDefault)
+		if (_loadDefault)
 		{
 			string boardJson = await LoadTextFileAsync("adolescencia.json");
 			boardData = new BoardData(boardJson);
@@ -143,58 +143,27 @@ public class GameController : MonoBehaviour
 				await FinishGame();
 				break;
 			}
+
+			if(_gameState == GameStateState.Welcome)
+			{
+				_turnController.DestroyPlayerTokens();
+				break;
+			}
 		}		
 
-		//Start GAme flow again
+		//Start Game flow again
 		Start();
 	}
 
-	private async Task CheckEditMode()
-	{
-		if (_gameState == GameStateState.Editing)
-		{
-			_saveButton.gameObject.SetActive(true);
-			_saveButton.onClick.AddListener(SaveBoard);
+	#endregion
 
-			_popupsController.HideAll();
+	#region Private Methods
 
-			while (_gameState == GameStateState.Editing)
-				await Task.Yield();
-		}
-		else
-			_saveButton.gameObject.SetActive(false);
-	}
-
-	private void SaveBoard()
-	{
-		//TODO: Show Edit Tittle & Descriptin
-		//TODO: Show Send Mail popup
-		//TODO: _boardController.BoardData.autor = email;
-
-		_emailSender.SendEmail(_boardController.BoardData);
-		_popupsController.ShowBoardInfoPopup(_boardController.BoardData).WrapErrors();
-
-	}
-
-	private async Task FinishGame()
-	{
-		_musicController.PlayDrumBass();
-		_winEffects.gameObject.SetActive(true);
-		bool usrInteraction = false;
-		while (!usrInteraction)
-		{
-			OnHappy.Invoke();
-			usrInteraction = await _popupsController.ShowGenericMessage("Ha Ganado " + CurrentPlayer.Name + "!!!", 2);
-		}
-
-		_winEffects.gameObject.SetActive(false);
-		_musicController.PlayBase();
-
-		_turnController.DestroyPlayerTokens();
-	}
 
 	private void StartGame(List<Player> players)
 	{
+		_loadDefault = false;
+
 		MovePlayersToInitialTile(players);
 		_gameState = GameStateState.Playing;
 		_musicController.PlayRock();
@@ -219,6 +188,10 @@ public class GameController : MonoBehaviour
 			{
 				bool completed = await _popupsController.ShowChallengePlayer(CurrentPlayer, false);
 
+				//TODO: Control de flujo de salida!
+				if (_gameState != GameStateState.Playing)
+					break;
+
 				OnCuack.Invoke();
 
 				if (completed)
@@ -236,20 +209,32 @@ public class GameController : MonoBehaviour
 			//Show player Turn
 			await _popupsController.ShowPlayerTurn(CurrentPlayer);
 
+			//Destroyed Player Control
+			if (CurrentPlayer.Token == null)
+				continue;
+
+			//TODO: Control de flujo de salida!
+			if (_gameState != GameStateState.Playing)
+				break;
+
 			OnCuack.Invoke();
 
 			//Player on Question Tile
 			if (CurrentPlayer.State == PlayerState.OnQuestion)
 			{
-				bool play = await _popupsController.ShowQuestion(CurrentTile.TileData.question);				
+				bool play = await _popupsController.ShowQuestion(CurrentTile.TileData.question);
 
-				if (play) 
+				//TODO: Control de flujo de salida!
+				if (_gameState != GameStateState.Playing)
+					break;
+
+				if (play)
 				{
 					OnHappy.Invoke();
 				}
 				else
 				{
-					OnSad.Invoke();	
+					OnSad.Invoke();
 					_turnController.NextTurn();
 					continue;
 				}
@@ -266,6 +251,10 @@ public class GameController : MonoBehaviour
 			Tile targetTile = await _boardController.MoveToken(CurrentPlayer, diceValue);
 
 			bool playAgain = await ApplyTileEffect(targetTile);
+
+			//TODO: Control de flujo de salida!
+			if (_gameState != GameStateState.Playing)
+				break;
 
 			if (playAgain)
 				continue;
@@ -287,7 +276,7 @@ public class GameController : MonoBehaviour
 				return false;
 
 			case TileType.Question:
-				bool playAgain = await _popupsController.ShowQuestion(targetTile.TileData.question);				
+				bool playAgain = await _popupsController.ShowQuestion(targetTile.TileData.question);
 
 				if (playAgain)
 				{
@@ -339,6 +328,55 @@ public class GameController : MonoBehaviour
 		return false;
 	}
 
+
+	private async Task CheckEditMode()
+	{
+		if (_gameState == GameStateState.Editing)
+		{
+			_saveButton.gameObject.SetActive(true);
+			_saveButton.onClick.AddListener(SaveBoard);
+
+			_popupsController.HideAll();
+
+			while (_gameState == GameStateState.Editing)
+				await Task.Yield();
+		}
+		else
+			_saveButton.gameObject.SetActive(false);
+	}
+
+	private void SaveBoard()
+	{
+		//TODO: Show Edit Tittle & Descriptin
+		//TODO: Show Send Mail popup
+		//TODO: _boardController.BoardData.autor = email;
+
+		_emailSender.SendEmail(_boardController.BoardData);
+		_popupsController.ShowBoardInfoPopup(_boardController.BoardData).WrapErrors();
+
+	}
+
+	private async Task FinishGame()
+	{
+		_musicController.PlayDrumBass();
+		_winEffects.gameObject.SetActive(true);
+		bool usrInteraction = false;
+		while (!usrInteraction)
+		{
+			OnHappy.Invoke();
+			usrInteraction = await _popupsController.ShowGenericMessage("Ha Ganado " + CurrentPlayer.Name + "!!!", 2);
+		}
+
+		_winEffects.gameObject.SetActive(false);
+		_musicController.PlayBase();
+
+	}
+
+	private void CreateBoard(BoardData boardData)
+	{
+		_boardController = new BoardController(boardData, _boardCreator);
+	}
+
 	//TODO: Move to Board o turn?!!
 	private void MovePlayersToInitialTile(List<Player> players)
 	{
@@ -350,14 +388,13 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	#endregion
-
-	#region Private Methods
-
-	private void CreateBoard(BoardData boardData)
+	//MOVER!
+	private void Fart()
 	{
-		_boardController = new BoardController(boardData, _boardCreator);
+		CurrentPlayer.Token.Fart();
 	}
+
+	//MOVER!!!
 
 	/// <summary>
 	/// Loads a text file asynchronously from StreamingAssets and returns its content.
@@ -405,6 +442,37 @@ public class GameController : MonoBehaviour
 		}
 	}
 
+	#endregion
+
+	#region Public Methods
+
+	public void BackToMainMenu()
+	{
+		if (_gameState == GameStateState.Editing)
+			Debug.Log("Salir del modo edición??");
+
+		_gameState = GameStateState.Welcome;
+		_popupsController.HideAll();
+	}
+
+
+	public void RestartGame()
+	{
+		_popupsController.HideAll();
+		MovePlayersToInitialTile(_turnController.Players);
+	}
+
+	public async Task EditPlayers()
+	{
+		//PLAYER LIST
+		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers(_turnController.Players);
+		_turnController.PlayersModification(players);
+
+		OnCuack.Invoke();
+
+		//TURN CONTROLLER
+
+	}
 	#endregion
 
 	#region EDITOR

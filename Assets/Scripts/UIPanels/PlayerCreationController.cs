@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System;
 using UnityEditorInternal;
+using System.Linq;
 
 public class PlayerCreationController : MonoBehaviour
 {
@@ -29,6 +30,7 @@ public class PlayerCreationController : MonoBehaviour
 	[SerializeField] private PlayerToken _playerTokenPrefab;
 	private Color[] _playerColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.cyan, Color.black };
 	private List<Player> _players = new List<Player>();
+	private List<Player> _previousPlayers = new List<Player>();
 
 	private bool _showingPanel;
 
@@ -63,6 +65,8 @@ public class PlayerCreationController : MonoBehaviour
 	#endregion
 
 	#region Private Methods
+
+	//TODO: No mola que sea este quien crea los players!!
 	private void CreatePlayers()
 	{
 		for (int i = 0; i < _playerNameInputs.Length; i++)
@@ -72,17 +76,36 @@ public class PlayerCreationController : MonoBehaviour
 				PlayerToken token = Instantiate(_playerTokenPrefab);
 				token.Initialize(_playerNameInputs[i].text, _playerColors[i]);
 				token.transform.position = new Vector3(token.transform.position.x, ((float)i / 10f), token.transform.position.z);
-
-				_players.Add(new Player(_playerNameInputs[i].text, token));
+				Player newPlayer = new Player(_playerNameInputs[i].text, token,i);
+				if(_previousPlayers.Count > 0)
+				{
+					Player oldPlayer = _previousPlayers.FirstOrDefault((p) => p.Id == i);
+					if (oldPlayer != null)
+					{
+						newPlayer.State = oldPlayer.State;
+						newPlayer.Token.MoveToTile(oldPlayer.CurrentTile);
+					}
+				}
+				_players.Add(newPlayer);
 			}
+		}
+		//Destroy old players
+		if (_previousPlayers.Count > 0)
+		{
+			foreach (Player player in _previousPlayers)
+				Destroy(player.Token);
+			_previousPlayers.Clear();
 		}
 
 		CloseInputPlayers();
 	}
 
 
-	internal async Task<List<Player>> GetPlayers()
+	internal async Task<List<Player>> GetPlayers(List<Player> players = null)
 	{
+		if (players != null)
+			_previousPlayers = players;
+
 		_players.Clear();
 		ShowInputPlayers();
 
@@ -95,7 +118,10 @@ public class PlayerCreationController : MonoBehaviour
 
 	private void ShowInputPlayers()
 	{
-		LoadPlayers();
+		if(GameController.GameState == GameStateState.Playing)
+			LoadPlayers(_previousPlayers);
+		else
+			LoadPlayers();
 
 		EventSystem.current.SetSelectedGameObject(_playerNameInputs[0].gameObject);
 
@@ -113,8 +139,19 @@ public class PlayerCreationController : MonoBehaviour
 	/// <summary>
 	/// Load the players data from PlayerPrefs and populate the input fields.
 	/// </summary>
-	public void LoadPlayers()
+	public void LoadPlayers(List<Player> previousPlayers = null)
 	{
+		//Editing
+		if (previousPlayers != null)
+		{
+
+			foreach (Player player in previousPlayers)
+			{
+					_playerNameInputs[player.Id].text = player.Name;
+			}
+			return;
+		}
+
 		if (PlayerPrefs.HasKey(PLAYERS_KEY))
 		{
 			string json = PlayerPrefs.GetString(PLAYERS_KEY);

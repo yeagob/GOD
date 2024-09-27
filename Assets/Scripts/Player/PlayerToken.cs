@@ -22,7 +22,7 @@ public class PlayerToken : MonoBehaviour
 
 	public string Name => _name;
 	public Color Color => _color;
-	public Tile CurrentTile { get => _currentTile;  }
+	public Tile CurrentTile { get => _currentTile; }
 
 	#endregion
 
