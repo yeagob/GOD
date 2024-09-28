@@ -80,9 +80,12 @@ public class BoardController
 		int targetTileID = currentTileID + diceValue;
 
 		//Duck Look At
-		Vector3 direction = _boardTiles[targetTileID].transform.position - _boardTiles[targetTileID-1].transform.position;
-		currentPlayer.Token.transform.right = direction;
-		currentPlayer.Token.transform.localRotation = Quaternion.Euler(0, 0, currentPlayer.Token.transform.rotation.eulerAngles.z);
+		if(targetTileID < _boardTiles.Count)
+		{
+			Vector3 direction = _boardTiles[targetTileID].transform.position - _boardTiles[targetTileID-1].transform.position;
+			currentPlayer.Token.transform.right = direction;
+			currentPlayer.Token.transform.localRotation = Quaternion.Euler(0, 0, currentPlayer.Token.transform.rotation.eulerAngles.z);
+		}
 
 
 		Sequence tokenMoveSequence = DOTween.Sequence();

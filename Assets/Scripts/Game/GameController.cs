@@ -15,6 +15,7 @@ using static UnityEditor.Experimental.GraphView.GraphView;
 public class GameController : MonoBehaviour
 {
 	#region Fields
+	[SerializeField] private string _defaultBoard = "parent.json";
 
 	[Header("TEMP Elements")]
 	[SerializeField] private bool _loadDefault = false;
@@ -81,7 +82,7 @@ public class GameController : MonoBehaviour
 		//LOAD / CREATE BOARD
 		if (_loadDefault)
 		{
-			string boardJson = await LoadTextFileAsync("adolescencia.json");
+			string boardJson = await LoadTextFileAsync(_defaultBoard);
 			boardData = new BoardData(boardJson);
 			CreateBoard(boardData);
 			_popupsController.HideWelcome();
@@ -360,11 +361,20 @@ public class GameController : MonoBehaviour
 	{
 		_musicController.PlayDrumBass();
 		_winEffects.gameObject.SetActive(true);
-		bool usrInteraction = false;
-		while (!usrInteraction)
+		//duck Win Effects
+		foreach (Player player in _turnController.Players)
+		{
+			if (player.CurrentTile.TileType == TileType.End)
+				player.Token.Win();
+			else
+				player.Token.Loose();
+		}
+		
+		bool userInteraction = false;
+		while (!userInteraction)
 		{
 			OnHappy.Invoke();
-			usrInteraction = await _popupsController.ShowGenericMessage("Ha Ganado " + CurrentPlayer.Name + "!!!", 2);
+			userInteraction = await _popupsController.ShowGenericMessage("Ha Ganado " + CurrentPlayer.Name + "!!!", 2);
 		}
 
 		_winEffects.gameObject.SetActive(false);

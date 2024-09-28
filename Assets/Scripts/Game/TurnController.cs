@@ -31,16 +31,6 @@ public class TurnController
 	public void NextTurn()
 	{
 		_currentIndex = (_currentIndex + 1) % _players.Count;
-		if (GameController.GameState == GameStateState.EndGame)
-		{
-			foreach (Player player in _players)
-			{
-				if (player.CurrentTile.TileType == TileType.End)
-					player.Token.Win();
-				else
-					player.Token.Loose();
-			}
-		}
 	}
 
 	//Esto no va aqui!!
