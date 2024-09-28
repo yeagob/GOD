@@ -3,6 +3,7 @@ using System;
 public enum GameStateState
 {
 	Welcome,
+	Creating,
 	Editing,
 	Playing,
 	EndGame,
