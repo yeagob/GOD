@@ -3,46 +3,36 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+//TODO: Change to Generic Image Popup?
 public class WelcomePopups : MonoBehaviour
 {
-    //Panels
-    [SerializeField] private GameObject _initialPanel;
-    [SerializeField] private QuestionPanel _questionPanel;
-    [SerializeField] private GameObject _creatingPanel;
+	//Panels
+	[SerializeField] private GameObject _initialPanel;
 
-    //Buttons
-    [SerializeField] private Button _letsgoButton;
-
-    //Answers
-    private string _answer = "";
-    private string _answer2  = "";
+	//Buttons
+	[SerializeField] private Button _letsgoButton;
 
 	private void Awake()
 	{
-        _letsgoButton.onClick.AddListener(CloseInitial);
-        _initialPanel.SetActive(false);
-        _creatingPanel.SetActive(false);
-    }
-
-    internal async Task<string> ShowAsync()
-	{
-        gameObject.SetActive(true);
-
-        _initialPanel.SetActive(true);
-
-        while (_initialPanel.activeSelf)
-            await Task.Yield();
-
-		_answer = await _questionPanel.ShowQuestion();
-
-        //TODO: Show Board Config
-        _creatingPanel.SetActive(true);
-
-        return _answer;
+		_letsgoButton.onClick.AddListener(CloseInitial);
 	}
 
 	private void CloseInitial()
 	{
 		_initialPanel.SetActive(false);
 	}
+
+
+	internal async Task ShowAsync()
+	{
+		gameObject.SetActive(true);
+		_initialPanel.SetActive(true);
+
+		while (_initialPanel.activeSelf)
+			await Task.Yield();
+
+	}
 }
+
+

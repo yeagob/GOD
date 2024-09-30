@@ -16,41 +16,59 @@ public class PopupsController : MonoBehaviour
 	[SerializeField] private TextMeshProUGUI _genericText;
 
 	[SerializeField] private WelcomePopups _welcomePopups;
-	[SerializeField] private ChallengePopup _challengePopup;
-	[SerializeField] private RollDicePopup _rollDicePopup;
-	[SerializeField] private QuestionPopup _questionPopup;
-	[SerializeField] private PlayerTurnPopup _playerTurnPopup;
-	[SerializeField] private VictoryPopup _victoryPopup;
+	[SerializeField] private CreateOrSelectBoardPopup _createOrChooosePopup;
+	[SerializeField] private CreateBoardQuestionPopup _createBoardQuestion;
+	[SerializeField] private EditBoardPopup _editBoardPopup;
 	[SerializeField] private BoardDataPopup _boardDataPopup;
 	[SerializeField] private PlayerCreationController _playerCreationController;
+	[SerializeField] private PlayerTurnPopup _playerTurnPopup;
+	[SerializeField] private RollDicePopup _rollDicePopup;
+	[SerializeField] private QuestionPopup _questionPopup;
+	[SerializeField] private ChallengePopup _challengePopup;
 
 	#endregion
 
 	#region Properties
-	public ChallengePopup ChallengePopup { get => _challengePopup;  }
-	public RollDicePopup RollDicePopup { get => _rollDicePopup;  }
-	public VictoryPopup VictoryPopup { get => _victoryPopup;  }
+	//TODO: Necesito u PlayerController que no sea un POPUP!
 	public PlayerCreationController PlayerCreationController { get => _playerCreationController;  }
 
 	#endregion
-
-	//TODO: Desactivar todos los paneles inicialmente!!
+	private void Awake()
+	{
+		HideAll();
+	}
 
 	#region Public Methods
 
-	public async Task<string> ShowWelcome()
+	public async Task ShowWelcome()
 	{
-		 return await _welcomePopups.ShowAsync();
+		 await _welcomePopups.ShowAsync();
 	}
 
-	public void HideWelcome()
+	public async Task<bool> ShowCreateOrChooseBoard()
 	{
-		_welcomePopups.gameObject.SetActive(false);
+		return await _createOrChooosePopup.ShowAsync();
 	}
+
+	public async Task<string> ShowCreateBoardQuestionPopup()
+	{
+		return await _createBoardQuestion.ShowAsync();
+	}
+
+	internal async Task<GameData> ShowEditBoardPopup(GameData boardGameData)
+	{
+		throw new NotImplementedException();
+	}
+
 
 	public async Task ShowPlayerTurn(Player currentPlayer)
 	{
 		await _playerTurnPopup.ShowAsync(currentPlayer);
+	}
+
+	public async Task<bool> ShowQuestion(QuestionData question)
+	{
+		return await _questionPopup.ShowAsync(question, this);
 	}
 
 	public async Task<bool> ShowChallengePlayer(Player currentPlayer, bool firstTime)
@@ -63,16 +81,10 @@ public class PopupsController : MonoBehaviour
 		await _rollDicePopup.ShowAsync(diceValue);
 
 	}
-	
-	public async Task<bool> ShowQuestion(QuestionData question)
-	{
-		return await _questionPopup.ShowAsync(question, this);
-	}	
 
 	public async Task ShowBoardInfoPopup(BoardData board)
 	{
 		await _boardDataPopup.ShowAsync(board);
-
 	}
 
 	public async Task<bool> ShowGenericMessage(string message, float time = 3, Color color = default)
@@ -128,6 +140,10 @@ public class PopupsController : MonoBehaviour
 		_boardDataPopup.gameObject.SetActive(false);
 		_playerCreationController.gameObject.SetActive(false);
 	}
+
+
+
+
 
 	//public void ShowVictoryPopup()
 	//{

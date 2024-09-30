@@ -1,5 +1,4 @@
-using DG.Tweening;
-using GOD.Utils;//NOP!!
+using GOD.Utils;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -28,36 +27,34 @@ public class QuestionPopup : MonoBehaviour
 
     private void Answer0()
     {
-        ProcessAnswer(0).WrapErrors();
+        ProcessAnswer(0);
     }
-
     private void Answer1()
     {
-        ProcessAnswer(1).WrapErrors();
+        ProcessAnswer(1);
     }
-
     private void Answer2()
     {
-        ProcessAnswer(2).WrapErrors();
+        ProcessAnswer(2);
     }
 
     private void Answer3()
     {
-        ProcessAnswer(3).WrapErrors();
+        ProcessAnswer(3);
     }
 
-    private async Task ProcessAnswer(int index)
+    private void ProcessAnswer(int index)
     {
         if (index == _currentQuestion.correctId)
         {
             _isCorrectAnswer = true;
-            await _popupsController.ShowGenericMessage("Correcto!\n Tira de nuevo!", 2, Color.white);
+            _popupsController.ShowGenericMessage("Correcto!\n Tira de nuevo!", 2, Color.white).WrapErrors();
         }
         else
         {
             _isCorrectAnswer = false;
-            await _popupsController.ShowGenericMessage("Has Fallado...\n Pasa turno!", 2, Color.black);
-        }
+            _popupsController.ShowGenericMessage("Has Fallado...\n Pasa turno!", 2, Color.black).WrapErrors();
+		}
 
         gameObject.SetActive(false);
     }

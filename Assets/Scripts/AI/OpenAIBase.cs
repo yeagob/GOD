@@ -87,7 +87,13 @@ public class GPT4Mini : OpenAIBase
 		public GPT4Mini(string apiKey) : base(apiKey) { }
 	public async Task<string> GetCompletion(string prompt)
 	{
-		string jsonData = "{\"model\": \"gpt-4o-mini\", \"messages\": [{\"role\": \"user\", \"content\": \""+prompt+"\"}, {\"role\":\"system\",\"content\": \"Eres un sistema de generación de estructuras json.\"}]}";
+		string jsonData = "{\"model\": \"gpt-4o-mini\", \"messages\": [{\"role\": \"user\", \"content\": \""
+						   +prompt+"\"}, {\"role\":\"system\",\"content\": \"Eres un módulo de un juego llamado Game Of Duck, " +
+						   "inspirado en el Juego de la Oca que se encarga de convertir un prompt del usuario en  una " +
+						   " proposal y un tittle, que definen el board. A demás si se le da una estructura concreta, puede " +
+						   "generar estructuras JSON, con preguntas y desafíos relacionados con el tillte y la proposal. " +
+						   "Siempre dentro de los parámetros dados. Para así casillas de preguntas y desafíos para el tablero del juego.\"}]}";
+
 		string response = await SendRequest("chat/completions", jsonData);
 		DataResponse dataResponse = JsonUtility.FromJson<DataResponse>(response);
 			return dataResponse.choices[0].message.content;

@@ -9,7 +9,7 @@ using static Michsky.DreamOS.GameHubData;
 [Serializable]
 public class BoardData
 {
-	public string name;
+	public string tittle;
 	public string proposal;
 	public string autor;
 	public string imageURL;
@@ -36,7 +36,7 @@ public class BoardData
 		int[] loseTurnIds = new int[] { 6, 18, 22, 30, 27, 34};
 
 		// Asignar el name y proposal de GameData
-		this.name = data.name;
+		this.tittle = data.tittle;
 		this.proposal = data.proposal;
 
 		// Crear un array de 40 TileData
@@ -93,6 +93,9 @@ public class BoardData
 			}
 			else
 			{
+
+				//TODO: Tener en cuenta data.questionsCount y data.challengesCount para esto!!!!
+
 				// Asignar aleatoriamente entre Question y Challenge, 50% cada uno
 				if (availableChallenges.Count == 0 && availableQuestions.Count == 0)
 				{

@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -32,7 +31,7 @@ public class BoardDataPopup : MonoBehaviour
 
     public async Task ShowAsync(BoardData board)
     {
-        _tittleText.text = board.name;
+        _tittleText.text = board.tittle;
         _proposalText.text = board.proposal;
         gameObject.SetActive(true);
 

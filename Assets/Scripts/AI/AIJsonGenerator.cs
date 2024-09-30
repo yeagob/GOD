@@ -9,45 +9,53 @@ using UnityEngine.Rendering.Universal;
 [Serializable]
 public class GameData
 {
-	public string name;
-	public string proposal;
-	public List<string> challenges;
-	public List<QuestionData> questions;
+	//Config
+	public string tittle = "";
+	public string proposal = "";
+	public List<string> challengTypes = new List<string>();
+	public int questionsCount = 0;
+	public int challengesCount = 0;
+
+	//Board Data
+	public List<string> challenges = new List<string>();
+	public List<QuestionData> questions = new List<QuestionData>();
+
+	//TODO: Separate Config from BoardData in a diferent clases
 }
 
-
+[Serializable]
 public class AIJsonGenerator 
 {
+	[SerializeField] private List<string> _defaultChallengeTypes = new List<string>();
+
 	private const string _apiKey = "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";
 
 	private GPT4Mini _gpt;
-	private DALLE2 _dalle;
+	private DALLE2 _dalle;//NOT IN USE!!!
 
-	private string _answer1;
-	private string _prompt;
+	private string _basePrompt;
 
 	private bool _tryAgain = true;
 
 
-	public AIJsonGenerator(string answer1)
+	public AIJsonGenerator()
 	{
-		_answer1 = answer1;
-
-		_prompt = CreatePrompt();
-
 		_gpt = new GPT4Mini(_apiKey);
-		_dalle = new DALLE2(_apiKey);
+		_dalle = new DALLE2(_apiKey);//NOT IN USE!!!
 	}
 
-	public async Task<BoardData> GetJsonBoard()
+
+	public async Task<GameData> CreateBaseGameData(string unserPromptAnswer)
 	{
-		bool loadDefault = false;
+		_basePrompt = CreateGameDataPrompt(unserPromptAnswer,3,3);
+		return await GetGameData(_basePrompt);
+	}
 
-		BoardData boardData;
-
+	public async Task<GameData> GetGameData(string prompt = null)
+	{
 		string response = "";
-		if (!string.IsNullOrEmpty(_answer1))
-			response = await GetGPTResponse(_prompt);
+		if (!string.IsNullOrEmpty(prompt))
+			response = await GetGPTResponse(prompt);
 
 		response.Replace("```", string.Empty);
 
@@ -63,16 +71,38 @@ public class AIJsonGenerator
 			if (_tryAgain)
 			{
 				_tryAgain = false;
-				return await GetJsonBoard();
+				return await GetGameData(prompt);
 			}
 			else
 				return null;
 		}
 
-		if (loadDefault)
-			boardData = new BoardData(LoadDefaultData());
-		else
+		return data;
+	}
+
+	public async Task<BoardData> GetJsonBoard(GameData gameData)
+	{
+		BoardData boardData = null;
+		bool loadDefault = gameData == null;
+
+		if (!loadDefault)
+		{
+			//To avoid overrides
+			string boardTittle = gameData.tittle;
+			string boardProposal = gameData.proposal;
+
+			string boardPrompt = CreateBoardPrompt(gameData);
+			GameData data = await GetGameData(boardPrompt);
+
 			boardData = ProcessData(data);
+
+			//Set previous title & Proposal
+			boardData.tittle = boardTittle;
+			boardData.proposal = boardProposal;
+		}
+		else
+			//TODO No me gusta cargar el tablero por defecto, me gustaría que diese error y te tirase para atrás!
+			boardData = new BoardData(LoadDefaultData());		
 
 		return boardData;
 	}
@@ -109,10 +139,43 @@ public class AIJsonGenerator
 	//	_spriteRenderer.sprite = sprite;
 	//}
 
-	private string CreatePrompt()
+
+	private string CreateBoardPrompt(GameData gameData)
 	{
-		return "Responde únicamente con un JSON siguiendo esta estructura exacta: La clase principal tiene los siguientes campos: name y proposal, de tipo string que son un título y una descripción basada en los intereses proporcionados aquí: "
-			+ _answer1 + ". challenges es una lista de strings donde cada elemento es la descripción de un desafío breve y claro, pequeños juegos psicomágicos, que persigan el proposal. Ejemplo de challenges: 'descripción breve y clara de un desafío relevante a la propuesta', sin mencionar la psicomagia. questions es una lista de objetos, donde cada objeto tiene tres campos: statement de tipo string que es el enunciado de la pregunta relacionada con la propuesta, options que es una lista de cuatro strings representando las opciones de respuesta, y correctId que es un entero entre 0 y 3 indicando el índice de la respuesta correcta. Ejemplos de preguntas: { statement: 'enunciado de la dificil pregunta', options: ['opción la correcta', 'opción probable pero incorrecta', 'opción  trampa', 'opción correcta en otro contexto'], correctId: 0 }. Genera 10 challenges y 10s questions muy dificiles, la respuesta correcta no es siempre la 0, será distinta cada vez. La proposal basada en: "
-			+ _answer1 + ", que será el tema de la sesión, en el que se basarán los challenges y las questions( que son de tipo quiz, pensadas para APRENDER en profundidad sobre el proposal!). Los challenges pueden ser pruebas de escribir, de dibujar, de hacer algo o incluso usar el movil. PERO CON EL ESPÍRITU PSICOMÁGICO. El tono es divertido e informal. Siempre se intentará buscar el crecimiento en relación a la proposal. Recuerda: debes responder únicamente con un JSON siguiendo exactamente la estructura indicada, sin comentarios adicionales ni explicaciones. Usa genero con @(ej: jugador@s) siempre que puedas.  Todo el contenido en castellano. Y en texto normal, NO en snipet de código!!";
+		return CreateGameDataPrompt(gameData.proposal, gameData.questionsCount, gameData.challengesCount, gameData.challengTypes);
 	}
+
+	private string CreateGameDataPrompt(string boardProposal, int questionsCount, int challengesCount, List<string> challengeTypes = null)
+	{
+		
+		if (challengeTypes == null)
+			challengeTypes = _defaultChallengeTypes;
+
+		string challengeTypesPrompt = string.Empty;
+		foreach (string type in _defaultChallengeTypes)
+		{
+			challengeTypesPrompt += " " + type + ",";
+		}
+
+		return "Responde únicamente con un JSON siguiendo esta estructura exacta: La clase principal tiene los siguientes campos:" +
+			" title y proposal, de tipo string que son un título y una descripción basada en los intereses proporcionados aquí: "
+			+ boardProposal + ". challenges es una lista de strings donde cada elemento es la descripción de un desafío " +
+			"breve y claro, sncillos juegos psicomágicos o no, que persigan el proposal, siempre´y únicamente dentro de estos tipos de desafío:"
+			+ challengeTypesPrompt + ". Ejemplo de challenges: 'descripción breve y clara de un desafío corto, relevante a la proposal', sin mencionar la psicomagia. " +
+			"questions es una lista de objetos, donde cada objeto tiene tres campos: " +
+			"statement de tipo string que es el enunciado una pregunta dificil y formativa relacionada con la proposal. " +
+			"options es una lista de cuatro strings representando las opciones de respuesta " +
+			"y correctId que es un entero entre 0 y 3 indicando el índice de la respuesta correcta. Típica estructura de quiz. " +
+			"Ejemplos de preguntas: { statement: 'enunciado de la dificil pregunta', " +
+			"options: ['opción la correcta', 'opción probable, pero incorrecta', 'opción  trampa', 'opción cómoca'], correctId: 0 }. " +
+			"La respuesta correcta no es siempre la 0, SERÁ DISTINTA CADA VEZ!! Genera " +
+			challengesCount +" challenges y " +
+			questionsCount + " questions. " +
+			"El tono es divertido e informal. Recuerda: debes responder únicamente con un JSON siguiendo exactamente la estructura indicada, " +
+			"sin comentarios adicionales ni explicaciones. Usa genero neutro siempre que puedas.  " +
+			"Todo el contenido en castellano. En texto plano. Y NO CODE SNIPET!! " +
+			"Te recuerdo que el prompt para la proposal es: "
+			+ boardProposal + ", que será el tema de la sesión, en el que se basarán los challenges y las questions.";
+	}
+
 }

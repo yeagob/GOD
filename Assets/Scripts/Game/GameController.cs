@@ -19,7 +19,7 @@ public class GameController : MonoBehaviour
 
 	[Header("TEMP Elements")]
 	[SerializeField] private bool _loadDefault = false;
-	[SerializeField] private Button _saveButton;	
+	[SerializeField] private Button _saveButton;
 	[SerializeField] private GameObject _winEffects;
 	[SerializeField] private MusicController _musicController;
 
@@ -72,7 +72,7 @@ public class GameController : MonoBehaviour
 
 	private async void Start()
 	{
-		BoardData boardData;
+		BoardData boardData = null;
 		_gameState = GameStateState.Welcome;
 		_volumeControl.Initialize();
 
@@ -85,19 +85,32 @@ public class GameController : MonoBehaviour
 			string boardJson = await LoadTextFileAsync(_defaultBoard);
 			boardData = new BoardData(boardJson);
 			CreateBoard(boardData);
-			_popupsController.HideWelcome();
 		}
 		else
 		{
 			//WELCOME
-			string prompt = await _popupsController.ShowWelcome();
+			await _popupsController.ShowWelcome();
 			OnCuack.Invoke();
-			_aiJsonGenerator = new AIJsonGenerator(prompt);
+
+			bool creating = await _popupsController.ShowCreateOrChooseBoard();
+
+			if (creating)
+			{
+				string promptBase = await _popupsController.ShowCreateBoardQuestionPopup();
+				_aiJsonGenerator = new AIJsonGenerator();
+				GameData gameData = await _aiJsonGenerator.CreateBaseGameData(promptBase);
+
+
+				GameData boardGameData = await _popupsController.ShowEditBoardPopup(boardGameData);
+
+				boardData = await _aiJsonGenerator.GetJsonBoard(boardGameData);
+			}
+			else
+			{
+				//BoardData boardData = await _popupsController.ShowSelectBoardPopup();
+			}
 
 			//TODO: Send by mail BoardData? prompt?
-
-			//Generate Board
-			boardData = await _aiJsonGenerator.GetJsonBoard();
 
 			//ERROR CONTROL
 			if (boardData == null)
@@ -110,7 +123,6 @@ public class GameController : MonoBehaviour
 			}
 
 			CreateBoard(boardData);
-			_popupsController.HideWelcome();
 		}
 
 		_boardController.OnMoveStep += Fart;
@@ -146,12 +158,12 @@ public class GameController : MonoBehaviour
 				break;
 			}
 
-			if(_gameState == GameStateState.Welcome)
+			if (_gameState == GameStateState.Welcome)
 			{
 				_turnController.DestroyPlayerTokens();
 				break;
 			}
-		}		
+		}
 
 		//Start Game flow again
 		Start();
@@ -369,12 +381,18 @@ public class GameController : MonoBehaviour
 			else
 				player.Token.Loose();
 		}
-		
+
 		bool userInteraction = false;
 		while (!userInteraction)
 		{
 			OnHappy.Invoke();
 			userInteraction = await _popupsController.ShowGenericMessage("Ha Ganado " + CurrentPlayer.Name + "!!!", 2);
+			float time = 1;
+			while (time > 0)
+			{
+				time -= Time.deltaTime;
+				await Task.Yield();
+			}
 		}
 
 		_winEffects.gameObject.SetActive(false);
