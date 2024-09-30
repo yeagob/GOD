@@ -88,6 +88,8 @@ public class GameController : MonoBehaviour
 	{
 		if (Application.absoluteURL.Contains("board"))
 			_loadDefault = true;
+
+		_saveButton.gameObject.SetActive(false);
 	}
 
 	private async void Start()
@@ -150,7 +152,7 @@ public class GameController : MonoBehaviour
 		}
 
 		//EDIT BOARD
-		BoardData editedBoardData = await CheckEditMode();
+		BoardData editedBoardData = await CheckEditMode(boardData);
 		if (editedBoardData != null)
 			boardData = editedBoardData;
 
@@ -179,7 +181,7 @@ public class GameController : MonoBehaviour
 
 			await GameLoop();
 
-			BoardData boardDataEdited = await CheckEditMode();
+			BoardData boardDataEdited = await CheckEditMode(_boardController.BoardData);
 
 			if (boardDataEdited != null)
 			{
@@ -394,7 +396,7 @@ public class GameController : MonoBehaviour
 		return false;
 	}
 
-	private async Task<BoardData> CheckEditMode()
+	private async Task<BoardData> CheckEditMode(BoardData boardData)
 	{
 		if (_gameState == GameStateState.Editing)
 		{
@@ -403,7 +405,7 @@ public class GameController : MonoBehaviour
 
 			_popupsController.HideAll();
 
-			GameData gameData = await _popupsController.ShowEditBoardPopup(_boardController.BoardData);
+			GameData gameData = await _popupsController.ShowEditBoardPopup(boardData);
 			
 			//TODO: Show creating board!!
 			BoardData boardData = await _aiJsonGenerator.GetJsonBoard(gameData);

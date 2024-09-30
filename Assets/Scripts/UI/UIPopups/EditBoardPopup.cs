@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static Michsky.DreamOS.GameHubData;
 
 public class EditBoardPopup : MonoBehaviour
 {

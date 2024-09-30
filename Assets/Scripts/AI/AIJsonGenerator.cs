@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Unity.Collections;
 using UnityEngine;
@@ -191,6 +192,7 @@ public class AIJsonGenerator
 		if (gameData.challenges.Count > 0)
 		{
 			prompt += " Inspírate en estos challenges: ";
+			gameData.challenges = gameData.challenges.Take(3).ToList();
 			foreach (string challenge in gameData.challenges)
 				prompt += challenge + ",";
 		}
@@ -199,6 +201,7 @@ public class AIJsonGenerator
 		if (gameData.questions.Count > 0)
 		{
 			prompt += " Inspírate en estas questions: ";
+			gameData.questions = gameData.questions.Take(3).ToList();
 			foreach (QuestionData question in gameData.questions)
 				prompt += JsonUtility.ToJson(question) + ",";
 		}
