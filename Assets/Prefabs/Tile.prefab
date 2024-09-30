@@ -156,6 +156,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 8ccad597763465f458f8750df46d761b, type: 3}
   - {fileID: 21300000, guid: 2eb40d3532f04764aae13c98f75b9c3d, type: 3}
   - {fileID: 21300000, guid: 579b688cafee92741afed553fac305db, type: 3}
+  _bridgeSpriteTiles: {fileID: 21300000, guid: c9edd7c5b65d94748b3d585bd1fa8a53, type: 3}
 --- !u!1 &3101457379165319983
 GameObject:
   m_ObjectHideFlags: 0
