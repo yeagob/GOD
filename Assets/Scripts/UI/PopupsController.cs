@@ -6,6 +6,7 @@ using DG.Tweening.Plugins.Core;
 using DG.Tweening.Plugins.Core.PathCore;
 using DG.Tweening.Plugins.Options;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -13,11 +14,13 @@ using UnityEngine;
 public class PopupsController : MonoBehaviour
 {
 	#region Fields
+
 	[SerializeField] private TextMeshProUGUI _genericText;
 
 	[SerializeField] private WelcomePopups _welcomePopups;
-	[SerializeField] private CreateOrSelectBoardPopup _createOrChooosePopup;
+	[SerializeField] private CreateOrChooseBoardPopup _createOrChooosePopup;
 	[SerializeField] private CreateBoardQuestionPopup _createBoardQuestion;
+	[SerializeField] private ChooseBoardPopup _chooseBoardPopup;
 	[SerializeField] private EditBoardPopup _editBoardPopup;
 	[SerializeField] private BoardDataPopup _boardDataPopup;
 	[SerializeField] private PlayerCreationController _playerCreationController;
@@ -33,6 +36,7 @@ public class PopupsController : MonoBehaviour
 	public PlayerCreationController PlayerCreationController { get => _playerCreationController;  }
 
 	#endregion
+
 	private void Awake()
 	{
 		HideAll();
@@ -55,9 +59,18 @@ public class PopupsController : MonoBehaviour
 		return await _createBoardQuestion.ShowAsync();
 	}
 
-	internal async Task<GameData> ShowEditBoardPopup(GameData boardGameData)
+	internal async Task<BoardData> ShowChooseBoardPopup(List <BoardData> gameBoards)
 	{
-		throw new NotImplementedException();
+		return await _chooseBoardPopup.ShowAsync(gameBoards);
+	}
+
+	internal async Task<GameData> ShowEditBoardPopup(GameData gameData)
+	{
+		return await _editBoardPopup.ShowAsync(gameData);
+	}
+	internal async Task<GameData> ShowEditBoardPopup(BoardData boardData)
+	{
+		return await _editBoardPopup.ShowAsync(boardData);
 	}
 
 
@@ -139,7 +152,11 @@ public class PopupsController : MonoBehaviour
 		_playerTurnPopup.gameObject.SetActive(false);
 		_boardDataPopup.gameObject.SetActive(false);
 		_playerCreationController.gameObject.SetActive(false);
+		_chooseBoardPopup.gameObject.SetActive(false);
+		_createBoardQuestion.gameObject.SetActive(false);
+		_createOrChooosePopup.gameObject.SetActive(false);
 	}
+
 
 
 
@@ -150,4 +167,5 @@ public class PopupsController : MonoBehaviour
 	//	_victoryPopup.ShowAsync(false, false, true);
 	//}
 	#endregion
+
 }

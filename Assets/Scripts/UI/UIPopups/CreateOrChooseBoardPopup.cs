@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CreateOrSelectBoardPopup : MonoBehaviour
+public class CreateOrChooseBoardPopup : MonoBehaviour
 {
     [SerializeField] private Button _createButton;
     [SerializeField] private Button _chooseButton;

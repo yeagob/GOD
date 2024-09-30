@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using static Michsky.DreamOS.GameHubData;
 using static UnityEditor.Experimental.GraphView.GraphView;
 
 /// <summary>
@@ -24,6 +26,7 @@ public class GameController : MonoBehaviour
 	[SerializeField] private MusicController _musicController;
 
 	[Header("Controllers")]
+	[SerializeField] private AIJsonGenerator _aiJsonGenerator;
 	[SerializeField] private DiceController _diceController;
 	[SerializeField] private BoardController _boardController;
 	[SerializeField] private GameOfDuckBoardCreator _boardCreator;
@@ -33,10 +36,12 @@ public class GameController : MonoBehaviour
 
 	[SerializeField, ReadOnly] private TurnController _turnController;
 
-	private AIJsonGenerator _aiJsonGenerator;
 	private int _round = 1;
 
+	private static GameStateState _prevGameState;
 	private static GameStateState _gameState;
+
+	private const string BOARDS_COLLECTION_FILE = "boardsCollection.json";
 
 	#endregion
 
@@ -51,7 +56,22 @@ public class GameController : MonoBehaviour
 
 	public int Round => _round;
 
-	public static GameStateState GameState { get => _gameState; set => _gameState = value; }
+	public static GameStateState GameState
+	{
+		get => _gameState;
+
+		set
+		{
+			if (_prevGameState != _gameState)
+			{
+				_prevGameState = _gameState;
+			}
+
+			_gameState = value;
+		}
+	}
+	//For Back Implementation
+	public static GameStateState PreveGameState => _prevGameState;
 
 	public event Action OnCuack;
 	public event Action OnHappy;
@@ -84,7 +104,6 @@ public class GameController : MonoBehaviour
 		{
 			string boardJson = await LoadTextFileAsync(_defaultBoard);
 			boardData = new BoardData(boardJson);
-			CreateBoard(boardData);
 		}
 		else
 		{
@@ -93,48 +112,57 @@ public class GameController : MonoBehaviour
 			OnCuack.Invoke();
 
 			bool creating = await _popupsController.ShowCreateOrChooseBoard();
+			OnCuack.Invoke();
 
 			if (creating)
 			{
+				//First promt User Question
 				string promptBase = await _popupsController.ShowCreateBoardQuestionPopup();
+				OnCuack.Invoke();
+
+				//Create First Game Data
 				_aiJsonGenerator = new AIJsonGenerator();
+				//TODO: sHOW LOADING
 				GameData gameData = await _aiJsonGenerator.CreateBaseGameData(promptBase);
 
+				//Creating seccond Game Data. Edit Board Mode
+				GameData boardGameData = await _popupsController.ShowEditBoardPopup(gameData);
 
-				GameData boardGameData = await _popupsController.ShowEditBoardPopup(boardGameData);
-
+				//Creating Board
 				boardData = await _aiJsonGenerator.GetJsonBoard(boardGameData);
 			}
+			//Select Board
 			else
 			{
-				//BoardData boardData = await _popupsController.ShowSelectBoardPopup();
+				List<BoardData> boards = await LoadBoardsData();
+				boardData = await _popupsController.ShowChooseBoardPopup(boards);
 			}
-
-			//TODO: Send by mail BoardData? prompt?
 
 			//ERROR CONTROL
 			if (boardData == null)
 			{
 				OnSad.Invoke();
-				await _popupsController.ShowGenericMessage("error generando el tablero!\n Inténtalo de nuevo!", 7);
+				await _popupsController.ShowGenericMessage("Error generando el tablero!\n Inténtalo de nuevo!", 7);
 				OnCuack.Invoke();
 				Start();
 				return;
 			}
-
-			CreateBoard(boardData);
 		}
-
-		_boardController.OnMoveStep += Fart;
-		OnCuack.Invoke();
-
-		//BOARD INFO
-		await _popupsController.ShowBoardInfoPopup(_boardController.BoardData);
-
-		OnCuack.Invoke();
 
 		//EDIT BOARD
 		await CheckEditMode();
+
+		//CREATE BOARD!!!
+		CreateBoard(boardData);
+
+		OnCuack.Invoke();
+
+		_boardController.OnMoveStep += Fart;
+
+		//BOARD INFO
+		//await _popupsController.ShowBoardInfoPopup(_boardController.BoardData);
+
+
 
 		//PLAYER LIST
 		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers();
@@ -172,7 +200,6 @@ public class GameController : MonoBehaviour
 	#endregion
 
 	#region Private Methods
-
 
 	private void StartGame(List<Player> players)
 	{
@@ -351,22 +378,10 @@ public class GameController : MonoBehaviour
 
 			_popupsController.HideAll();
 
-			while (_gameState == GameStateState.Editing)
-				await Task.Yield();
+			_popupsController.ShowEditBoardPopup(_boardController.BoardData);
 		}
 		else
 			_saveButton.gameObject.SetActive(false);
-	}
-
-	private void SaveBoard()
-	{
-		//TODO: Show Edit Tittle & Descriptin
-		//TODO: Show Send Mail popup
-		//TODO: _boardController.BoardData.autor = email;
-
-		_emailSender.SendEmail(_boardController.BoardData);
-		_popupsController.ShowBoardInfoPopup(_boardController.BoardData).WrapErrors();
-
 	}
 
 	private async Task FinishGame()
@@ -417,6 +432,62 @@ public class GameController : MonoBehaviour
 	}
 
 	//MOVER!
+
+	private void SaveBoard()
+	{
+		//TODO: Show Edit Tittle & Descriptin
+		//TODO: Show Send Mail popup
+		//TODO: _boardController.BoardData.autor = email;
+
+		_emailSender.SendEmail(_boardController.BoardData);
+		_popupsController.ShowBoardInfoPopup(_boardController.BoardData).WrapErrors();
+
+	}
+
+	//MOVER!
+
+	/// <summary>
+	/// Loads all BoardData from the JSON files in StreamingAssets.
+	/// </summary>
+	public async Task<List<BoardData>> LoadBoardsData()
+	{
+		List<BoardData> boards = new List<BoardData>();
+
+		// Load the board names collection
+		string boardsCollectionJson = await LoadTextFileAsync(BOARDS_COLLECTION_FILE);
+		if (string.IsNullOrEmpty(boardsCollectionJson))
+		{
+			Debug.LogError("Boards collection file is empty or could not be loaded.");
+			return boards;
+		}
+
+		// Deserialize the collection of board names
+		BoardsCollection boardsCollection = JsonUtility.FromJson<BoardsCollection>(boardsCollectionJson);
+
+		// Load each board's data
+		foreach (string boardName in boardsCollection.BoardNames)
+		{
+			string boardJson = await LoadTextFileAsync($"{boardName}.json");
+			if (string.IsNullOrEmpty(boardJson))
+			{
+				Debug.LogError($"Failed to load board data for {boardName}");
+				continue;
+			}
+
+			BoardData boardData = JsonUtility.FromJson<BoardData>(boardJson);
+			boards.Add(boardData);
+		}
+
+		return boards;
+	}
+
+	[System.Serializable]
+	private class BoardsCollection
+	{
+		public List<string> BoardNames;
+	}
+	//MOVER!
+
 	private void Fart()
 	{
 		CurrentPlayer.Token.Fart();

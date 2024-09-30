@@ -54,6 +54,7 @@ public class BoardController
 	#endregion
 
 	#region public Methods
+	//TODO: dividir en métodos
 
 	public async Task<Tile> JumptToTile(Player currentPlayer, int targetTileID)
 	{
@@ -70,6 +71,7 @@ public class BoardController
 		return _boardTiles[targetTileID];
 	}
 
+	//TODO: dividir en métodos
 	public async Task<Tile> MoveToken(Player currentPlayer, int diceValue)
 	{
 		//PArchecillo
@@ -165,5 +167,7 @@ public class BoardController
 	#endregion
 
 	#region Private Methods
+
 	#endregion
+
 }

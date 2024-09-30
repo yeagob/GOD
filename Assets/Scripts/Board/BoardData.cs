@@ -13,6 +13,8 @@ public class BoardData
 	public string proposal;
 	public string autor;
 	public string imageURL;
+	public int questionsCount;
+	public int challengesCount;
 	public TileData[] tiles;
 
 	#region Future

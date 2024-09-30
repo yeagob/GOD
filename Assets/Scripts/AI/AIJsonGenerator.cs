@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -24,7 +25,7 @@ public class GameData
 }
 
 [Serializable]
-public class AIJsonGenerator 
+public class AIJsonGenerator
 {
 	[SerializeField] private List<string> _defaultChallengeTypes = new List<string>();
 
@@ -47,7 +48,11 @@ public class AIJsonGenerator
 
 	public async Task<GameData> CreateBaseGameData(string unserPromptAnswer)
 	{
-		_basePrompt = CreateGameDataPrompt(unserPromptAnswer,3,3);
+		GameData gameData = new GameData();
+		gameData.challengesCount = 3;
+		gameData.questionsCount = 3;
+		gameData.challengTypes = _defaultChallengeTypes;
+		_basePrompt = CreateGameDataPrompt(unserPromptAnswer, gameData);
 		return await GetGameData(_basePrompt);
 	}
 
@@ -102,7 +107,7 @@ public class AIJsonGenerator
 		}
 		else
 			//TODO No me gusta cargar el tablero por defecto, me gustaría que diese error y te tirase para atrás!
-			boardData = new BoardData(LoadDefaultData());		
+			boardData = new BoardData(LoadDefaultData());
 
 		return boardData;
 	}
@@ -139,15 +144,17 @@ public class AIJsonGenerator
 	//	_spriteRenderer.sprite = sprite;
 	//}
 
-
 	private string CreateBoardPrompt(GameData gameData)
 	{
-		return CreateGameDataPrompt(gameData.proposal, gameData.questionsCount, gameData.challengesCount, gameData.challengTypes);
+		return CreateGameDataPrompt(gameData.proposal, gameData);
 	}
 
-	private string CreateGameDataPrompt(string boardProposal, int questionsCount, int challengesCount, List<string> challengeTypes = null)
+	private string CreateGameDataPrompt(string boardProposal, GameData gameData)
 	{
-		
+		int questionsCount = gameData.questionsCount;
+		int challengesCount = gameData.challengesCount;
+		List<string> challengeTypes = gameData.challengTypes;
+
 		if (challengeTypes == null)
 			challengeTypes = _defaultChallengeTypes;
 
@@ -157,8 +164,8 @@ public class AIJsonGenerator
 			challengeTypesPrompt += " " + type + ",";
 		}
 
-		return "Responde únicamente con un JSON siguiendo esta estructura exacta: La clase principal tiene los siguientes campos:" +
-			" title y proposal, de tipo string que son un título y una descripción basada en los intereses proporcionados aquí: "
+		string prompt = "Responde únicamente con un JSON siguiendo esta estructura exacta: La clase principal tiene los siguientes campos:" +
+			" tittle y proposal, de tipo string que son un título corto y una descripción basada en los intereses proporcionados aquí: "
 			+ boardProposal + ". challenges es una lista de strings donde cada elemento es la descripción de un desafío " +
 			"breve y claro, sncillos juegos psicomágicos o no, que persigan el proposal, siempre´y únicamente dentro de estos tipos de desafío:"
 			+ challengeTypesPrompt + ". Ejemplo de challenges: 'descripción breve y clara de un desafío corto, relevante a la proposal', sin mencionar la psicomagia. " +
@@ -169,13 +176,31 @@ public class AIJsonGenerator
 			"Ejemplos de preguntas: { statement: 'enunciado de la dificil pregunta', " +
 			"options: ['opción la correcta', 'opción probable, pero incorrecta', 'opción  trampa', 'opción cómoca'], correctId: 0 }. " +
 			"La respuesta correcta no es siempre la 0, SERÁ DISTINTA CADA VEZ!! Genera " +
-			challengesCount +" challenges y " +
+			challengesCount + " challenges y " +
 			questionsCount + " questions. " +
 			"El tono es divertido e informal. Recuerda: debes responder únicamente con un JSON siguiendo exactamente la estructura indicada, " +
 			"sin comentarios adicionales ni explicaciones. Usa genero neutro siempre que puedas.  " +
 			"Todo el contenido en castellano. En texto plano. Y NO CODE SNIPET!! " +
 			"Te recuerdo que el prompt para la proposal es: "
 			+ boardProposal + ", que será el tema de la sesión, en el que se basarán los challenges y las questions.";
-	}
 
+		//Challenge inspiration
+		if (gameData.challenges.Count > 0)
+		{
+			prompt += " Inspírate en estos challenges: ";
+			foreach (string challenge in gameData.challenges)
+				prompt += challenge + ",";
+		}
+
+		//Questions inspiration
+		if (gameData.questions.Count > 0)
+		{
+			prompt += " Inspírate en estas questions: ";
+			foreach (QuestionData question in gameData.questions)
+				prompt += JsonUtility.ToJson(question) + ",";
+		}
+
+		return prompt;
+	}
 }
+

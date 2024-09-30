@@ -81,9 +81,9 @@ public class Tile : MonoBehaviour
 		}
 	}
 
-	private async Task GetURLImage(string url_image)
-	{
-		Sprite sprite = await DALLE2.DownloadSprite(url_image);  // Assuming DALLE2 is a hypothetical API call
-		_tileImage.sprite = sprite;
-	}
+	//private async Task GetURLImage(string url_image)
+	//{
+	//	Sprite sprite = await DALLE2.DownloadSprite(url_image);  // Assuming DALLE2 is a hypothetical API call
+	//	_tileImage.sprite = sprite;
+	//}
 }
