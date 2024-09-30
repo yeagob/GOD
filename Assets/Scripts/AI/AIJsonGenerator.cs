@@ -44,7 +44,7 @@ public class AIJsonGenerator
 	public AIJsonGenerator()
 	{
 		_gpt = new GPT4Mini(_apiKey);
-		_dalle = new DALLE2(_apiKey);//NOT IN USE!!!
+		_dalle = new DALLE2(_apiKey);
 	}
 
 
@@ -54,8 +54,14 @@ public class AIJsonGenerator
 		gameData.challengesCount = 3;
 		gameData.questionsCount = 3;
 		gameData.challengesTypes = _defaultChallengeTypes;
+		
 		_basePrompt = CreateGameDataPrompt(unserPromptAnswer, gameData);
-		return await GetGameData(_basePrompt);
+
+		gameData = await GetGameData(_basePrompt);
+		gameData.challengesCount = 10;
+		gameData.challengesTypes = _defaultChallengeTypes;
+
+		return gameData;
 	}
 
 	public async Task<GameData> GetGameData(string prompt = null)
