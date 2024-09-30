@@ -43,6 +43,8 @@ public class EditBoardPopup : MonoBehaviour
 	[SerializeField] private TMP_InputField _challengeDescriptionInput;
 	[SerializeField] private Button _addChallengeType;
 	[SerializeField] private Button _validateChallenge;
+	[SerializeField] private List<string> _defaultChallengeTypes = new List<string>();
+
 
 	private GameData _gameData = new GameData();
 	private int _validatedQuestionsCount = 0;
@@ -198,6 +200,7 @@ public class EditBoardPopup : MonoBehaviour
 			proposal = boardData.proposal,
 			questionsCount = boardData.questionsCount,
 			challengesCount = boardData.challengesCount,
+			challengesTypes = _defaultChallengeTypes,
 			imageURL = boardData.imageURL,
 			challenges = new List<string>(),
 			questions = new List<QuestionData>()

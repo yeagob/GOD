@@ -182,6 +182,8 @@ public class BoardController
 		_boardData = null;
 		foreach (Tile tile in _boardTiles)
 			GameObject.Destroy(tile);
+
+		_boardTiles.Clear();
 	}
 
 	internal void RefreshChallenge(Tile currentTile)

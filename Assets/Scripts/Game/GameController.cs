@@ -408,7 +408,7 @@ public class GameController : MonoBehaviour
 			GameData gameData = await _popupsController.ShowEditBoardPopup(boardData);
 			
 			//TODO: Show creating board!!
-			BoardData boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
+			boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
 			return boardData;
 
 		}

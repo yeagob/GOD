@@ -83,6 +83,9 @@ public class AIJsonGenerator
 			else
 				return null;
 		}
+		data.challengesTypes = _defaultChallengeTypes;
+		data.challengesCount = data.challenges.Count;
+		data.questionsCount = data.questions.Count;
 
 		return data;
 	}
@@ -204,6 +207,8 @@ public class AIJsonGenerator
 			gameData.questions = gameData.questions.Take(3).ToList();
 			foreach (QuestionData question in gameData.questions)
 				prompt += JsonUtility.ToJson(question) + ",";
+
+			prompt = prompt.Replace("\"", "");
 		}
 
 		return prompt;
