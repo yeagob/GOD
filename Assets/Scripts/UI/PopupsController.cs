@@ -157,15 +157,6 @@ public class PopupsController : MonoBehaviour
 		_editBoardPopup.gameObject.SetActive(false);
 	}
 
-
-
-
-
-
-	//public void ShowVictoryPopup()
-	//{
-	//	_victoryPopup.ShowAsync(false, false, true);
-	//}
 	#endregion
 
 }

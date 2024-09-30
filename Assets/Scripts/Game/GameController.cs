@@ -317,20 +317,23 @@ public class GameController : MonoBehaviour
 		switch (targetTile.TileType)
 		{
 			case TileType.Challenge:
+
 				CurrentPlayer.State = PlayerState.OnChallenge;
 				await _popupsController.ShowChallengePlayer(CurrentPlayer, true);
-
+				_boardController.RefreshChallenge(CurrentPlayer.CurrentTile);
 				OnCuack.Invoke();
 
 				return false;
 
 			case TileType.Question:
+
 				bool playAgain = await _popupsController.ShowQuestion(targetTile.TileData.question);
 
 				if (playAgain)
 				{
 					OnHappy.Invoke();
 					CurrentPlayer.State = PlayerState.PlayAgain;
+					_boardController.RefreshQuestion(CurrentPlayer.CurrentTile);
 				}
 				else
 				{
@@ -341,29 +344,35 @@ public class GameController : MonoBehaviour
 				return playAgain;
 
 			case TileType.TravelToTile:
+
 				await _popupsController.ShowGenericMessage("De pato a pato y tiro porque...\n CUACK!!", 2, CurrentPlayer.Token.Color);
 
 				OnHappy.Invoke();
 
 				await _boardController.TravelToNextTravelTile(CurrentPlayer);
 				CurrentPlayer.State = PlayerState.PlayAgain;
+
 				return true;
 
 			case TileType.Bridge:
+
 				await _popupsController.ShowGenericMessage("De puente a puente y tiro porque me lleva la corriente.", 2, CurrentPlayer.Token.Color);
 				await _boardController.TravelToBridge(CurrentPlayer);
 				OnCuack.Invoke();
+
 				return true;
 
 			case TileType.LoseTurnsUntil:
 				OnSad.Invoke();
 				await _popupsController.ShowGenericMessage("Tu patito se ha perdido!!\n Pierdes un turno.", 5, Color.gray);
 				CurrentPlayer.State = PlayerState.LostTurn;
+
 				break;
 
 			case TileType.RollDicesAgain:
 				CurrentPlayer.State = PlayerState.PlayAgain;
 				OnHappy.Invoke();
+
 				return true;
 
 			case TileType.Die:
@@ -373,10 +382,12 @@ public class GameController : MonoBehaviour
 
 				await _boardController.JumptToTile(CurrentPlayer, 0);
 				CurrentPlayer.State = PlayerState.Waiting;
+
 				return false;
 
 			case TileType.End:
 				_gameState = GameStateState.EndGame;
+
 				return false;
 		}
 
@@ -575,7 +586,6 @@ public class GameController : MonoBehaviour
 		_popupsController.HideAll();
 	}
 
-
 	public void RestartGame()
 	{
 		_popupsController.HideAll();
@@ -593,9 +603,11 @@ public class GameController : MonoBehaviour
 		//TURN CONTROLLER
 
 	}
+
 	#endregion
 
 	#region EDITOR
+
 	[Button]
 	public async void MoveCurrentPLayer(int tileId)
 	{
@@ -609,6 +621,7 @@ public class GameController : MonoBehaviour
 		GameState = GameStateState.Editing;
 		_popupsController.HideAll();
 	}
+
 	#endregion
 }
 

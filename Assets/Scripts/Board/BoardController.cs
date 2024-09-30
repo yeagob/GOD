@@ -184,6 +184,18 @@ public class BoardController
 			GameObject.Destroy(tile);
 	}
 
+	internal void RefreshChallenge(Tile currentTile)
+	{
+		if (_boardData.ExtraChallenges.Count > 0)
+			currentTile.TileData.challenge.description = _boardData.ExtraChallenges.Dequeue();
+	}
+
+	internal void RefreshQuestion(Tile currentTile)
+	{
+		if (_boardData.ExtraQuestions.Count > 0)
+			currentTile.TileData.question= _boardData.ExtraQuestions.Dequeue();
+	}
+
 
 	#endregion
 

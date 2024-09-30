@@ -17,6 +17,13 @@ public class BoardData
 	public int challengesCount;
 	public TileData[] tiles;
 
+	private Queue<QuestionData> _extraQuestions;
+	private Queue<string> _extraChallenges;
+
+	public Queue<string> ExtraChallenges { get => _extraChallenges;}
+	public Queue<QuestionData> ExtraQuestions { get => _extraQuestions; }
+
+
 	#region Future
 	//public int id; // PK readonly
 	//public string guid; // SK readonly
@@ -175,8 +182,12 @@ public class BoardData
 		if (availablePositions.Count > 0)
 			Debug.LogWarning("Hay casillas vacías!!");
 
+		_extraChallenges = new Queue<string>(availableChallenges);
+		_extraQuestions = new Queue<QuestionData>(availableQuestions);
+
 		Debug.Log("Board Data: " + JsonUtility.ToJson(this));
 	}
+
 
 	// Método para mezclar listas
 	private void Shuffle<T>(List<T> list)
