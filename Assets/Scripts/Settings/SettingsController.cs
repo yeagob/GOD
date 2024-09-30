@@ -38,8 +38,6 @@ public class SettingsController : MonoBehaviour
         InvokeRepeating(nameof(CheckGameState), 1, 1);
     }
 
-
-
     #endregion
 
     #region private Methods
@@ -88,8 +86,8 @@ public class SettingsController : MonoBehaviour
 
     private void OnEditBoardClicked()
     {
-        ClosePanel();
-        Debug.Log("Edit Board button clicked");
+        _gameController.EnterEditMode();
+		ClosePanel();
     }
 
     private void OnShareClicked()

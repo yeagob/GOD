@@ -158,12 +158,33 @@ public class BoardController
 		}
 	}
 
+	internal async Task TravelToBridge(Player currentPlayer)
+	{
+		int currentTileID = currentPlayer.CurrentTile.TileData.id;
+		int nextTileID = 0;
+		for (int i = currentTileID + 1; i < _boardTiles.Count; i++)
+		{
+			if (_boardTiles[i].TileType == TileType.Bridge && i != currentTileID)
+			{
+				nextTileID = i;
+				break;
+			}
+		}
+
+		if (nextTileID != 0)
+		{
+			await JumptToTile(currentPlayer, nextTileID);
+		}
+	}
+
 	public void ResetBoard()
 	{
 		_boardData = null;
 		foreach (Tile tile in _boardTiles)
 			GameObject.Destroy(tile);
 	}
+
+
 	#endregion
 
 	#region Private Methods

@@ -30,6 +30,8 @@ public class Tile : MonoBehaviour
 	[SerializeField] private Sprite[] _diceSpriteTiles;
 	[Header("Travel")]
 	[SerializeField] private Sprite[] _travelSpriteTiles;
+	[Header("Bridge")]
+	[SerializeField] private Sprite _bridgeSpriteTiles;
 
 	private int _tileID;
 
@@ -53,28 +55,39 @@ public class Tile : MonoBehaviour
 			case TileType.Start:
 				_tileImage.sprite = _startSpriteTiles[UnityEngine.Random.Range(0, _startSpriteTiles.Length)];
 				break;
+
 			case TileType.Challenge:
 				//GetURLImage(tileData.challenge.url_image);
 				_tileDescriptionText.text = tileData.challenge.description;
 				_tileImage.sprite = _challengeSpriteTiles[UnityEngine.Random.Range(0, _challengeSpriteTiles.Length)];
 				break;
+
 			case TileType.Question:
 				//GetURLImage(tileData.challenge.url_image);
 				_tileDescriptionText.text = tileData.question.statement;
 				_tileImage.sprite = _questionSpriteTiles[UnityEngine.Random.Range(0, _questionSpriteTiles.Length)];
 				break;
+
 			case TileType.LoseTurnsUntil:
 				_tileImage.sprite = _turnSpriteTiles[UnityEngine.Random.Range(0, _turnSpriteTiles.Length)];
 				break;
+
 			case TileType.RollDicesAgain:
 				_tileImage.sprite = _diceSpriteTiles[UnityEngine.Random.Range(0, _diceSpriteTiles.Length)];
 				break;
+
 			case TileType.TravelToTile:
 				_tileImage.sprite = _travelSpriteTiles[UnityEngine.Random.Range(0, _travelSpriteTiles.Length)];
 				break;
+
+			case TileType.Bridge:
+				_tileImage.sprite = _bridgeSpriteTiles;
+				break;
+
 			case TileType.Die:
 				_tileImage.sprite = _dieSpriteTiles[UnityEngine.Random.Range(0, _dieSpriteTiles.Length)];
 				break;
+
 			case TileType.End:
 				Destroy(_tileImage);
 				break;

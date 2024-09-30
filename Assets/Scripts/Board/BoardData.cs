@@ -35,11 +35,13 @@ public class BoardData
 	{
 		int[] rollAgainIds = new int[] { 2, 10, 17, 24, 29 };
 		int[] travelToIds = new int[] { 1, 7, 13, 21, 25, 33 };
-		int[] loseTurnIds = new int[] { 6, 18, 22, 30, 27, 34};
+		int[] loseTurnIds = new int[] { 6, 18, 22, 30, 27, 34 };
+		int[] bridgeIds = new int[] { 20, 35};
 
 		// Asignar el name y proposal de GameData
 		this.tittle = data.tittle;
 		this.proposal = data.proposal;
+		this.imageURL = data.imageURL;
 
 		// Crear un array de 40 TileData
 		tiles = new TileData[40];
@@ -51,12 +53,20 @@ public class BoardData
 			type = TileType.Start.ToString(),
 		};
 
+		// La de tipo Die
+		tiles[37] = new TileData
+		{
+			id = 37,
+			type = TileType.Die.ToString(),
+		};
+
 		// La última Tile es de tipo End
 		tiles[39] = new TileData
 		{
 			id = 39,
 			type = TileType.End.ToString(),
 		};
+
 
 		// Listas de challenges y questions disponibles
 		List<string> availableChallenges = new List<string>(data.challenges);
@@ -66,7 +76,7 @@ public class BoardData
 		Shuffle(availableChallenges);
 		Shuffle(availableQuestions);
 
-		// Asignar las tiles fijas y las restantes
+		// Asignar las tiles fijas (Roll Again, Travel To, Lose Turn)
 		for (int i = 1; i < 39; i++) // Excluyendo Start y End
 		{
 			if (Array.Exists(rollAgainIds, id => id == i))
@@ -93,96 +103,79 @@ public class BoardData
 					type = TileType.LoseTurnsUntil.ToString()
 				};
 			}
+			else if (Array.Exists(bridgeIds, id => id == i))
+			{
+				tiles[i] = new TileData
+				{
+					id = i,
+					type = TileType.Bridge.ToString()
+				};
+			}
 			else
 			{
-
-				//TODO: Tener en cuenta data.questionsCount y data.challengesCount para esto!!!!
-
-				// Asignar aleatoriamente entre Question y Challenge, 50% cada uno
-				if (availableChallenges.Count == 0 && availableQuestions.Count == 0)
-				{
-					string challengeDescription = data.challenges[UnityEngine.Random.Range(0, data.challenges.Count)];
-					// Si no quedan challenges ni questions disponibles. Asignamos un challenge random extra.
-					tiles[i] = new TileData
-					{
-						id = i,
-						type = TileType.Challenge.ToString(),
-						challenge = new ChallengeData
-						{
-							description = challengeDescription,
-							//url_image = "" // Asignar URL si es necesario
-						},
-						question = null
-					};				
-				}
-				else if (availableChallenges.Count == 0)
-				{
-					// Solo quedan questions
-					AssignQuestionTile(i, availableQuestions);
-				}
-				else if (availableQuestions.Count == 0)
-				{
-					// Solo quedan challenges
-					AssignChallengeTile(i, availableChallenges);
-				}
-				else
-				{
-					// Ambos disponibles
-					System.Random rand = new System.Random();
-					if (rand.Next(100) < 50)
-					{
-						AssignChallengeTile(i, availableChallenges);
-					}
-					else
-					{
-						AssignQuestionTile(i, availableQuestions);
-					}
-				}
+				tiles[i] = null; // Marcar las casillas que quedan como vacantes
 			}
 		}
 
-		// La última 37 es de tipo Die
-		tiles[37] = new TileData
+		// Distribuir aleatoriamente las preguntas y desafíos
+		System.Random rand = new System.Random();
+
+		// Obtener las posiciones vacantes
+		List<int> availablePositions = new List<int>();
+		for (int i = 1; i < 39; i++)
 		{
-			id = 37,
-			type = TileType.Die.ToString(),
-		};
+			if (tiles[i] == null) // Solo agregar posiciones vacías (excluyendo las especiales)
+			{
+				availablePositions.Add(i);
+			}
+		}
+
+		// Mezclar las posiciones vacantes para aleatoriedad
+		Shuffle(availablePositions);
+
+		// Distribuir desafíos (challengesCount)
+		for (int i = 0; i < data.challengesCount && availableChallenges.Count > 0 && availablePositions.Count > 0; i++)
+		{
+			int position = availablePositions[0];
+			availablePositions.RemoveAt(0);
+
+			string challengeDescription = availableChallenges[0];
+			availableChallenges.RemoveAt(0);
+
+			tiles[position] = new TileData
+			{
+				id = position,
+				type = TileType.Challenge.ToString(),
+				challenge = new ChallengeData
+				{
+					description = challengeDescription
+				},
+				question = null
+			};
+		}
+
+		// Distribuir preguntas (questionsCount)
+		for (int i = 0; i < data.questionsCount && availableQuestions.Count > 0 && availablePositions.Count > 0; i++)
+		{
+			int position = availablePositions[0];
+			availablePositions.RemoveAt(0);
+
+			QuestionData question = availableQuestions[0];
+			availableQuestions.RemoveAt(0);
+
+			tiles[position] = new TileData
+			{
+				id = position,
+				type = TileType.Question.ToString(),
+				question = question,
+				challenge = null
+			};
+		}
+
+		if (availablePositions.Count > 0)
+			Debug.LogWarning("Hay casillas vacías!!");
 
 		Debug.Log("Board Data: " + JsonUtility.ToJson(this));
-	}
-
-	private void AssignChallengeTile(int index, List<string> availableChallenges)
-	{
-		// Seleccionar un challenge de la lista y asignarlo
-		string challengeDescription = availableChallenges[0];
-		availableChallenges.RemoveAt(0); // Remover el challenge usado
-
-		tiles[index] = new TileData
-		{
-			id = index,
-			type = TileType.Challenge.ToString(),
-			challenge = new ChallengeData
-			{
-				description = challengeDescription,
-				//url_image = "" // Asignar URL si es necesario
-			},
-			question = null
-		};
-	}
-
-	private void AssignQuestionTile(int index, List<QuestionData> availableQuestions)
-	{
-		// Seleccionar una question de la lista y asignarla
-		QuestionData question = availableQuestions[0];
-		availableQuestions.RemoveAt(0); // Remover la question usada
-
-		tiles[index] = new TileData
-		{
-			id = index,
-			type = TileType.Question.ToString(),
-			question = question,
-			challenge = null
-		};
 	}
 
 	// Método para mezclar listas

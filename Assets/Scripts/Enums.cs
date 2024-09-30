@@ -24,12 +24,14 @@ public enum PlayerState
 /// </summary>
 public enum TileType
 {
+	Empty,
 	Start,
 	Challenge,
 	TravelToTile,
 	LoseTurnsUntil,
 	RollDicesAgain,
 	Question,
+	Bridge,
 	Die,
 	End
 }

@@ -1,3 +1,5 @@
+using GOD.Utils;
+using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,6 +7,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static Michsky.DreamOS.GameHubData;
 
 public class EditBoardPopup : MonoBehaviour
 {
@@ -13,16 +16,20 @@ public class EditBoardPopup : MonoBehaviour
 	[Header("Header")]
 	[SerializeField] private TMP_InputField _tittleInput;
 	[SerializeField] private TMP_InputField _proposalInput;
-	[SerializeField] private Image _boardimage;
+	[SerializeField] private Image _boardImage;//267x322
 	[SerializeField] private Button _playButton;
 	[SerializeField] private Button _backButton;
+	[SerializeField] private Button _rerollButton;
 
 	[Header("Questions-Challenges Slider ")]
 	[SerializeField] private Slider _questionsChallengesSlider;
+	[SerializeField] private TextMeshProUGUI _questionsCountText;	
+	[SerializeField] private TextMeshProUGUI _challengesCountText;
 
 	// Sub Controllers for Questions
 	[Header("Questions")]
-	[SerializeField] private TextMeshProUGUI _questionsToValidate;
+	[SerializeField] private GameObject _questionsPanel;
+	[SerializeField] private TextMeshProUGUI _questionsToValidateText;
 	[SerializeField] private TMP_InputField _statementInput;
 	[SerializeField] private TMP_InputField[] _answersText;
 	[SerializeField] private Toggle[] _correctAnswerToggle;
@@ -30,7 +37,8 @@ public class EditBoardPopup : MonoBehaviour
 
 	// Sub Controllers for Challenges
 	[Header("Challenges")]
-	[SerializeField] private TextMeshProUGUI _challengesToValidate;
+	[SerializeField] private GameObject _challengesPanel;
+	[SerializeField] private TextMeshProUGUI _challengesToValidateText;
 	[SerializeField] private Button[] _challengeTypes; // Dynamically created buttons
 	[SerializeField] private TMP_InputField _challengeTypeInput;
 	[SerializeField] private TMP_InputField _challengeDescriptionInput;
@@ -38,97 +46,54 @@ public class EditBoardPopup : MonoBehaviour
 	[SerializeField] private Button _validateChallenge;
 
 	private GameData _gameData = new GameData();
-	private int _validatedQuestions = 0;
-	private int _validatedChallenges = 0;
+	private int _validatedQuestionsCount = 0;
+	private int _validatedChallengesCount = 0;
 
 	#endregion
 
 	#region Properties
+
 	public GameData GameData => _gameData;
+
 	#endregion
 
 	#region Unity Callbacks
+
 	private void Start()
 	{
+		//Play
 		_playButton.onClick.AddListener(Play);
+
+		//Back
 		_backButton.onClick.AddListener(Back);
+
+		//Reroll Image
+		_rerollButton.onClick.AddListener(() => RerollImage().WrapErrors());
+
+		//Add Challenge
 		_addChallengeType.onClick.AddListener(AddChallengeType);
+
+		//Validations
+		_validateChallenge.onClick.AddListener(ValidateChallenge);
+		_validateQuestion.onClick.AddListener(ValidateQuestion);
+
+		//Slider Update!
+		_questionsChallengesSlider.onValueChanged.AddListener(SliderUpdated);
 	}
+
+
 	#endregion
 
 	#region Public Methods
 
 	public async Task<GameData> ShowAsync(BoardData boardData)
 	{
-		_gameData = new GameData();
-		GameController.GameState = GameStateState.Editing;
+		// Convert BoardData to GameData
+		GameData gameData = ConvertBoardDataToGameData(boardData);
 
-		// Show popup
-		gameObject.SetActive(true);
-
-		// Set title and proposal from BoardData
-		_tittleInput.text = boardData.tittle;
-		_proposalInput.text = boardData.proposal;
-
-		// Set question and challenge counts from BoardData
-		_questionsChallengesSlider.minValue = 0;
-		_questionsChallengesSlider.maxValue = 50; // 25 questions + 25 challenges
-		_questionsChallengesSlider.value = boardData.questionsCount;
-
-		//TODO!!!
-		// Set image (if you have an image URL system in place, otherwise you can skip this)
-		
-
-		// Load tiles (first question and challenge are assigned to inputs)
-		for (int i = 0; i < boardData.tiles.Length; i++)
-		{
-			TileData tile = boardData.tiles[i];
-
-			// Assign the first challenge
-			if (tile.type == "Challenge" && tile.challenge != null)
-			{
-				_challengeDescriptionInput.text = tile.challenge.description;
-				_validatedChallenges++;
-			}
-
-			// Assign the first question
-			if (tile.type == "Question" && tile.question != null)
-			{
-				_statementInput.text = tile.question.statement;
-				for (int j = 0; j < _answersText.Length; j++)
-				{
-					_answersText[j].text = tile.question.options[j];
-					_correctAnswerToggle[j].isOn = (j == tile.question.correctId);
-				}
-				_validatedQuestions++;
-			}
-
-			// Stop once both are filled
-			if (_validatedQuestions > 0 && _validatedChallenges > 0)
-			{
-				break;
-			}
-		}
-
-		// Set recommendations for validation
-		_questionsToValidate.text = $"{_validatedQuestions}/3 Questions validated";
-		_challengesToValidate.text = $"{_validatedChallenges}/3 Challenges validated";
-
-		// Handle dynamic buttons for challenge types
-		LoadChallengeTypes(boardData.tiles
-			.Where(t => t.type == "Challenge" && t.challenge != null)
-			.Select(t => t.challenge.description)
-			.ToList());
-
-		// Wait until the popup is closed
-		while (gameObject.activeSelf)
-		{
-			await Task.Yield();
-		}
-
-		return _gameData;
+		// Pass the converted GameData to the second ShowAsync
+		return await ShowAsync(gameData);
 	}
-
 
 	public async Task<GameData> ShowAsync(GameData gameData)
 	{
@@ -144,32 +109,34 @@ public class EditBoardPopup : MonoBehaviour
 
 		// Set question and challenge counts from the slider
 		_questionsChallengesSlider.minValue = 0;
-		_questionsChallengesSlider.maxValue = 50; // 25 questions + 25 challenges
-		_questionsChallengesSlider.value = gameData.questionsCount;
+		_questionsChallengesSlider.maxValue = 25;
+		_questionsChallengesSlider.value = gameData.challengesCount;
 
 		// Place the first challenge and question into the UI
 		if (gameData.challenges.Count > 0)
 		{
-			_challengeDescriptionInput.text = gameData.challenges[0];
+			LoadChallenge(gameData.challenges[0]);
 		}
 
 		if (gameData.questions.Count > 0)
 		{
-			_statementInput.text = gameData.questions[0].statement;
-			for (int i = 0; i < _answersText.Length; i++)
-			{
-				_answersText[i].text = gameData.questions[0].options[i];
-				_correctAnswerToggle[i].isOn = (i == gameData.questions[0].correctId);
-			}
+			LoadQuestion(gameData.questions[0]);	
 		}
 
 		// Load challenge types as buttons
-		LoadChallengeTypes(gameData.challengTypes);
+		LoadChallengeTypes(gameData.challengesTypes);
 
 		// Set recommendations to validate at least 3 questions and challenges
-		_questionsToValidate.text = $"{_validatedQuestions}/3 Questions validated";
-		_challengesToValidate.text = $"{_validatedChallenges}/3 Challenges validated";
+		_questionsToValidateText.text = $"{_validatedQuestionsCount}/3 Questions validated";
+		_challengesToValidateText.text = $"{_validatedChallengesCount}/3 Challenges validated";
 
+		//Load Board Image
+		if (gameData.imageURL.IsNullOrWhitespace())
+			_boardImage.sprite = await DALLE2.LoadSpriteFromStreamigAssets("DefaultBoardImage.png");
+		else
+			_boardImage.sprite = await DALLE2.DownloadSprite(gameData.imageURL);
+
+		//Whait...
 		while (gameObject.activeSelf)
 		{
 			await Task.Yield();
@@ -177,18 +144,19 @@ public class EditBoardPopup : MonoBehaviour
 
 		return _gameData;
 	}
+
 	#endregion
 
-	#region Private Methods
-	private void Back()
-	{
-		_gameData = null;
-		gameObject.SetActive(false);
-	}
-
+	#region Private Methods	
 	private void Play()
 	{
 		_gameData = CreateGameData();
+		gameObject.SetActive(false);
+	}
+
+	private void Back()
+	{
+		_gameData = null;
 		gameObject.SetActive(false);
 	}
 
@@ -201,29 +169,77 @@ public class EditBoardPopup : MonoBehaviour
 		newGameData.proposal = _proposalInput.text;
 
 		// Set question and challenge counts based on slider
-		newGameData.questionsCount = Mathf.RoundToInt(_questionsChallengesSlider.value);
-		newGameData.challengesCount = 50 - newGameData.questionsCount;
+		newGameData.challengesCount = Mathf.RoundToInt(_questionsChallengesSlider.value);
+		newGameData.questionsCount = 25 - newGameData.challengesCount;
 
-		// Collect challenges
-		newGameData.challenges = new List<string> { _challengeDescriptionInput.text };
-
-		// Collect the first question data
-		QuestionData firstQuestion = new QuestionData
+		//Challenges Types
+		foreach (Button challengeButton in _challengeTypes)
 		{
-			statement = _statementInput.text,
-			options = new string[_answersText.Length],
-			correctId = Array.FindIndex(_correctAnswerToggle, t => t.isOn)
-		};
-
-		for (int i = 0; i < _answersText.Length; i++)
-		{
-			firstQuestion.options[i] = _answersText[i].text;
+			string type = challengeButton.GetComponentInChildren<TextMeshProUGUI>().text;
+			type = type.Substring(2); //Eliminamos el texto 'x '
+			newGameData.challengesTypes.Add(type);
 		}
 
-		newGameData.questions = new List<QuestionData> { firstQuestion };
+		// Challenges
+		newGameData.challenges = _gameData.challenges.Take(3).ToList();
+
+		//Questions
+		newGameData.questions = _gameData.questions.Take(3).ToList();
+
+		newGameData.imageURL = _gameData.imageURL;
 
 		return newGameData;
 	}
+
+	private GameData ConvertBoardDataToGameData(BoardData boardData)
+	{
+		GameData newGameData = new GameData
+		{
+			tittle = boardData.tittle,
+			proposal = boardData.proposal,
+			questionsCount = boardData.questionsCount,
+			challengesCount = boardData.challengesCount,
+			imageURL = boardData.imageURL,
+			challenges = new List<string>(),
+			questions = new List<QuestionData>()
+		};
+
+		// Iterate through the tiles and populate questions and challenges
+		foreach (TileData tile in boardData.tiles)
+		{
+			if (tile.type == "Challenge" && tile.challenge != null)
+			{
+				newGameData.challenges.Add(tile.challenge.description);
+			}
+			if (tile.type == "Question" && tile.question != null)
+			{
+				newGameData.questions.Add(tile.question);
+			}
+		}
+
+		return newGameData;
+	}
+
+
+	private void SliderUpdated(float value)
+	{
+		_gameData.challengesCount = Mathf.RoundToInt(_questionsChallengesSlider.value);
+		_gameData.questionsCount = 25 - _gameData.challengesCount;
+
+		_challengesCountText.text = "Desafíos: " + _gameData.challengesCount;
+		_questionsCountText.text = "Preguntas: " + _gameData.questionsCount;
+
+		if (_gameData.questionsCount == 0)
+			_questionsPanel.SetActive(false);
+		else
+			_questionsPanel.SetActive(true);
+
+		if (_gameData.challengesCount == 0)
+			_challengesPanel.SetActive(false);
+		else
+			_challengesPanel.SetActive(true);
+	}
+
 
 	private void LoadChallengeTypes(List<string> challengeTypes)
 	{
@@ -238,7 +254,9 @@ public class EditBoardPopup : MonoBehaviour
 	{
 		Button newButton = Instantiate(_challengeTypes[0], _challengeTypes[0].transform.parent);
 		newButton.gameObject.SetActive(true);
-		newButton.GetComponentInChildren<TextMeshProUGUI>().text = challengeType;
+		newButton.transform.SetSiblingIndex(1);
+		newButton.GetComponentInChildren<TextMeshProUGUI>().text = "x " + challengeType;
+		newButton.onClick.AddListener(() => RemoveChallengeType(newButton, challengeType));
 		return newButton;
 	}
 
@@ -248,20 +266,90 @@ public class EditBoardPopup : MonoBehaviour
 		if (!string.IsNullOrEmpty(challengeType))
 		{
 			Button newButton = CreateChallengeTypeButton(challengeType);
-			newButton.onClick.AddListener(() => RemoveChallengeType(newButton, challengeType));
-			_gameData.challengTypes.Add(challengeType);
+			_gameData.challengesTypes.Add(challengeType);
 		}
 	}
 
 	private void RemoveChallengeType(Button button, string challengeType)
 	{
 		Destroy(button.gameObject);
-		_gameData.challengTypes.Remove(challengeType);
+		_gameData.challengesTypes.Remove(challengeType);
 	}
 
-	internal async Task<GameData> ShowAsync(object boardGameData)
+	private async Task RerollImage()
 	{
-		throw new NotImplementedException();
+		DALLE2 dALLE2 = new DALLE2();
+		string prompt = "Crea una imagen sobre este topic: " + _proposalInput.text + ". Y añade un pato de goma en alguna parte";
+		Sprite image = await dALLE2.GenerateImage(prompt);
+		_boardImage.sprite = image;
+		_gameData.imageURL = DALLE2.LastImageUrl;
+	}
+
+	private void ValidateQuestion()
+	{
+		// Collect the first question data
+		QuestionData question = new QuestionData
+		{
+			statement = _statementInput.text,
+			options = new string[_answersText.Length],
+			correctId = Array.FindIndex(_correctAnswerToggle, t => t.isOn)
+		};
+
+		for (int i = 0; i < _answersText.Length; i++)
+		{
+			question.options[i] = _answersText[i].text;
+		}
+
+		_gameData.questions[_validatedQuestionsCount] = question;
+
+		_validatedQuestionsCount++;
+
+		_questionsToValidateText.text = $"{_validatedQuestionsCount}/3 Preguntas Validadas";
+
+		if (_validatedQuestionsCount == 1)
+			_questionsToValidateText.color = Color.yellow;
+		if (_validatedQuestionsCount == 2)
+			_questionsToValidateText.color = Color.blue;
+		if (_validatedQuestionsCount == 3)
+			_questionsToValidateText.color = Color.green;
+
+		LoadQuestion(_gameData.questions[_validatedQuestionsCount]);
+
+	}
+
+	private void LoadQuestion(QuestionData questionData)
+	{
+		_statementInput.text = questionData.statement;
+		for (int i = 0; i < _answersText.Length; i++)
+		{
+			_answersText[i].text = questionData.options[i];
+			_correctAnswerToggle[i].isOn = (i == questionData.correctId);
+		}
+	}
+
+	int _validationChallengeIndex = 0;
+	private void ValidateChallenge()
+	{
+
+		_gameData.challenges[_validatedChallengesCount] = _challengeDescriptionInput.text;
+
+		_validatedChallengesCount++;
+
+		_challengesToValidateText.text = $"{_validatedChallengesCount}/3 Desafíos Validados";
+
+		if (_validatedChallengesCount == 1)
+			_challengesToValidateText.color = Color.yellow;
+		if (_validatedChallengesCount == 2)
+			_challengesToValidateText.color = Color.blue;
+		if (_validatedChallengesCount == 3)
+			_challengesToValidateText.color = Color.green;
+
+		LoadChallenge(_gameData.challenges[_validatedChallengesCount]);
+	}
+
+	private void LoadChallenge(string challenge)
+	{
+		_challengeDescriptionInput.text = challenge;
 	}
 	#endregion
 }

@@ -73,7 +73,6 @@ public class PopupsController : MonoBehaviour
 		return await _editBoardPopup.ShowAsync(boardData);
 	}
 
-
 	public async Task ShowPlayerTurn(Player currentPlayer)
 	{
 		await _playerTurnPopup.ShowAsync(currentPlayer);
@@ -155,6 +154,7 @@ public class PopupsController : MonoBehaviour
 		_chooseBoardPopup.gameObject.SetActive(false);
 		_createBoardQuestion.gameObject.SetActive(false);
 		_createOrChooosePopup.gameObject.SetActive(false);
+		_editBoardPopup.gameObject.SetActive(false);
 	}
 
 

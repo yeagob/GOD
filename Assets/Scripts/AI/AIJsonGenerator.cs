@@ -13,13 +13,14 @@ public class GameData
 	//Config
 	public string tittle = "";
 	public string proposal = "";
-	public List<string> challengTypes = new List<string>();
+	public List<string> challengesTypes = new List<string>();
 	public int questionsCount = 0;
 	public int challengesCount = 0;
 
 	//Board Data
 	public List<string> challenges = new List<string>();
 	public List<QuestionData> questions = new List<QuestionData>();
+	public string imageURL;
 
 	//TODO: Separate Config from BoardData in a diferent clases
 }
@@ -51,7 +52,7 @@ public class AIJsonGenerator
 		GameData gameData = new GameData();
 		gameData.challengesCount = 3;
 		gameData.questionsCount = 3;
-		gameData.challengTypes = _defaultChallengeTypes;
+		gameData.challengesTypes = _defaultChallengeTypes;
 		_basePrompt = CreateGameDataPrompt(unserPromptAnswer, gameData);
 		return await GetGameData(_basePrompt);
 	}
@@ -95,6 +96,7 @@ public class AIJsonGenerator
 			//To avoid overrides
 			string boardTittle = gameData.tittle;
 			string boardProposal = gameData.proposal;
+			string imageURL = gameData.imageURL;
 
 			string boardPrompt = CreateBoardPrompt(gameData);
 			GameData data = await GetGameData(boardPrompt);
@@ -104,6 +106,7 @@ public class AIJsonGenerator
 			//Set previous title & Proposal
 			boardData.tittle = boardTittle;
 			boardData.proposal = boardProposal;
+			boardData.imageURL = imageURL;
 		}
 		else
 			//TODO No me gusta cargar el tablero por defecto, me gustaría que diese error y te tirase para atrás!
@@ -153,7 +156,7 @@ public class AIJsonGenerator
 	{
 		int questionsCount = gameData.questionsCount;
 		int challengesCount = gameData.challengesCount;
-		List<string> challengeTypes = gameData.challengTypes;
+		List<string> challengeTypes = gameData.challengesTypes;
 
 		if (challengeTypes == null)
 			challengeTypes = _defaultChallengeTypes;

@@ -150,7 +150,9 @@ public class GameController : MonoBehaviour
 		}
 
 		//EDIT BOARD
-		await CheckEditMode();
+		BoardData editedBoardData = await CheckEditMode();
+		if (editedBoardData != null)
+			boardData = editedBoardData;
 
 		//CREATE BOARD!!!
 		CreateBoard(boardData);
@@ -162,8 +164,6 @@ public class GameController : MonoBehaviour
 		//BOARD INFO
 		//await _popupsController.ShowBoardInfoPopup(_boardController.BoardData);
 
-
-
 		//PLAYER LIST
 		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers();
 
@@ -172,13 +172,21 @@ public class GameController : MonoBehaviour
 		//TURN CONTROLLER
 		_turnController = new TurnController(players, _popupsController);
 
+		//GAME LOOP!!
 		while (true)
 		{
 			StartGame(players);
 
 			await GameLoop();
 
-			await CheckEditMode();
+			BoardData boardDataEdited = await CheckEditMode();
+
+			if (boardDataEdited != null)
+			{
+				_boardController.ResetBoard();
+				CreateBoard(boardDataEdited);
+				continue;
+			}
 
 			if (_gameState == GameStateState.EndGame)
 			{
@@ -341,6 +349,12 @@ public class GameController : MonoBehaviour
 				CurrentPlayer.State = PlayerState.PlayAgain;
 				return true;
 
+			case TileType.Bridge:
+				await _popupsController.ShowGenericMessage("De puente a puente y tiro porque me lleva la corriente.", 2, CurrentPlayer.Token.Color);
+				await _boardController.TravelToBridge(CurrentPlayer);
+				OnCuack.Invoke();
+				return true;
+
 			case TileType.LoseTurnsUntil:
 				OnSad.Invoke();
 				await _popupsController.ShowGenericMessage("Tu patito se ha perdido!!\n Pierdes un turno.", 5, Color.gray);
@@ -369,7 +383,7 @@ public class GameController : MonoBehaviour
 		return false;
 	}
 
-	private async Task CheckEditMode()
+	private async Task<BoardData> CheckEditMode()
 	{
 		if (_gameState == GameStateState.Editing)
 		{
@@ -378,10 +392,16 @@ public class GameController : MonoBehaviour
 
 			_popupsController.HideAll();
 
-			_popupsController.ShowEditBoardPopup(_boardController.BoardData);
+			GameData gameData = await _popupsController.ShowEditBoardPopup(_boardController.BoardData);
+			
+			//TODO: Show creating board!!
+			BoardData boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
+			return boardData;
+
 		}
-		else
-			_saveButton.gameObject.SetActive(false);
+		
+		_saveButton.gameObject.SetActive(false);
+		return null;
 	}
 
 	private async Task FinishGame()
@@ -582,6 +602,12 @@ public class GameController : MonoBehaviour
 		Tile targetTile = await _boardController.JumptToTile(CurrentPlayer, tileId);
 		await ApplyTileEffect(targetTile);
 		_turnController.NextTurn();
+	}
+
+	internal void EnterEditMode()
+	{
+		GameState = GameStateState.Editing;
+		_popupsController.HideAll();
 	}
 	#endregion
 }
