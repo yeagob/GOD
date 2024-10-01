@@ -1,3 +1,4 @@
+using DG.Tweening;
 using GOD.Utils;
 using Sirenix.Utilities;
 using System;
@@ -298,11 +299,22 @@ public class EditBoardPopup : MonoBehaviour
 
 	private async Task RerollImage()
 	{
-		DALLE2 dALLE2 = new DALLE2();
-		string prompt = "Crea una imagen sobre este topic: " + _proposalInput.text + ". Y añade un pato de goma en alguna parte";
-		Sprite image = await dALLE2.GenerateImage(prompt);
+		_rerollButton.interactable = false;
+		_rerollButton.transform.DORotate(new Vector3(0, 0, 360), 1f, RotateMode.FastBeyond360)
+			.SetLoops(-1, LoopType.Restart)
+			.SetEase(Ease.Linear);
+
+		DALLE2 dalle2 = new DALLE2();
+		string prompt = "Crea una imagen que represente un juego de tablero con este título: " + _tittleInput.text + ". El/Los protagonistas de la imagen es/son patitos de goma amarillos.";
+		//string prompt = "Crea una imagen de un patito de goma.";
+		Sprite image = await dalle2.GenerateImage(prompt);
 		_boardImage.sprite = image;
 		_gameData.imageURL = DALLE2.LastImageUrl;
+
+		_rerollButton.transform.DOKill();
+		_rerollButton.interactable = true;
+
+
 	}
 
 	private void ValidateQuestion()
@@ -388,8 +400,8 @@ public class EditBoardPopup : MonoBehaviour
 
 	private void RefreshValidations()
 	{
-		_questionsToValidateText.text = $"{_validatedQuestionsCount}/3 Preguntas Corregidas y Validadas";
-		_challengesToValidateText.text = $"{_validatedChallengesCount}/3 Desafíos Corregidos y Validados";
+		_questionsToValidateText.text = $"{_validatedQuestionsCount}/${_gameData.questions.Count} Preguntas Corregidas y Validadas";
+		_challengesToValidateText.text = $"{_validatedChallengesCount}/${_gameData.challenges.Count} Desafíos Corregidos y Validados";
 
 		if (_validatedChallengesCount < 3)
 			_validateChallenge.interactable = true;

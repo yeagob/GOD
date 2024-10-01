@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -22,19 +21,18 @@ public abstract class OpenAIBase
 	[System.Serializable]
 	public class DALLEResponse
 	{
-		public Data[] Data;
+		public Data[] data;
 	}
 
 	[System.Serializable]
 	public class Data
 	{
-		public string Url;
+		public string url;
 	}
 	protected async Task<string> SendRequest(string endpoint, string jsonData)
 	{
 		using (UnityWebRequest request = new UnityWebRequest(API_URL + endpoint, "POST"))
 		{
-			//Debug.Log("Request: " + API_URL + endpoint);
 			Debug.Log("Json: " + jsonData);
 
 			byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
@@ -50,9 +48,12 @@ public abstract class OpenAIBase
 
 			if (request.result != UnityWebRequest.Result.Success)
 			{
-				Debug.LogError($"Error: {request.error}");
+				Debug.LogError($"Error: {request.error}");			
 				return null;
 			}
+
+
+			Debug.Log("Response: " + request.downloadHandler.text);
 
 			return request.downloadHandler.text;
 		}
@@ -113,19 +114,19 @@ public class DALLE2 : OpenAIBase
 
 	public async Task<Sprite> GenerateImage(string prompt, string imageID = "default")
 	{
-		string jsonData = $"{{\"prompt\": \"{prompt}\", \"n\": 1, \"size\": \"1024x1024\"}}";
+		string jsonData = $"{{\"prompt\": \"{prompt}\", \"n\": 1, \"size\": \"512x512\"}}";////267x322
 		string response = await SendRequest("images/generations", jsonData);
 
 		// Procesar la respuesta JSON y extraer la URL de la imagen generada
 		DALLEResponse dalleResponse = JsonUtility.FromJson<DALLEResponse>(response);
 
-		if (dalleResponse == null || dalleResponse.Data == null || dalleResponse.Data.Length == 0)
+		if (dalleResponse == null || dalleResponse.data == null || dalleResponse.data.Length == 0)
 		{
 			Debug.LogError("Failed to parse DALL-E response or no image data received.");
 			return null;
 		}
 
-		LastImageUrl = dalleResponse.Data[0].Url;
+		LastImageUrl = dalleResponse.data[0].url;
 
 		if (ImagesTagsUrls.ContainsKey(imageID))
 			ImagesTagsUrls[imageID] = LastImageUrl;
