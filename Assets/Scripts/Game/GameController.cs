@@ -122,16 +122,25 @@ public class GameController : MonoBehaviour
 				string promptBase = await _popupsController.ShowCreateBoardQuestionPopup();
 				OnCuack.Invoke();
 
+				_popupsController.PatoCienciaPopup.Show("Preparando la propuesta...");
+
 				//Create First Game Data
 				_aiJsonGenerator = new AIJsonGenerator();
 				//TODO: sHOW LOADING
 				GameData gameData = await _aiJsonGenerator.CreateBaseGameData(promptBase);
 
+				_popupsController.PatoCienciaPopup.Hide();
+
 				//Creating seccond Game Data. Edit Board Mode
 				GameData boardGameData = await _popupsController.ShowEditBoardPopup(gameData);
 
+				_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
+
 				//Creating Board
 				boardData = await _aiJsonGenerator.GetJsonBoard(boardGameData);
+
+				_popupsController.PatoCienciaPopup.Hide();
+
 			}
 			//Select Board
 			else
@@ -406,9 +415,13 @@ public class GameController : MonoBehaviour
 			_popupsController.HideAll();
 
 			GameData gameData = await _popupsController.ShowEditBoardPopup(boardData);
-			
-			//TODO: Show creating board!!
+
+			_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
+
+			//TODO: creo que esto no se debería hacer siempre... a veces solo quieres editar preguntas, no regenerar el board...
 			boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
+
+			_popupsController.PatoCienciaPopup.Hide();
 			return boardData;
 
 		}

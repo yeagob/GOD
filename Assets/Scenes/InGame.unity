@@ -5696,7 +5696,7 @@ GameObject:
   - component: {fileID: 405553612}
   - component: {fileID: 405553611}
   m_Layer: 5
-  m_Name: QuestionText (TMP)
+  m_Name: Tittle Text(TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11784,10 +11784,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 861642611}
+  - component: {fileID: 861642615}
   - component: {fileID: 861642614}
   - component: {fileID: 861642613}
   m_Layer: 5
-  m_Name: CreatingPanel
+  m_Name: PatoCienciaPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11852,6 +11853,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 861642610}
   m_CullTransparentMesh: 1
+--- !u!114 &861642615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 861642610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f24a1622d1a67b84f98e7c20bb1a1360, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TittleText: {fileID: 405553611}
 --- !u!1 &862756137
 GameObject:
   m_ObjectHideFlags: 0
@@ -16744,6 +16758,7 @@ MonoBehaviour:
   _rollDicePopup: {fileID: 947371363}
   _questionPopup: {fileID: 977463011}
   _challengePopup: {fileID: 1744801547}
+  PatoCienciaPopup: {fileID: 861642615}
 --- !u!224 &1248936184 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3489763419326358436, guid: 2676bc8981cba1b4c887ebe37ab38613,
@@ -19033,7 +19048,7 @@ GameObject:
   - component: {fileID: 1372445756}
   - component: {fileID: 1372445755}
   m_Layer: 5
-  m_Name: QuestionText (TMP) (1)
+  m_Name: PatocienciaText (TMP) (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

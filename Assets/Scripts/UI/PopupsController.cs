@@ -32,7 +32,10 @@ public class PopupsController : MonoBehaviour
 	#endregion
 
 	#region Properties
-	//TODO: Necesito u PlayerController que no sea un POPUP!
+	//TODO: mal
+	public PatoCienciaPopup PatoCienciaPopup;
+
+	//TODO: Necesito un PlayerController que no sea un POPUP!
 	public PlayerCreationController PlayerCreationController { get => _playerCreationController;  }
 
 	#endregion
