@@ -22,7 +22,7 @@ public class EditBoardPopup : MonoBehaviour
 
 	[Header("Questions-Challenges Slider ")]
 	[SerializeField] private Slider _questionsChallengesSlider;
-	[SerializeField] private TextMeshProUGUI _questionsCountText;	
+	[SerializeField] private TextMeshProUGUI _questionsCountText;
 	[SerializeField] private TextMeshProUGUI _challengesCountText;
 
 	// Sub Controllers for Questions
@@ -38,7 +38,9 @@ public class EditBoardPopup : MonoBehaviour
 	[Header("Challenges")]
 	[SerializeField] private GameObject _challengesPanel;
 	[SerializeField] private TextMeshProUGUI _challengesToValidateText;
-	[SerializeField] private Button[] _challengeTypes; // Dynamically created buttons
+	[SerializeField] private List<Button> _challengeTypesButtons; 
+	[SerializeField] private Button _challengeTypeButtonPrefab; 
+
 	[SerializeField] private TMP_InputField _challengeTypeInput;
 	[SerializeField] private TMP_InputField _challengeDescriptionInput;
 	[SerializeField] private Button _addChallengeType;
@@ -64,6 +66,7 @@ public class EditBoardPopup : MonoBehaviour
 	{
 		//Play
 		_playButton.onClick.AddListener(Play);
+		_playButton.interactable = false;
 
 		//Back
 		_backButton.onClick.AddListener(Back);
@@ -92,6 +95,8 @@ public class EditBoardPopup : MonoBehaviour
 		// Convert BoardData to GameData
 		GameData gameData = ConvertBoardDataToGameData(boardData);
 
+		_playButton.interactable = true;
+
 		// Pass the converted GameData to the second ShowAsync
 		return await ShowAsync(gameData);
 	}
@@ -111,7 +116,10 @@ public class EditBoardPopup : MonoBehaviour
 		// Set question and challenge counts from the slider
 		_questionsChallengesSlider.minValue = 0;
 		_questionsChallengesSlider.maxValue = 25;
-		_questionsChallengesSlider.value = gameData.challengesCount;
+		if (gameData.challengesCount + gameData.questionsCount < 25)
+			_questionsChallengesSlider.value = 13;
+		else
+			_questionsChallengesSlider.value = gameData.challengesCount;
 
 		// Place the first challenge and question into the UI
 		if (gameData.challenges.Count > 0)
@@ -121,15 +129,13 @@ public class EditBoardPopup : MonoBehaviour
 
 		if (gameData.questions.Count > 0)
 		{
-			LoadQuestion(gameData.questions[0]);	
+			LoadQuestion(gameData.questions[0]);
 		}
 
 		// Load challenge types as buttons
 		LoadChallengeTypes(gameData.challengesTypes);
 
-		// Set recommendations to validate at least 3 questions and challenges
-		_questionsToValidateText.text = $"{_validatedQuestionsCount}/3 Questions validated";
-		_challengesToValidateText.text = $"{_validatedChallengesCount}/3 Challenges validated";
+		RefreshValidations();
 
 		//Load Board Image
 		if (gameData.imageURL.IsNullOrWhitespace())
@@ -142,6 +148,8 @@ public class EditBoardPopup : MonoBehaviour
 		{
 			await Task.Yield();
 		}
+
+		_playButton.interactable = false;
 
 		return _gameData;
 	}
@@ -174,7 +182,7 @@ public class EditBoardPopup : MonoBehaviour
 		newGameData.questionsCount = 25 - newGameData.challengesCount;
 
 		//Challenges Types
-		foreach (Button challengeButton in _challengeTypes)
+		foreach (Button challengeButton in _challengeTypesButtons)
 		{
 			string type = challengeButton.GetComponentInChildren<TextMeshProUGUI>().text;
 			type = type.Substring(2); //Eliminamos el texto 'x '
@@ -240,11 +248,18 @@ public class EditBoardPopup : MonoBehaviour
 			_challengesPanel.SetActive(false);
 		else
 			_challengesPanel.SetActive(true);
+
+		RefreshPlayButton();
 	}
 
 
 	private void LoadChallengeTypes(List<string> challengeTypes)
 	{
+		foreach (Button challengeTypeButton in _challengeTypesButtons)
+			Destroy(challengeTypeButton.gameObject);
+		
+		_challengeTypesButtons.Clear();
+		
 		foreach (string challengeType in challengeTypes)
 		{
 			Button newButton = CreateChallengeTypeButton(challengeType);
@@ -254,11 +269,14 @@ public class EditBoardPopup : MonoBehaviour
 
 	private Button CreateChallengeTypeButton(string challengeType)
 	{
-		Button newButton = Instantiate(_challengeTypes[0], _challengeTypes[0].transform.parent);
+		Button newButton = Instantiate(_challengeTypeButtonPrefab, _challengeTypeButtonPrefab.transform.parent);
 		newButton.gameObject.SetActive(true);
 		newButton.transform.SetSiblingIndex(1);
 		newButton.GetComponentInChildren<TextMeshProUGUI>().text = "x " + challengeType;
 		newButton.onClick.AddListener(() => RemoveChallengeType(newButton, challengeType));
+		
+		_challengeTypesButtons.Add(newButton);
+
 		return newButton;
 	}
 
@@ -306,7 +324,7 @@ public class EditBoardPopup : MonoBehaviour
 
 		_validatedQuestionsCount++;
 
-		_questionsToValidateText.text = $"{_validatedQuestionsCount}/3 Preguntas Validadas";
+		RefreshValidations();
 
 		if (_validatedQuestionsCount == 1)
 			_questionsToValidateText.color = Color.yellow;
@@ -315,8 +333,14 @@ public class EditBoardPopup : MonoBehaviour
 		if (_validatedQuestionsCount == 3)
 			_questionsToValidateText.color = Color.green;
 
-		LoadQuestion(_gameData.questions[_validatedQuestionsCount]);
-
+		if (_validatedQuestionsCount < _gameData.questions.Count)
+			LoadQuestion(_gameData.questions[_validatedQuestionsCount]);
+		else
+		{
+			_validateQuestion.interactable = false;
+			_questionsToValidateText.text = "Validación Completada!";
+		}
+		RefreshPlayButton();
 	}
 
 	private void LoadQuestion(QuestionData questionData)
@@ -337,7 +361,7 @@ public class EditBoardPopup : MonoBehaviour
 
 		_validatedChallengesCount++;
 
-		_challengesToValidateText.text = $"{_validatedChallengesCount}/3 Desafíos Validados";
+		RefreshValidations();
 
 		if (_validatedChallengesCount == 1)
 			_challengesToValidateText.color = Color.yellow;
@@ -346,12 +370,47 @@ public class EditBoardPopup : MonoBehaviour
 		if (_validatedChallengesCount == 3)
 			_challengesToValidateText.color = Color.green;
 
-		LoadChallenge(_gameData.challenges[_validatedChallengesCount]);
+		if (_validatedChallengesCount < _gameData.challenges.Count)
+			LoadChallenge(_gameData.challenges[_validatedChallengesCount]);
+		else
+		{
+			_validateChallenge.interactable = false;
+			_challengesToValidateText.text = "Validación Completada!";
+		}
+
+		RefreshPlayButton();
 	}
 
 	private void LoadChallenge(string challenge)
 	{
 		_challengeDescriptionInput.text = challenge;
+	}
+
+	private void RefreshValidations()
+	{
+		_questionsToValidateText.text = $"{_validatedQuestionsCount}/3 Preguntas Corregidas y Validadas";
+		_challengesToValidateText.text = $"{_validatedChallengesCount}/3 Desafíos Corregidos y Validados";
+
+		if (_validatedChallengesCount < 3)
+			_validateChallenge.interactable = true;
+		
+		if (_validatedQuestionsCount < 3)
+			_validateQuestion.interactable = true;
+	}
+
+	private void RefreshPlayButton()
+	{
+		bool buttonState = true;
+		int questions = (int)_questionsChallengesSlider.value;
+		int challenges = 25-questions;
+
+		if (questions > _validatedQuestionsCount && _validatedQuestionsCount < 2)
+			buttonState = false;
+
+		if (challenges > _validatedChallengesCount && _validatedChallengesCount < 2)
+			buttonState = false;
+
+		_playButton.interactable = buttonState;
 	}
 	#endregion
 }

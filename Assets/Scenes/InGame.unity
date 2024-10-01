@@ -5669,8 +5669,8 @@ MonoBehaviour:
   _validateQuestion: {fileID: 572610128}
   _challengesPanel: {fileID: 1943920497}
   _challengesToValidateText: {fileID: 862756139}
-  _challengeTypes:
-  - {fileID: 1278943487}
+  _challengeTypesButtons: []
+  _challengeTypeButtonPrefab: {fileID: 1278943487}
   _challengeTypeInput: {fileID: 1734553313}
   _challengeDescriptionInput: {fileID: 53606879}
   _addChallengeType: {fileID: 844770139}

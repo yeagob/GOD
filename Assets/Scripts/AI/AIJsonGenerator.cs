@@ -180,7 +180,7 @@ public class AIJsonGenerator
 		string prompt = "Responde únicamente con un JSON siguiendo esta estructura exacta: La clase principal tiene los siguientes campos:" +
 			" tittle y proposal, de tipo string que son un título corto y una descripción basada en los intereses proporcionados aquí: "
 			+ boardProposal + ". challenges es una lista de strings donde cada elemento es la descripción de un desafío " +
-			"breve y claro, sncillos juegos psicomágicos o no, que persigan el proposal, siempre´y únicamente dentro de estos tipos de desafío:"
+			"breve y claro, sncillos juegos psicomágicos o no, que persigan el proposal, siempre´y únicamente dentro de estos tipo(s) de desafío:"
 			+ challengeTypesPrompt + ". Ejemplo de challenges: 'descripción breve y clara de un desafío corto, relevante a la proposal', sin mencionar la psicomagia. " +
 			"questions es una lista de objetos, donde cada objeto tiene tres campos: " +
 			"statement de tipo string que es el enunciado una pregunta dificil y formativa relacionada con la proposal. " +
