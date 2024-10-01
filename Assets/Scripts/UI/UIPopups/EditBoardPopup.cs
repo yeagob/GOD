@@ -33,7 +33,7 @@ public class EditBoardPopup : MonoBehaviour
 	[SerializeField] private TMP_InputField _statementInput;
 	[SerializeField] private TMP_InputField[] _answersText;
 	[SerializeField] private Toggle[] _correctAnswerToggle;
-	[SerializeField] private Button _validateQuestion;
+	[SerializeField] private Button _validateQuestionButton;
 
 	// Sub Controllers for Challenges
 	[Header("Challenges")]
@@ -45,7 +45,7 @@ public class EditBoardPopup : MonoBehaviour
 	[SerializeField] private TMP_InputField _challengeTypeInput;
 	[SerializeField] private TMP_InputField _challengeDescriptionInput;
 	[SerializeField] private Button _addChallengeType;
-	[SerializeField] private Button _validateChallenge;
+	[SerializeField] private Button _validateChallengeButton;
 	[SerializeField] private List<string> _defaultChallengeTypes = new List<string>();
 
 
@@ -79,8 +79,8 @@ public class EditBoardPopup : MonoBehaviour
 		_addChallengeType.onClick.AddListener(AddChallengeType);
 
 		//Validations
-		_validateChallenge.onClick.AddListener(ValidateChallenge);
-		_validateQuestion.onClick.AddListener(ValidateQuestion);
+		_validateChallengeButton.onClick.AddListener(ValidateChallenge);
+		_validateQuestionButton.onClick.AddListener(ValidateQuestion);
 
 		//Slider Update!
 		_questionsChallengesSlider.onValueChanged.AddListener(SliderUpdated);
@@ -125,12 +125,12 @@ public class EditBoardPopup : MonoBehaviour
 		// Place the first challenge and question into the UI
 		if (gameData.challenges.Count > 0)
 		{
-			LoadChallenge(gameData.challenges[0]);
+			LoadChallenge(gameData.challenges[0],0);
 		}
 
 		if (gameData.questions.Count > 0)
 		{
-			LoadQuestion(gameData.questions[0]);
+			LoadQuestion(gameData.questions[0],0);
 		}
 
 		// Load challenge types as buttons
@@ -300,7 +300,7 @@ public class EditBoardPopup : MonoBehaviour
 	private async Task RerollImage()
 	{
 		_rerollButton.interactable = false;
-		_rerollButton.transform.DORotate(new Vector3(0, 0, 360), 1f, RotateMode.FastBeyond360)
+		_rerollButton.transform.DORotate(new Vector3(0, 0, -360), 1f, RotateMode.FastBeyond360)
 			.SetLoops(-1, LoopType.Restart)
 			.SetEase(Ease.Linear);
 
@@ -341,21 +341,23 @@ public class EditBoardPopup : MonoBehaviour
 		if (_validatedQuestionsCount == 1)
 			_questionsToValidateText.color = Color.yellow;
 		if (_validatedQuestionsCount == 2)
-			_questionsToValidateText.color = Color.blue;
-		if (_validatedQuestionsCount == 3)
 			_questionsToValidateText.color = Color.green;
+		if (_validatedQuestionsCount == 3)
+			_questionsToValidateText.color = Color.blue;
 
 		if (_validatedQuestionsCount < _gameData.questions.Count)
-			LoadQuestion(_gameData.questions[_validatedQuestionsCount]);
+			LoadQuestion(_gameData.questions[_validatedQuestionsCount], _validatedQuestionsCount);
 		else
 		{
-			_validateQuestion.interactable = false;
+			_validateQuestionButton.interactable = false;
 			_questionsToValidateText.text = "Validación Completada!";
+			_validateQuestionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Preguntas Validadas: " + _validatedQuestionsCount+1;
+
 		}
 		RefreshPlayButton();
 	}
 
-	private void LoadQuestion(QuestionData questionData)
+	private void LoadQuestion(QuestionData questionData, int index)
 	{
 		_statementInput.text = questionData.statement;
 		for (int i = 0; i < _answersText.Length; i++)
@@ -363,6 +365,7 @@ public class EditBoardPopup : MonoBehaviour
 			_answersText[i].text = questionData.options[i];
 			_correctAnswerToggle[i].isOn = (i == questionData.correctId);
 		}
+		_validateQuestionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Validar Pregunta " + index;
 	}
 
 	int _validationChallengeIndex = 0;
@@ -378,36 +381,40 @@ public class EditBoardPopup : MonoBehaviour
 		if (_validatedChallengesCount == 1)
 			_challengesToValidateText.color = Color.yellow;
 		if (_validatedChallengesCount == 2)
-			_challengesToValidateText.color = Color.blue;
-		if (_validatedChallengesCount == 3)
 			_challengesToValidateText.color = Color.green;
+		if (_validatedChallengesCount == 3)
+			_challengesToValidateText.color = Color.blue;
 
 		if (_validatedChallengesCount < _gameData.challenges.Count)
-			LoadChallenge(_gameData.challenges[_validatedChallengesCount]);
+			LoadChallenge(_gameData.challenges[_validatedChallengesCount], _validatedChallengesCount);
 		else
 		{
-			_validateChallenge.interactable = false;
+			_validateChallengeButton.interactable = false;
 			_challengesToValidateText.text = "Validación Completada!";
+			_validateQuestionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Desafíos Validados: " + _validatedChallengesCount + 1;
+
 		}
 
 		RefreshPlayButton();
 	}
 
-	private void LoadChallenge(string challenge)
+	private void LoadChallenge(string challenge, int i)
 	{
 		_challengeDescriptionInput.text = challenge;
+		_validateChallengeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Validar Desafío " + i;
+
 	}
 
 	private void RefreshValidations()
 	{
-		_questionsToValidateText.text = $"{_validatedQuestionsCount}/${_gameData.questions.Count} Preguntas Corregidas y Validadas";
-		_challengesToValidateText.text = $"{_validatedChallengesCount}/${_gameData.challenges.Count} Desafíos Corregidos y Validados";
+		_questionsToValidateText.text = $"{_validatedQuestionsCount}/{_gameData.questions.Count} Preguntas Corregidas y Validadas";
+		_challengesToValidateText.text = $"{_validatedChallengesCount}/{_gameData.challenges.Count} Desafíos Corregidos y Validados";
 
 		if (_validatedChallengesCount < 3)
-			_validateChallenge.interactable = true;
+			_validateChallengeButton.interactable = true;
 		
 		if (_validatedQuestionsCount < 3)
-			_validateQuestion.interactable = true;
+			_validateQuestionButton.interactable = true;
 	}
 
 	private void RefreshPlayButton()

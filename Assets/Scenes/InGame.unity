@@ -5666,7 +5666,7 @@ MonoBehaviour:
   - {fileID: 1097034204}
   - {fileID: 937887269}
   - {fileID: 1733030160}
-  _validateQuestion: {fileID: 572610128}
+  _validateQuestionButton: {fileID: 572610128}
   _challengesPanel: {fileID: 1943920497}
   _challengesToValidateText: {fileID: 862756139}
   _challengeTypesButtons: []
@@ -5674,7 +5674,7 @@ MonoBehaviour:
   _challengeTypeInput: {fileID: 1734553313}
   _challengeDescriptionInput: {fileID: 53606879}
   _addChallengeType: {fileID: 844770139}
-  _validateChallenge: {fileID: 1027861181}
+  _validateChallengeButton: {fileID: 1027861181}
   _defaultChallengeTypes:
   - Escribir
   - Dibujar
@@ -10277,7 +10277,7 @@ MonoBehaviour:
   _restartGameButton: {fileID: 1687769537}
   _editPlayersButton: {fileID: 2107380314}
   _editBoardButton: {fileID: 492840080}
-  _shareButton: {fileID: 1224103379}
+  _rerollButton: {fileID: 1224103379}
   _extraButton: {fileID: 316947195}
   _okButton: {fileID: 1316389809}
 --- !u!1001 &718802979
@@ -16084,7 +16084,7 @@ GameObject:
   - component: {fileID: 1224103380}
   - component: {fileID: 1224103379}
   m_Layer: 5
-  m_Name: ShareButton
+  m_Name: RerollButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16107,8 +16107,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.028, y: 0.055000003}
   m_AnchorMax: {x: 0.42800003, y: 0.254}
-  m_AnchoredPosition: {x: -1.5661621, y: 0.6777344}
-  m_SizeDelta: {x: 1.3630981, y: 0.1981659}
+  m_AnchoredPosition: {x: -7, y: -9}
+  m_SizeDelta: {x: -79.469, y: 37.4715}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1224103379
 MonoBehaviour:
@@ -19839,8 +19839,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.06152101, y: 0.15087362}
   m_AnchorMax: {x: 0.96811694, y: 0.7962989}
-  m_AnchoredPosition: {x: -1.7600098, y: -0.17419434}
-  m_SizeDelta: {x: -4.48001, y: -0.34829998}
+  m_AnchoredPosition: {x: -7.666504, y: 1.1991}
+  m_SizeDelta: {x: 15.333, y: 13.6935}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1420713888
 MonoBehaviour:
@@ -19862,7 +19862,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Compartir Tablero
+  m_text: "Generar Nuevas \nPreguntas y/o desaf\xEDos"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 78a5d1c0230441b4ead817bba99afeef, type: 2}
   m_sharedMaterial: {fileID: 7302677744040785899, guid: 78a5d1c0230441b4ead817bba99afeef,
@@ -19890,7 +19890,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38.8
+  m_fontSize: 33
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -21452,7 +21452,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Volver al inicio
+  m_text: Salir de la partida
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 78a5d1c0230441b4ead817bba99afeef, type: 2}
   m_sharedMaterial: {fileID: 7302677744040785899, guid: 78a5d1c0230441b4ead817bba99afeef,

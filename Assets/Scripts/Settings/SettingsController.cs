@@ -16,7 +16,7 @@ public class SettingsController : MonoBehaviour
     [SerializeField] private Button _restartGameButton;
     [SerializeField] private Button _editPlayersButton;
     [SerializeField] private Button _editBoardButton;
-    [SerializeField] private Button _shareButton;
+    [SerializeField] private Button _rerollButton;
     [SerializeField] private Button _extraButton;
 
     [SerializeField] private Button _okButton;
@@ -31,7 +31,7 @@ public class SettingsController : MonoBehaviour
         _restartGameButton.onClick.AddListener(OnRestartGameClicked);
         _editPlayersButton.onClick.AddListener(OnEditPlayersClicked);
         _editBoardButton.onClick.AddListener(OnEditBoardClicked);
-        _shareButton.onClick.AddListener(OnShareClicked);
+        _rerollButton.onClick.AddListener(OnRerollClicked);
         _extraButton.onClick.AddListener(OnExtraClicked);
         _okButton.onClick.AddListener(ClosePanel);
 
@@ -48,7 +48,7 @@ public class SettingsController : MonoBehaviour
         _restartGameButton.interactable = false;
         _editPlayersButton.interactable = false;
         _editBoardButton.interactable = false;
-        _shareButton.interactable = false;
+        _rerollButton.interactable = false;
         _extraButton.interactable = false;
         
         if (GameController.GameState == GameStateState.Playing)
@@ -56,12 +56,13 @@ public class SettingsController : MonoBehaviour
             _quitGameButton.interactable = true;
             _restartGameButton.interactable = true;
             _editPlayersButton.interactable = true;
-           // _editBoardButton.interactable = true;
-           // _shareButton.interactable = true;
+            _editBoardButton.interactable = true;
+            _rerollButton.interactable = true;
         }
 
         if (GameController.GameState == GameStateState.Editing)
         {
+            _rerollButton.interactable = true;
             _quitGameButton.interactable = true;
         }
     }
@@ -90,9 +91,9 @@ public class SettingsController : MonoBehaviour
 		ClosePanel();
     }
 
-    private void OnShareClicked()
+    private void OnRerollClicked()
     {
-        Debug.Log("Share button clicked");
+        Debug.Log("REROLL BOARD todo!!!!");
     }
 
     private void OnExtraClicked()
