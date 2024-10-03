@@ -85,6 +85,7 @@ public class GameController : MonoBehaviour
 
 	private void Awake()
 	{
+		Debug.Log("url:" + Application.absoluteURL);
 		if (Application.absoluteURL.Contains("board"))
 			_loadFromURLParam = true;
 
@@ -113,8 +114,9 @@ public class GameController : MonoBehaviour
 
 			if (boardParam.Contains("&"))
 				boardParam = boardParam.Split('&')[0];
+			Debug.Log("param:" + boardParam);
 
-			BoardData board = await LoadBoardData(boardParam);
+			boardData = await LoadBoardData(boardParam);
 
 			//BOARD INFO
 			await _popupsController.ShowBoardInfoPopup(boardData);
@@ -562,6 +564,8 @@ public class GameController : MonoBehaviour
 
 		// Load the specific board data
 		string boardJson = await LoadTextFileAsync($"{boardName}.json");
+		Debug.Log("json:" + boardJson);
+
 		if (string.IsNullOrEmpty(boardJson))
 		{
 			Debug.LogError($"Failed to load board data for {boardName}");
@@ -595,6 +599,7 @@ public class GameController : MonoBehaviour
 	private async Task<string> LoadTextFileAsync(string fileName)
 	{
 		string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
+		Debug.Log("filepath:" + filePath);
 
 		// For WebGL, we need to access the file via UnityWebRequest
 		if (filePath.Contains("://") || filePath.Contains(":///"))
