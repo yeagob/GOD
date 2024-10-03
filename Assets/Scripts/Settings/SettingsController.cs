@@ -9,6 +9,7 @@ public class SettingsController : MonoBehaviour
     [SerializeField] private GameController _gameController;
 
     [Header("UI BUttons")]
+    [SerializeField] private Button _settingsButton;
     [SerializeField] private Button _quitGameButton;
     [SerializeField] private Button _restartGameButton;
     [SerializeField] private Button _editPlayersButton;
@@ -62,7 +63,13 @@ public class SettingsController : MonoBehaviour
             _rerollButton.interactable = true;
             _quitGameButton.interactable = true;
         }
-    }
+
+        if (gameObject.activeSelf) 
+			_settingsButton.gameObject.SetActive(false);
+        else
+			_settingsButton.gameObject.SetActive(true);
+
+	}
 
     private void OnQuitGameClicked()
     {

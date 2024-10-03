@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine.EventSystems;
 using System;
-using UnityEditorInternal;
 using System.Linq;
 
 public class PlayerCreationController : MonoBehaviour
@@ -32,7 +31,6 @@ public class PlayerCreationController : MonoBehaviour
 	private List<Player> _players = new List<Player>();
 	private List<Player> _previousPlayers = new List<Player>();
 
-	private bool _showingPanel;
 
 	private const string PLAYERS_KEY = "players";
 
@@ -102,7 +100,7 @@ public class PlayerCreationController : MonoBehaviour
 	}
 
 
-	internal async Task<List<Player>> GetPlayers(List<Player> players = null)
+	internal async Task<List<Player>> ShowAsync(List<Player> players = null)
 	{
 		if (players != null)
 			_previousPlayers = new List<Player>(players);
@@ -110,7 +108,7 @@ public class PlayerCreationController : MonoBehaviour
 		_players.Clear();
 		ShowInputPlayers();
 
-		while(_showingPanel)
+		while(gameObject.activeSelf)
 			await Task.Yield();
 
 		return _players;
@@ -126,14 +124,12 @@ public class PlayerCreationController : MonoBehaviour
 
 		EventSystem.current.SetSelectedGameObject(_playerNameInputs[0].gameObject);
 
-		_showingPanel = true;
 		gameObject.SetActive(true);
 	}
 
 	private void CloseInputPlayers()
 	{
 		SavePlayers();
-		_showingPanel = false;
 		gameObject.SetActive(false);
 	}
 

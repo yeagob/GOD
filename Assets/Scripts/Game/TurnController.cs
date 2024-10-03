@@ -10,12 +10,21 @@ public class TurnController
 	[SerializeField] private List<Player> _players;
 	private int _currentIndex = 0;
 	PopupsController _popupsController;
-	
+
 	#endregion
 
 	#region Properties
-	
-	public Player CurrentPlayer => _players[_currentIndex];
+
+	public Player CurrentPlayer
+	{
+		get
+		{
+			if (_players == null || _players.Count == 0)
+				return null;
+
+			return _players[_currentIndex];
+		}
+	}
 
 	public List<Player> Players { get => _players; set => _players = value; }
 
@@ -40,6 +49,6 @@ public class TurnController
 			GameObject.Destroy(player.Token.gameObject);
 	}
 
-	
+
 	#endregion
 }

@@ -161,6 +161,12 @@ public class EditBoardPopup : MonoBehaviour
 		if (challengeTypes == null)
 			challengeTypes = new List<string>();
 
+		if (boardData.questionsCount + boardData.challengesCount < 25)
+		{
+			boardData.challengesCount = boardData.tiles.Count(tile => tile.type == "Challenge");
+			boardData.questionsCount = boardData.tiles.Count(tile => tile.type == "Question");
+		}
+
 		GameData newGameData = new GameData
 		{
 			tittle = boardData.tittle,
@@ -220,6 +226,9 @@ public class EditBoardPopup : MonoBehaviour
 		//Challenges Types
 		foreach (Button challengeButton in _challengeTypesButtons)
 		{
+			if (challengeButton == null)
+				continue;
+
 			string type = challengeButton.GetComponentInChildren<TextMeshProUGUI>().text;
 			type = type.Substring(2); //Eliminamos el texto 'x '
 			newGameData.challengesTypes.Add(type);
@@ -298,6 +307,7 @@ public class EditBoardPopup : MonoBehaviour
 
 	private void RemoveChallengeType(Button button, string challengeType)
 	{
+		_challengeTypesButtons.Remove(button);
 		Destroy(button.gameObject);
 		_gameData.challengesTypes.Remove(challengeType);
 	}
@@ -357,8 +367,8 @@ public class EditBoardPopup : MonoBehaviour
 			_validateQuestionButton.interactable = false;
 			_questionsToValidateText.text = "Validación Completada!";
 			_validateQuestionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Preguntas Validadas: " + _validatedQuestionsCount + 1;
-
 		}
+
 		RefreshPlayButton();
 	}
 
@@ -425,8 +435,8 @@ public class EditBoardPopup : MonoBehaviour
 	private void RefreshPlayButton()
 	{
 		bool buttonState = true;
-		int questions = (int)_questionsChallengesSlider.value;
-		int challenges = 25 - questions;
+		int challenges = (int)_questionsChallengesSlider.value;
+		int questions = 25 - challenges;
 
 		if (questions > _validatedQuestionsCount && _validatedQuestionsCount < 2)
 			buttonState = false;

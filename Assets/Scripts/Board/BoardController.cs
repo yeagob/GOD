@@ -4,8 +4,8 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
+using Sequence = DG.Tweening.Sequence;
 
 /// <summary>
 /// Manages the board by controlling its tiles and challenges.
@@ -136,6 +136,10 @@ public class BoardController
 
 		await tokenMoveSequence.AsyncWaitForCompletion();
 
+		//Reset board on th middle of a movement
+		if (_boardTiles == null || _boardTiles.Count == 0)
+			return null;
+
 		// Actualizamos la posición del token y la casilla actual del jugador
 		currentPlayer.Token.MoveToTile(_boardTiles[targetTileID]);
 		
@@ -184,14 +188,14 @@ public class BoardController
 	{
 		_boardData = null;
 		foreach (Tile tile in _boardTiles)
-			GameObject.Destroy(tile);
-
+			GameObject.DestroyImmediate(tile);
+		Debug.Break();
 		_boardTiles.Clear();
 	}
 
 	internal void RefreshChallenge(Tile currentTile)
 	{
-		if (_boardData.ExtraChallenges.Count > 0)
+		if (_boardData.ExtraChallenges?.Count > 0)
 			currentTile.TileData.challenge.description = _boardData.ExtraChallenges.Dequeue();
 	}
 

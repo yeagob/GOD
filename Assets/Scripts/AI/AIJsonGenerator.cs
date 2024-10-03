@@ -166,8 +166,8 @@ public class AIJsonGenerator
 
 	private string CreateGameDataPrompt(string boardProposal, GameData gameData)
 	{
-		int questionsCount = gameData.questionsCount;
-		int challengesCount = gameData.challengesCount;
+		int questionsCount = gameData.questionsCount == 0? 0 : gameData.questionsCount+2; //Extra Q
+		int challengesCount = gameData.challengesCount == 0? 0 : gameData.challengesCount+2; //Extra ch
 		List<string> challengeTypes = gameData.challengesTypes;
 
 		if (challengeTypes == null)

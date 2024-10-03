@@ -30,7 +30,6 @@ public class ChooseBoardPopup : MonoBehaviour
 		//PLAY
 		_playButton.onClick.AddListener(() =>
 		{
-			GameController.GameState = GameStateState.Playing;
 			gameObject.SetActive(false);
 		});
 

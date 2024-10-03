@@ -9,10 +9,10 @@ public class PatoCienciaPopup : MonoBehaviour
 
     public void Hide()
     {
-        
-    }
+        gameObject.SetActive(false);
+	}
 
-    public void Show(string tittle)
+	public void Show(string tittle)
     {
         gameObject.SetActive(true);
         TittleText.text = tittle;

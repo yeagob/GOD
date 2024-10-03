@@ -92,17 +92,17 @@ public class GameController : MonoBehaviour
 	private async void Start()
 	{
 		BoardData boardData = null;
-		_gameState = GameStateState.Welcome;
+		GameState = GameStateState.Welcome;
 		_volumeControl.Initialize();
-
 		_musicController.PlayBase();
-		OnCuack.Invoke();
 
 		//LOAD / CREATE BOARD
 		if (_loadDefault)
 		{
 			string boardJson = await LoadTextFileAsync(_defaultBoard);
 			boardData = new BoardData(boardJson);
+			//BOARD INFO
+			await _popupsController.ShowBoardInfoPopup(boardData);
 		}
 		else
 		{
@@ -138,6 +138,8 @@ public class GameController : MonoBehaviour
 
 				_popupsController.PatoCienciaPopup.Hide();
 
+				GameState = GameStateState.Playing;
+
 			}
 			//Select Board
 			else
@@ -167,13 +169,12 @@ public class GameController : MonoBehaviour
 
 		OnCuack.Invoke();
 
-		_boardController.OnMoveStep += Fart;
-
-		//BOARD INFO
-		//await _popupsController.ShowBoardInfoPopup(_boardController.BoardData);
+		_boardController.OnMoveStep += Fart;		
 
 		//PLAYER LIST
-		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers();
+		List<Player> players = await _popupsController.PlayerCreationController.ShowAsync();
+		if(players != null && players.Count > 0)
+			GameState = GameStateState.Playing;
 
 		OnCuack.Invoke();
 
@@ -187,6 +188,11 @@ public class GameController : MonoBehaviour
 
 			await GameLoop();
 
+			//CREATING
+			while (_gameState == GameStateState.Creating)
+				await Task.Yield();
+
+			//EDITING
 			BoardData boardDataEdited = await CheckEditMode(_boardController.BoardData);
 
 			if (boardDataEdited != null)
@@ -196,24 +202,24 @@ public class GameController : MonoBehaviour
 				continue;
 			}
 
+			//END GAME
 			if (_gameState == GameStateState.EndGame)
 			{
 				await FinishGame();
-				break;
+				break;//Restart
 			}
 
+			//Back to Main Menu
 			if (_gameState == GameStateState.Welcome)
 			{
 				_turnController.DestroyPlayerTokens();
-				break;
+				break;//Restart
 			}
 		}
 
 		//Start Game flow again
 		Start();
 	}
-
-	
 
 	#endregion
 
@@ -224,7 +230,6 @@ public class GameController : MonoBehaviour
 		_loadDefault = false;
 
 		MovePlayersToInitialTile(players);
-		_gameState = GameStateState.Playing;
 		_musicController.PlayRock();
 
 		OnGameStarts.Invoke();
@@ -401,7 +406,7 @@ public class GameController : MonoBehaviour
 				return false;
 
 			case TileType.End:
-				_gameState = GameStateState.EndGame;
+				GameState = GameStateState.EndGame;
 
 				return false;
 		}
@@ -596,15 +601,16 @@ public class GameController : MonoBehaviour
 	#region Public Methods
 	public async Task RerollGame()
 	{
-		_gameState = GameStateState.Creating;
+		GameState = GameStateState.Creating;
 		_popupsController.HideAll();
 		_popupsController.PatoCienciaPopup.Show("Regenerando el tablero...");
 		GameData gameData = EditBoardPopup.ConvertBoardDataToGameData(_boardController.BoardData, _boardController.BoardData.challengeTypes);
+
 		_boardController.ResetBoard();
 		BoardData boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
 		CreateBoard(boardData);
 		_popupsController.PatoCienciaPopup.Hide();
-		_gameState = GameStateState.Playing;
+		GameState = GameStateState.Playing;
 	}
 
 	public void BackToMainMenu()
@@ -614,7 +620,7 @@ public class GameController : MonoBehaviour
 
 		_popupsController.HideAll();
 		_boardController.ResetBoard();
-		_gameState = GameStateState.Welcome;
+		GameState = GameStateState.Welcome;
 	}
 
 	public void RestartGame()
@@ -626,7 +632,7 @@ public class GameController : MonoBehaviour
 	public async Task EditPlayers()
 	{
 		//PLAYER LIST
-		List<Player> players = await _popupsController.PlayerCreationController.GetPlayers(_turnController.Players);
+		List<Player> players = await _popupsController.PlayerCreationController.ShowAsync(_turnController.Players);
 		_turnController.Players = players;
 
 		OnCuack.Invoke();
