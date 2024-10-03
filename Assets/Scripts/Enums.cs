@@ -46,7 +46,7 @@ public class EnumConverter
 		}
 		else
 		{
-			throw new ArgumentException("Invalid input for TileType enum.");
+			throw new ArgumentException("Invalid input for TileType enum:" + input);
 		}
 	}
 }

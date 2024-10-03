@@ -16,6 +16,7 @@ public class BoardData
 	public int questionsCount;
 	public int challengesCount;
 	public TileData[] tiles;
+	public List<string> challengeTypes = new List<string>();
 
 	private Queue<QuestionData> _extraQuestions;
 	private Queue<string> _extraChallenges;

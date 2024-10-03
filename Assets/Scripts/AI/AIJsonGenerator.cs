@@ -107,6 +107,7 @@ public class AIJsonGenerator
 			string boardTittle = gameData.tittle;
 			string boardProposal = gameData.proposal;
 			string imageURL = gameData.imageURL;
+			List<string> challengesTypes = new List<string>(gameData.challengesTypes);
 
 			string boardPrompt = CreateBoardPrompt(gameData);
 			GameData data = await GetGameData(boardPrompt);
@@ -117,6 +118,7 @@ public class AIJsonGenerator
 			boardData.tittle = boardTittle;
 			boardData.proposal = boardProposal;
 			boardData.imageURL = imageURL;
+			boardData.challengeTypes = new List<string>(challengesTypes);
 		}
 		else
 			//TODO No me gusta cargar el tablero por defecto, me gustaría que diese error y te tirase para atrás!
@@ -177,6 +179,9 @@ public class AIJsonGenerator
 			challengeTypesPrompt += " " + type + ",";
 		}
 
+		if (challengeTypesPrompt == string.Empty)
+			challengeTypesPrompt = "Extrae los tipos de desafío de los ejemplos que hay al final del prompt.";
+
 		string prompt = "Responde únicamente con un JSON siguiendo esta estructura exacta: La clase principal tiene los siguientes campos:" +
 			" tittle y proposal, de tipo string que son un título corto y una descripción basada en los intereses proporcionados aquí: "
 			+ boardProposal + ". challenges es una lista de strings donde cada elemento es la descripción de un desafío " +
@@ -201,7 +206,7 @@ public class AIJsonGenerator
 		if (gameData.challenges.Count > 0)
 		{
 			prompt += " Inspírate en estos challenges: ";
-			gameData.challenges = gameData.challenges.Take(3).ToList();
+			gameData.challenges = gameData.challenges.Take(5).ToList();//5
 			foreach (string challenge in gameData.challenges)
 				prompt += challenge + ",";
 		}
@@ -210,7 +215,7 @@ public class AIJsonGenerator
 		if (gameData.questions.Count > 0)
 		{
 			prompt += " Inspírate en estas questions: ";
-			gameData.questions = gameData.questions.Take(3).ToList();
+			gameData.questions = gameData.questions.Take(3).ToList();//3
 			foreach (QuestionData question in gameData.questions)
 				prompt += JsonUtility.ToJson(question) + ",";
 

@@ -213,6 +213,8 @@ public class GameController : MonoBehaviour
 		Start();
 	}
 
+	
+
 	#endregion
 
 	#region Private Methods
@@ -232,7 +234,7 @@ public class GameController : MonoBehaviour
 	{
 		while (_gameState == GameStateState.Playing)
 		{
-			//Lost Turn Control
+			//LOST TURN
 			if (CurrentPlayer.State == PlayerState.LostTurn)
 			{
 				CurrentPlayer.State = PlayerState.Waiting;
@@ -240,7 +242,7 @@ public class GameController : MonoBehaviour
 				continue;
 			}
 
-			//Player on Challenge
+			//CHALLENGE
 			if (CurrentPlayer.State == PlayerState.OnChallenge)
 			{
 				bool completed = await _popupsController.ShowChallengePlayer(CurrentPlayer, false);
@@ -263,20 +265,20 @@ public class GameController : MonoBehaviour
 				}
 			}
 
-			//Show player Turn
+			if (_gameState != GameStateState.Playing) break;
+
+			//SHOW PLAYER TURN
 			await _popupsController.ShowPlayerTurn(CurrentPlayer);
 
-			//Destroyed Player Control
+			if (_gameState != GameStateState.Playing) break;
+
+			//Destroyed Player Control (SOLO AQUI?)
 			if (CurrentPlayer.Token == null)
 				continue;
 
-			//TODO: Control de flujo de salida!
-			if (_gameState != GameStateState.Playing)
-				break;
-
 			OnCuack.Invoke();
 
-			//Player on Question Tile
+			//ON QUESTION
 			if (CurrentPlayer.State == PlayerState.OnQuestion)
 			{
 				bool play = await _popupsController.ShowQuestion(CurrentTile.TileData.question);
@@ -297,21 +299,26 @@ public class GameController : MonoBehaviour
 				}
 			}
 
+			if (_gameState != GameStateState.Playing) break;
+
 			CurrentPlayer.State = PlayerState.Playing;
 
-			//Roll Dice
+			//DICE ROLLING
 			OnRollDices.Invoke();
 			int diceValue = await _diceController.RollDice();
 			await _popupsController.ShowPlayerDiceValue(diceValue);
 
-			//Move Token
+			if (_gameState != GameStateState.Playing) break;
+
+			//MOVE TOKEN
 			Tile targetTile = await _boardController.MoveToken(CurrentPlayer, diceValue);
 
+			if (_gameState != GameStateState.Playing) break;
+
+			//APLLY TILE EFFECT
 			bool playAgain = await ApplyTileEffect(targetTile);
 
-			//TODO: Control de flujo de salida!
-			if (_gameState != GameStateState.Playing)
-				break;
+			if (_gameState != GameStateState.Playing) break;
 
 			if (playAgain)
 				continue;
@@ -587,15 +594,27 @@ public class GameController : MonoBehaviour
 	#endregion
 
 	#region Public Methods
+	public async Task RerollGame()
+	{
+		_gameState = GameStateState.Creating;
+		_popupsController.HideAll();
+		_popupsController.PatoCienciaPopup.Show("Regenerando el tablero...");
+		GameData gameData = EditBoardPopup.ConvertBoardDataToGameData(_boardController.BoardData, _boardController.BoardData.challengeTypes);
+		_boardController.ResetBoard();
+		BoardData boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
+		CreateBoard(boardData);
+		_popupsController.PatoCienciaPopup.Hide();
+		_gameState = GameStateState.Playing;
+	}
 
 	public void BackToMainMenu()
 	{
 		if (_gameState == GameStateState.Editing)
 			Debug.Log("Salir del modo edición??");
 
+		_popupsController.HideAll();
 		_boardController.ResetBoard();
 		_gameState = GameStateState.Welcome;
-		_popupsController.HideAll();
 	}
 
 	public void RestartGame()

@@ -58,6 +58,9 @@ public class BoardController
 
 	public async Task<Tile> JumptToTile(Player currentPlayer, int targetTileID)
 	{
+		if (_boardTiles == null || _boardTiles.Count <= targetTileID || _boardTiles[targetTileID] == null)
+			return null;
+
 		Vector3 targetPosition = _boardTiles[targetTileID].transform.position;
 		Sequence tokenMoveSequence = DOTween.Sequence();
 

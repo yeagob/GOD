@@ -1,7 +1,4 @@
 using GOD.Utils;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -93,7 +90,8 @@ public class SettingsController : MonoBehaviour
 
     private void OnRerollClicked()
     {
-        Debug.Log("REROLL BOARD todo!!!!");
+        _gameController.RerollGame().WrapErrors();
+        ClosePanel();
     }
 
     private void OnExtraClicked()

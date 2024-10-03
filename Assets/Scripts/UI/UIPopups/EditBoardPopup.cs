@@ -39,8 +39,8 @@ public class EditBoardPopup : MonoBehaviour
 	[Header("Challenges")]
 	[SerializeField] private GameObject _challengesPanel;
 	[SerializeField] private TextMeshProUGUI _challengesToValidateText;
-	[SerializeField] private List<Button> _challengeTypesButtons; 
-	[SerializeField] private Button _challengeTypeButtonPrefab; 
+	[SerializeField] private List<Button> _challengeTypesButtons;
+	[SerializeField] private Button _challengeTypeButtonPrefab;
 
 	[SerializeField] private TMP_InputField _challengeTypeInput;
 	[SerializeField] private TMP_InputField _challengeDescriptionInput;
@@ -94,7 +94,7 @@ public class EditBoardPopup : MonoBehaviour
 	public async Task<GameData> ShowAsync(BoardData boardData)
 	{
 		// Convert BoardData to GameData
-		GameData gameData = ConvertBoardDataToGameData(boardData);
+		GameData gameData = ConvertBoardDataToGameData(boardData, _defaultChallengeTypes);
 
 		_playButton.interactable = true;
 
@@ -125,12 +125,12 @@ public class EditBoardPopup : MonoBehaviour
 		// Place the first challenge and question into the UI
 		if (gameData.challenges.Count > 0)
 		{
-			LoadChallenge(gameData.challenges[0],0);
+			LoadChallenge(gameData.challenges[0], 0);
 		}
 
 		if (gameData.questions.Count > 0)
 		{
-			LoadQuestion(gameData.questions[0],0);
+			LoadQuestion(gameData.questions[0], 0);
 		}
 
 		// Load challenge types as buttons
@@ -155,9 +155,44 @@ public class EditBoardPopup : MonoBehaviour
 		return _gameData;
 	}
 
+	public static GameData ConvertBoardDataToGameData(BoardData boardData, List<string> challengeTypes)
+	{
+		//PARCHE!!
+		if (challengeTypes == null)
+			challengeTypes = new List<string>();
+
+		GameData newGameData = new GameData
+		{
+			tittle = boardData.tittle,
+			proposal = boardData.proposal,
+			questionsCount = boardData.questionsCount,
+			challengesCount = boardData.challengesCount,
+			challengesTypes = challengeTypes,
+			imageURL = boardData.imageURL,
+			challenges = new List<string>(),
+			questions = new List<QuestionData>(),
+		};
+
+		// Iterate through the tiles and populate questions and challenges
+		foreach (TileData tile in boardData.tiles)
+		{
+			if (tile.type == "Challenge" && tile.challenge != null)
+			{
+				newGameData.challenges.Add(tile.challenge.description);
+			}
+			if (tile.type == "Question" && tile.question != null)
+			{
+				newGameData.questions.Add(tile.question);
+			}
+		}
+
+		return newGameData;
+	}
+
 	#endregion
 
 	#region Private Methods	
+
 	private void Play()
 	{
 		_gameData = CreateGameData();
@@ -201,36 +236,6 @@ public class EditBoardPopup : MonoBehaviour
 		return newGameData;
 	}
 
-	private GameData ConvertBoardDataToGameData(BoardData boardData)
-	{
-		GameData newGameData = new GameData
-		{
-			tittle = boardData.tittle,
-			proposal = boardData.proposal,
-			questionsCount = boardData.questionsCount,
-			challengesCount = boardData.challengesCount,
-			challengesTypes = _defaultChallengeTypes,
-			imageURL = boardData.imageURL,
-			challenges = new List<string>(),
-			questions = new List<QuestionData>()
-		};
-
-		// Iterate through the tiles and populate questions and challenges
-		foreach (TileData tile in boardData.tiles)
-		{
-			if (tile.type == "Challenge" && tile.challenge != null)
-			{
-				newGameData.challenges.Add(tile.challenge.description);
-			}
-			if (tile.type == "Question" && tile.question != null)
-			{
-				newGameData.questions.Add(tile.question);
-			}
-		}
-
-		return newGameData;
-	}
-
 
 	private void SliderUpdated(float value)
 	{
@@ -258,9 +263,9 @@ public class EditBoardPopup : MonoBehaviour
 	{
 		foreach (Button challengeTypeButton in _challengeTypesButtons)
 			Destroy(challengeTypeButton.gameObject);
-		
+
 		_challengeTypesButtons.Clear();
-		
+
 		foreach (string challengeType in challengeTypes)
 		{
 			Button newButton = CreateChallengeTypeButton(challengeType);
@@ -275,7 +280,7 @@ public class EditBoardPopup : MonoBehaviour
 		newButton.transform.SetSiblingIndex(1);
 		newButton.GetComponentInChildren<TextMeshProUGUI>().text = "x " + challengeType;
 		newButton.onClick.AddListener(() => RemoveChallengeType(newButton, challengeType));
-		
+
 		_challengeTypesButtons.Add(newButton);
 
 		return newButton;
@@ -351,7 +356,7 @@ public class EditBoardPopup : MonoBehaviour
 		{
 			_validateQuestionButton.interactable = false;
 			_questionsToValidateText.text = "Validación Completada!";
-			_validateQuestionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Preguntas Validadas: " + _validatedQuestionsCount+1;
+			_validateQuestionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Preguntas Validadas: " + _validatedQuestionsCount + 1;
 
 		}
 		RefreshPlayButton();
@@ -412,7 +417,7 @@ public class EditBoardPopup : MonoBehaviour
 
 		if (_validatedChallengesCount < 3)
 			_validateChallengeButton.interactable = true;
-		
+
 		if (_validatedQuestionsCount < 3)
 			_validateQuestionButton.interactable = true;
 	}
@@ -421,7 +426,7 @@ public class EditBoardPopup : MonoBehaviour
 	{
 		bool buttonState = true;
 		int questions = (int)_questionsChallengesSlider.value;
-		int challenges = 25-questions;
+		int challenges = 25 - questions;
 
 		if (questions > _validatedQuestionsCount && _validatedQuestionsCount < 2)
 			buttonState = false;
