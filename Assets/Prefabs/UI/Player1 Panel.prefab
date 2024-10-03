@@ -503,6 +503,7 @@ GameObject:
   - component: {fileID: 7204020119634981777}
   - component: {fileID: 5689056849919052400}
   - component: {fileID: 839987602706699801}
+  - component: {fileID: 4245907300886069953}
   m_Layer: 5
   m_Name: 'PlayerNameInputField '
   m_TagString: Untagged
@@ -666,3 +667,15 @@ MonoBehaviour:
   m_isRichTextEditingAllowed: 0
   m_LineLimit: 0
   m_InputValidator: {fileID: 0}
+--- !u!114 &4245907300886069953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9208347821832166013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7962123f9a607974499e1e42b3bcdc44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
