@@ -114,7 +114,6 @@ public class GameController : MonoBehaviour
 
 			if (boardParam.Contains("&"))
 				boardParam = boardParam.Split('&')[0];
-			Debug.Log("param:" + boardParam);
 
 			boardData = await LoadBoardData(boardParam);
 
@@ -564,7 +563,6 @@ public class GameController : MonoBehaviour
 
 		// Load the specific board data
 		string boardJson = await LoadTextFileAsync($"{boardName}.json");
-		Debug.Log("json:" + boardJson);
 
 		if (string.IsNullOrEmpty(boardJson))
 		{
@@ -599,7 +597,6 @@ public class GameController : MonoBehaviour
 	private async Task<string> LoadTextFileAsync(string fileName)
 	{
 		string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
-		Debug.Log("filepath:" + filePath);
 
 		// For WebGL, we need to access the file via UnityWebRequest
 		if (filePath.Contains("://") || filePath.Contains(":///"))

@@ -24579,7 +24579,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _defaultBoard: parent.json
-  _loadDefault: 1
+  _loadDefault: 0
   _saveButton: {fileID: 1376670835}
   _winEffects: {fileID: 685978521}
   _musicController: {fileID: 1424854856}
