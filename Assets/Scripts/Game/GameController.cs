@@ -33,7 +33,9 @@ public class GameController : MonoBehaviour
 
 	[SerializeField, ReadOnly] private TurnController _turnController;
 
-	private int _round = 1;
+	private int _round = 1;//Noseusa
+
+	 private bool _loadFromURLParam = false;
 
 	private static GameStateState _prevGameState;
 	private static GameStateState _gameState;
@@ -84,7 +86,7 @@ public class GameController : MonoBehaviour
 	private void Awake()
 	{
 		if (Application.absoluteURL.Contains("board"))
-			_loadDefault = true;
+			_loadFromURLParam = true;
 
 		_saveButton.gameObject.SetActive(false);
 	}
@@ -101,6 +103,19 @@ public class GameController : MonoBehaviour
 		{
 			string boardJson = await LoadTextFileAsync(_defaultBoard);
 			boardData = new BoardData(boardJson);
+			//BOARD INFO
+			await _popupsController.ShowBoardInfoPopup(boardData);
+		}
+		//BOARD FROM URL PARAM
+		else if(_loadFromURLParam)
+		{
+			string boardParam = Application.absoluteURL.Split("board=")[1];
+
+			if (boardParam.Contains("&"))
+				boardParam = boardParam.Split('&')[0];
+
+			BoardData board = await LoadBoardData(boardParam);
+
 			//BOARD INFO
 			await _popupsController.ShowBoardInfoPopup(boardData);
 		}
@@ -535,6 +550,30 @@ public class GameController : MonoBehaviour
 
 		return boards;
 	}
+
+	public async Task<BoardData> LoadBoardData(string boardName)
+	{
+		// Check if the board name is provided
+		if (string.IsNullOrEmpty(boardName))
+		{
+			Debug.LogError("Board name is empty or null.");
+			return null;
+		}
+
+		// Load the specific board data
+		string boardJson = await LoadTextFileAsync($"{boardName}.json");
+		if (string.IsNullOrEmpty(boardJson))
+		{
+			Debug.LogError($"Failed to load board data for {boardName}");
+			return null;
+		}
+
+		// Deserialize the board data
+		BoardData boardData = JsonUtility.FromJson<BoardData>(boardJson);
+
+		return boardData;
+	}
+
 
 	[System.Serializable]
 	private class BoardsCollection
