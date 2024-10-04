@@ -100,6 +100,9 @@ public class GPT4Mini : OpenAIBase
 
 		string response = await SendRequest("chat/completions", jsonData);
 		DataResponse dataResponse = JsonUtility.FromJson<DataResponse>(response);
+		if(dataResponse == null ) 
+			return null;
+		
 		return dataResponse.choices[0].message.content;
 	}
 }

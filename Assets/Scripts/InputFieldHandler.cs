@@ -19,7 +19,9 @@ namespace GOD.InputManager
 
         public void OnSelect(BaseEventData eventData)
         {
+#if !UNITY_EDITOR 
             InputFocusHandleAction(name, _inputField.text);
+#endif
         }
 
         //Called from WebGlKeyboard.jslib
@@ -30,7 +32,10 @@ namespace GOD.InputManager
 
         public void OnPointerClick(PointerEventData eventData)
         {
+#if !UNITY_EDITOR
+
             InputFocusHandleAction(name, _inputField.text);
+#endif
         }
     }
 }
