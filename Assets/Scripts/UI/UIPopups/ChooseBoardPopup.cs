@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -71,7 +72,11 @@ public class ChooseBoardPopup : MonoBehaviour
 			BoardUIElement boardElement = Instantiate(_boardUIElementPrefab, _boardUIElementPrefab.transform.parent);
 
 			Sprite image = await DALLE2.DownloadSprite(boardData.imageURL);  
-
+			if (image == null)
+			{
+				string url = Path.Combine(Application.streamingAssetsPath, "DefaultBoardImage.png");
+				image = await DALLE2.DownloadSprite(url);
+			}
 			boardElement.Initialize(boardData, image, _toggleGroup);				
 
 			boardElement.OnBoardSelected += OnBoardSelected;
