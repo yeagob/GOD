@@ -6,13 +6,12 @@ using UnityEngine;
 public class RollDicePopup : MonoBehaviour
 {
 	[SerializeField] private TextMeshProUGUI _diceText;
-	private float _showingTime = 1;//s
 
-	public async Task ShowAsync(int diceValue)
+	public async Task ShowAsync(int diceValue, float showingTime = 1)
 	{
 		gameObject.SetActive(true);
 		_diceText.text = diceValue.ToString();
-		float time = _showingTime;
+		float time = showingTime;
 		while (time > 0)
 		{
 			time -= Time.deltaTime;

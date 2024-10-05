@@ -73,6 +73,8 @@ public class BoardController
 		// Actualizamos la posición del token y la casilla actual del jugador
 		currentPlayer.Token.MoveToTile(_boardTiles[targetTileID]);
 
+		currentPlayer.Token.ShowRainbow(false);
+
 		return _boardTiles[targetTileID];
 	}
 
@@ -171,7 +173,7 @@ public class BoardController
 	{
 		int currentTileID = currentPlayer.CurrentTile.TileData.id;
 		int nextTileID = 0;
-		for (int i = currentTileID + 1; i < _boardTiles.Count; i++)
+		for (int i = 0; i < _boardTiles.Count; i++)
 		{
 			if (_boardTiles[i].TileType == TileType.Bridge && i != currentTileID)
 			{

@@ -33,7 +33,6 @@ public class PlayerToken : MonoBehaviour
 	private void Start()
 	{
 		_initialRotation = transform.rotation;
-		_lineRainbow.gameObject.SetActive(false);
 	}
 
 	#endregion
@@ -91,6 +90,7 @@ public class PlayerToken : MonoBehaviour
 		_color = color;
 		_tokenRender.material.color = color;
 		_nameLabel.text = name;
+		ShowRainbow(false);
 	}
 
 	public void MoveToTile(Tile tile)

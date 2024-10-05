@@ -327,7 +327,8 @@ public class GameController : MonoBehaviour
 			//DICE ROLLING
 			OnRollDices.Invoke();
 			int diceValue = await _diceController.RollDice();
-			await _popupsController.ShowPlayerDiceValue(diceValue);
+			//await _popupsController.ShowPlayerDiceValue(diceValue);
+			_popupsController.ShowGenericMessage(diceValue.ToString(), 0.7f).WrapErrors();
 
 			if (_gameState != GameStateState.Playing) break;
 
@@ -381,10 +382,8 @@ public class GameController : MonoBehaviour
 
 			case TileType.TravelToTile:
 
-				await _popupsController.ShowGenericMessage("De pato a pato y tiro porque...\n CUACK!!", 2, CurrentPlayer.Token.Color);
-
+				 _popupsController.ShowGenericMessage("De pato a pato y tiro porque...\n CUACK!!", 2, CurrentPlayer.Token.Color).WrapErrors();
 				OnHappy.Invoke();
-
 				await _boardController.TravelToNextTravelTile(CurrentPlayer);
 				CurrentPlayer.State = PlayerState.PlayAgain;
 
