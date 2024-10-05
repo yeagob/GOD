@@ -677,9 +677,6 @@ public class GameController : MonoBehaviour
 		_turnController.Players = players;
 
 		OnCuack.Invoke();
-
-		//TURN CONTROLLER
-
 	}
 
 	#endregion

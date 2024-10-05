@@ -11,6 +11,7 @@ public class PlayerToken : MonoBehaviour
 	[SerializeField] private GameObject _losseEffect;
 	[SerializeField] private TextMeshProUGUI _nameLabel;
 	[SerializeField] private ParticleSystem _fartSystem;
+	[SerializeField] private TrailRenderer _lineRainbow;
 	private string _name;
 	private Color _color;
 	private Tile _currentTile;
@@ -32,6 +33,7 @@ public class PlayerToken : MonoBehaviour
 	private void Start()
 	{
 		_initialRotation = transform.rotation;
+		_lineRainbow.gameObject.SetActive(false);
 	}
 
 	#endregion
@@ -95,6 +97,11 @@ public class PlayerToken : MonoBehaviour
 	{
 		_currentTile = tile;
 		transform.position = tile.transform.position;
+	}
+
+	public void ShowRainbow(bool state)
+	{
+		_lineRainbow.gameObject.SetActive(state);
 	}
 
 	public void ResetState()

@@ -8523,7 +8523,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.4999962}
+  m_AnchoredPosition: {x: 0, y: -0.5}
   m_SizeDelta: {x: -20, y: -13}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &552560615
@@ -24579,7 +24579,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _defaultBoard: hermanos.json
-  _loadDefault: 0
+  _loadDefault: 1
   _saveButton: {fileID: 1376670835}
   _winEffects: {fileID: 685978521}
   _musicController: {fileID: 1424854856}

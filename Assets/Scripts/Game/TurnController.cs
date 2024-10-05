@@ -26,7 +26,20 @@ public class TurnController
 		}
 	}
 
-	public List<Player> Players { get => _players; set => _players = value; }
+	public List<Player> Players 
+	{ 
+		get 
+		{ 
+			return _players; 
+		} 
+		
+		set 
+		{
+			_players = value;
+			if (!_players.Contains(CurrentPlayer))
+				_currentIndex = 0;
+		} 
+	}
 
 	#endregion
 
