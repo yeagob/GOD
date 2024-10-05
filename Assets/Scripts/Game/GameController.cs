@@ -328,7 +328,7 @@ public class GameController : MonoBehaviour
 			OnRollDices.Invoke();
 			int diceValue = await _diceController.RollDice();
 			//await _popupsController.ShowPlayerDiceValue(diceValue);
-			_popupsController.ShowGenericMessage(diceValue.ToString(), 0.7f).WrapErrors();
+			await _popupsController.ShowGenericMessage(diceValue.ToString(), 0.7f);
 
 			if (_gameState != GameStateState.Playing) break;
 

@@ -66,9 +66,17 @@ public class BoardController
 		Vector3 targetPosition = _boardTiles[targetTileID].transform.position;
 		Sequence tokenMoveSequence = DOTween.Sequence();
 
-		tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, _jumpPower * 3, 1, _jumpDuration * 3).SetEase(Ease.OutQuad));
+		tokenMoveSequence.Append(currentPlayer.Token.transform.DOJump(targetPosition, _jumpPower * 0, 1, _jumpDuration * 3).SetEase(Ease.OutQuad));
 
 		await tokenMoveSequence.AsyncWaitForCompletion();
+
+		//Extra time after jump for eainbow
+		float time = 0;
+		while(time < _jumpDuration)
+		{
+			await Task.Yield();
+			time += Time.deltaTime;
+		}
 
 		// Actualizamos la posición del token y la casilla actual del jugador
 		currentPlayer.Token.MoveToTile(_boardTiles[targetTileID]);
