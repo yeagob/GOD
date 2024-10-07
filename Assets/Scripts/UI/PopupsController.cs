@@ -71,7 +71,7 @@ public class PopupsController : MonoBehaviour
 	{
 		return await _editBoardPopup.ShowAsync(gameData);
 	}
-	internal async Task<GameData> ShowEditBoardPopup(BoardData boardData)
+	internal async Task<BoardData> ShowEditBoardPopup(BoardData boardData)
 	{
 		return await _editBoardPopup.ShowAsync(boardData);
 	}

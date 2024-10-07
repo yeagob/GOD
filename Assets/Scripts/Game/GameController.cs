@@ -438,12 +438,12 @@ public class GameController : MonoBehaviour
 
 			_popupsController.HideAll();
 
-			GameData gameData = await _popupsController.ShowEditBoardPopup(boardData);
+			boardData = await _popupsController.ShowEditBoardPopup(boardData);
 
-			_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
+			//_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
 
 			//TODO: creo que esto no se debería hacer siempre... a veces solo quieres editar preguntas, no regenerar el board...
-			boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
+			//boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
 
 			_popupsController.PatoCienciaPopup.Hide();
 			return boardData;

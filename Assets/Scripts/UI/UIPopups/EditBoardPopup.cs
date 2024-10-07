@@ -18,8 +18,9 @@ public class EditBoardPopup : MonoBehaviour
 	[SerializeField] private TMP_InputField _proposalInput;
 	[SerializeField] private Image _boardImage;//267x322
 	[SerializeField] private Button _playButton;
+	[SerializeField] private Button _createNewButton;
 	[SerializeField] private Button _backButton;
-	[SerializeField] private Button _rerollButton;
+	[SerializeField] private Button _rerollImageButton;
 
 	[Header("Questions-Challenges Slider ")]
 	[SerializeField] private Slider _questionsChallengesSlider;
@@ -34,6 +35,9 @@ public class EditBoardPopup : MonoBehaviour
 	[SerializeField] private TMP_InputField[] _answersText;
 	[SerializeField] private Toggle[] _correctAnswerToggle;
 	[SerializeField] private Button _validateQuestionButton;
+	[SerializeField] private Button _discardQuestionButton;
+	[SerializeField] private Button _nextQuestionButton;
+	[SerializeField] private Button _prevQuestionButton;
 
 	// Sub Controllers for Challenges
 	[Header("Challenges")]
@@ -41,12 +45,18 @@ public class EditBoardPopup : MonoBehaviour
 	[SerializeField] private TextMeshProUGUI _challengesToValidateText;
 	[SerializeField] private List<Button> _challengeTypesButtons;
 	[SerializeField] private Button _challengeTypeButtonPrefab;
+	[SerializeField] private Button _validateChallengeButton;
+	[SerializeField] private Button _discardChallengeButton;
+	[SerializeField] private Button _nextChallengeButton;
+	[SerializeField] private Button _prevChallengeButton;
 
+
+	[Header("Challenges Types")]
+	[SerializeField] private List<string> _defaultChallengeTypes = new List<string>();
+	[SerializeField] private GameObject _challengeTypesPanel;
 	[SerializeField] private TMP_InputField _challengeTypeInput;
 	[SerializeField] private TMP_InputField _challengeDescriptionInput;
 	[SerializeField] private Button _addChallengeType;
-	[SerializeField] private Button _validateChallengeButton;
-	[SerializeField] private List<string> _defaultChallengeTypes = new List<string>();
 
 
 	private GameData _gameData = new GameData();
@@ -73,7 +83,7 @@ public class EditBoardPopup : MonoBehaviour
 		_backButton.onClick.AddListener(Back);
 
 		//Reroll Image
-		_rerollButton.onClick.AddListener(() => RerollImage().WrapErrors());
+		_rerollImageButton.onClick.AddListener(() => RerollImage().WrapErrors());
 
 		//Add Challenge
 		_addChallengeType.onClick.AddListener(AddChallengeType);
@@ -91,21 +101,65 @@ public class EditBoardPopup : MonoBehaviour
 
 	#region Public Methods
 
-	public async Task<GameData> ShowAsync(BoardData boardData)
+	public async Task<BoardData> ShowAsync(BoardData boardData)
 	{
 		// Convert BoardData to GameData
 		GameData gameData = ConvertBoardDataToGameData(boardData, _defaultChallengeTypes);
 
-		_playButton.interactable = true;
+		ShowAsync(gameData).WrapErrors();
 
-		// Pass the converted GameData to the second ShowAsync
-		return await ShowAsync(gameData);
+		SetEditMode();
+
+		_playButton.interactable = true;
+		
+		while (gameObject.activeSelf)
+		{
+			await Task.Yield();
+		}
+
+		return new BoardData(_gameData);
+	}
+
+	private void SetEditMode()
+	{
+		_questionsChallengesSlider.gameObject.SetActive(false);
+		_validateChallengeButton.gameObject.SetActive(false);
+		_validateQuestionButton.gameObject.SetActive(false);
+		_discardChallengeButton.gameObject.SetActive(false);
+		_discardQuestionButton.gameObject.SetActive(false);
+		_challengeTypesPanel.gameObject.SetActive(false);
+		_playButton.GetComponentInChildren<TextMeshProUGUI>().text = "Jugar";
+
+		_createNewButton.gameObject.SetActive(true);
+		_prevChallengeButton.gameObject.SetActive(true);
+		_nextChallengeButton.gameObject.SetActive(true);
+		_prevQuestionButton.gameObject.SetActive(true);
+		_nextQuestionButton.gameObject.SetActive(true);
+	}
+
+	private void SetCreateMode()
+	{
+		_questionsChallengesSlider.gameObject.SetActive(true);
+		_validateChallengeButton.gameObject.SetActive(true);
+		_validateQuestionButton.gameObject.SetActive(true);
+		_discardChallengeButton.gameObject.SetActive(true);
+		_discardQuestionButton.gameObject.SetActive(true);
+		_challengeTypesPanel.gameObject.SetActive(true);
+		_playButton.GetComponentInChildren<TextMeshProUGUI>().text = "Crear";
+
+		_createNewButton.gameObject.SetActive(false);
+		_prevChallengeButton.gameObject.SetActive(false);
+		_nextChallengeButton.gameObject.SetActive(false);
+		_prevQuestionButton.gameObject.SetActive(false);
+		_nextQuestionButton.gameObject.SetActive(false);
 	}
 
 	public async Task<GameData> ShowAsync(GameData gameData)
 	{
 		_gameData = gameData;
 		GameController.GameState = GameStateState.Editing;
+
+		SetCreateMode();
 
 		// Show popup
 		gameObject.SetActive(true);
@@ -115,6 +169,7 @@ public class EditBoardPopup : MonoBehaviour
 		_proposalInput.text = gameData.proposal;
 
 		// Set question and challenge counts from the slider
+		_questionsChallengesSlider.gameObject.SetActive(true);
 		_questionsChallengesSlider.minValue = 0;
 		_questionsChallengesSlider.maxValue = 25;
 		if (gameData.challengesCount + gameData.questionsCount < 25)
@@ -298,6 +353,7 @@ public class EditBoardPopup : MonoBehaviour
 	private void AddChallengeType()
 	{
 		string challengeType = _challengeTypeInput.text;
+		_challengeTypeInput.text = "";
 		if (!string.IsNullOrEmpty(challengeType))
 		{
 			Button newButton = CreateChallengeTypeButton(challengeType);
@@ -314,8 +370,8 @@ public class EditBoardPopup : MonoBehaviour
 
 	private async Task RerollImage()
 	{
-		_rerollButton.interactable = false;
-		_rerollButton.transform.DORotate(new Vector3(0, 0, -360), 1f, RotateMode.FastBeyond360)
+		_rerollImageButton.interactable = false;
+		_rerollImageButton.transform.DORotate(new Vector3(0, 0, -360), 1f, RotateMode.FastBeyond360)
 			.SetLoops(-1, LoopType.Restart)
 			.SetEase(Ease.Linear);
 
@@ -326,8 +382,8 @@ public class EditBoardPopup : MonoBehaviour
 		_boardImage.sprite = image;
 		_gameData.imageURL = DALLE2.LastImageUrl;
 
-		_rerollButton.transform.DOKill();
-		_rerollButton.interactable = true;
+		_rerollImageButton.transform.DOKill();
+		_rerollImageButton.interactable = true;
 
 
 	}
