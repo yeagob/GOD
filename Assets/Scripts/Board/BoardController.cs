@@ -220,7 +220,7 @@ public class BoardController
 
 	internal void RefreshQuestion(Tile currentTile)
 	{
-		if (_boardData.ExtraQuestions.Count > 0)
+		if (_boardData.ExtraQuestions?.Count > 0)
 			currentTile.TileData.question= _boardData.ExtraQuestions.Dequeue();
 	}
 

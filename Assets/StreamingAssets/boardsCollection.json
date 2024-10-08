@@ -1,8 +1,8 @@
 {
     "BoardNames": [
-      "circulo",
-      "adolescencia",
+      "parent",    
       "crecimiento",
-      "parent"
+      "adolescencia",
+      "circulo"
     ]
   }
