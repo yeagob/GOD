@@ -153,7 +153,9 @@ public class GameController : MonoBehaviour
 				//Creating Board
 				boardData = await _aiJsonGenerator.GetJsonBoard(boardGameData);
 
-				_popupsController.PatoCienciaPopup.Hide();				
+				_popupsController.PatoCienciaPopup.Hide();		
+				_saveButton.gameObject.SetActive(true);
+
 
 			}
 			//Select Board
@@ -455,8 +457,7 @@ public class GameController : MonoBehaviour
 			return boardData;
 
 		}
-		
-		_saveButton.gameObject.SetActive(false);
+				
 		return null;
 	}
 
@@ -522,7 +523,7 @@ public class GameController : MonoBehaviour
 		{
 			_boardController.BoardData.autor = mail;
 			_emailSender.SendEmail(_boardController.BoardData);
-			await _popupsController.ShowGenericMessage("Solicitud de publicación enviada!!");
+			await _popupsController.ShowGenericMessage("Solicitud de publicacion enviada!!");
 		}
 	}
 

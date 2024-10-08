@@ -1652,8 +1652,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1043239679}
+  m_Children: []
   m_Father: {fileID: 670731642}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.089101374, y: 0.23246507}
@@ -1711,7 +1710,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32.2
+  m_fontSize: 31.1
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3283,9 +3282,9 @@ RectTransform:
   m_Father: {fileID: 670731642}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5555775, y: 0.09975127}
-  m_AnchorMax: {x: 0.75414443, y: 0.20229913}
-  m_AnchoredPosition: {x: 0.89990234, y: -0.50634766}
-  m_SizeDelta: {x: -1.3348999, y: -3.1090002}
+  m_AnchorMax: {x: 0.9161284, y: 0.20229913}
+  m_AnchoredPosition: {x: 0.79800415, y: -0.50634766}
+  m_SizeDelta: {x: -1.5399933, y: -3.109}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &229371007
 MonoBehaviour:
@@ -3365,7 +3364,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: f3b7072141f5ae74581b1e84090e07d2, type: 3}
   m_Type: 0
-  m_PreserveAspect: 1
+  m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -9122,7 +9121,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 46.2
+  m_fontSize: 46.6
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -10457,10 +10456,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1043239679}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.06152101, y: 0.15087362}
-  m_AnchorMax: {x: 0.96811694, y: 0.7962989}
-  m_AnchoredPosition: {x: -1.7600098, y: -0.17419434}
-  m_SizeDelta: {x: -4.48001, y: -0.34829998}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &615154838
 MonoBehaviour:
@@ -10510,7 +10509,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 33.9
+  m_fontSize: 64.65
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -10546,7 +10545,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 11, y: 11, z: 11, w: 11}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -11276,7 +11275,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &670731642
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11292,6 +11291,7 @@ RectTransform:
   - {fileID: 1468280122}
   - {fileID: 94302708}
   - {fileID: 229371006}
+  - {fileID: 1043239679}
   m_Father: {fileID: 1247727801}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.2692354, y: 0.19900002}
@@ -11623,7 +11623,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40
+  m_fontSize: 29.65
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -11705,10 +11705,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 229371006}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.06152101, y: 0.15087362}
-  m_AnchorMax: {x: 0.96811694, y: 0.7962989}
-  m_AnchoredPosition: {x: -1.7600098, y: -0.17419434}
-  m_SizeDelta: {x: -4.48001, y: -0.34829998}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &699549497
 MonoBehaviour:
@@ -11760,7 +11760,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 21.7
+  m_fontSize: 27.1
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -11776,7 +11776,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -11796,7 +11796,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 7, y: 7, z: 7, w: 7}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -13924,7 +13924,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: f9f28969fbb1ca94794cc7f1f86f0c68, type: 3}
   m_Type: 0
-  m_PreserveAspect: 1
+  m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -16409,12 +16409,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 615154837}
-  m_Father: {fileID: 94302708}
+  m_Father: {fileID: 670731642}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.25100002, y: 0.09975127}
+  m_AnchorMin: {x: 0.102000006, y: 0.09975127}
   m_AnchorMax: {x: 0.44900003, y: 0.20229913}
-  m_AnchoredPosition: {x: -26.376587, y: -83.36896}
-  m_SizeDelta: {x: 30.745361, y: 44.820538}
+  m_AnchoredPosition: {x: 0.20098877, y: 0.52407837}
+  m_SizeDelta: {x: 0.86279297, y: -1.0481}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1043239680
 MonoBehaviour:
@@ -16482,7 +16482,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: f3b7072141f5ae74581b1e84090e07d2, type: 3}
   m_Type: 0
-  m_PreserveAspect: 1
+  m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -22254,7 +22254,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 66.7
+  m_fontSize: 72
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -28711,7 +28711,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1875214676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29340,7 +29340,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40
+  m_fontSize: 34.3
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1

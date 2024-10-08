@@ -25,12 +25,11 @@ public class EmailSender : MonoBehaviour
     [System.Serializable]
     public class TemplateParams
     {
-        public string username;
         public string message;
 
         public TemplateParams(string fromName, string messageContent)
         {
-            username = fromName;
+           // username = fromName;
             message = messageContent;
         }
     }
@@ -55,7 +54,7 @@ public class EmailSender : MonoBehaviour
 
         // Convertir el objeto en string JSON
         string jsonData = JsonUtility.ToJson(payload);
-        Debug.Log("Maildata = " + jsonData);
+       // Debug.Log("Maildata = " + jsonData);
         // Crear la solicitud y configurar los headers
         UnityWebRequest www = new UnityWebRequest(url, "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
