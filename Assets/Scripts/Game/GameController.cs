@@ -189,6 +189,8 @@ public class GameController : MonoBehaviour
 				_popupsController.PatoCienciaPopup.Hide();
 			}
 		}
+		else
+			GameState = GameStateState.Welcome;
 
 		//CREATE BOARD!!!
 		CreateBoard(boardData);
@@ -254,11 +256,14 @@ public class GameController : MonoBehaviour
 	private void StartGame(List<Player> players)
 	{
 		_loadDefault = false;
-
+		
+		if (GameState != GameStateState.Playing)
+		{ 
 		MovePlayersToInitialTile(players);
 		_musicController.PlayRock();
 		GameState = GameStateState.Playing;
 		OnGameStarts.Invoke();
+		}
 	}
 
 	private async Task GameLoop()
@@ -450,9 +455,11 @@ public class GameController : MonoBehaviour
 			_popupsController.HideAll();
 
 			boardData = await _popupsController.ShowEditBoardPopup(boardData);
-			
+
 			if (boardData != null)
 				_saveButton.gameObject.SetActive(true);
+			else
+				GameState = GameStateState.Playing;
 
 			return boardData;
 
@@ -486,6 +493,7 @@ public class GameController : MonoBehaviour
 				await Task.Yield();
 			}
 		}
+		_turnController.DestroyPlayerTokens();
 
 		_winEffects.gameObject.SetActive(false);
 		_musicController.PlayBase();

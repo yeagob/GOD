@@ -21,7 +21,7 @@ public class DiceController : MonoBehaviour
     // Update is called once per frame
     public async Task<int> RollDice()
     {
-		_diceCamera.gameObject.SetActive(true);
+		//_diceCamera.gameObject.SetActive(true);
 
         _diceRb.WakeUp();
         _diceRb.transform.localPosition = _initialRollPosition;

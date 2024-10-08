@@ -69,6 +69,17 @@ public class AIJsonGenerator
 		if (!string.IsNullOrEmpty(prompt))
 			response = await GetGPTResponse(prompt);
 
+		if (response == null)
+		{
+			if (_tryAgain)
+			{
+				_tryAgain = false;
+				return await GetGameData(prompt);
+			}
+			else
+				return null;
+		}
+
 		response.Replace("```", string.Empty);
 
 		GameData data = null;
@@ -97,6 +108,7 @@ public class AIJsonGenerator
 
 	public async Task<BoardData> GetJsonBoard(GameData gameData)
 	{
+		_tryAgain = true;
 		BoardData boardData = null;
 		bool loadDefault = gameData == null;
 

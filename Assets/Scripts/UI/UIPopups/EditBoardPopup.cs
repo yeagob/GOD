@@ -195,8 +195,6 @@ public class EditBoardPopup : MonoBehaviour
 	{
 		_gameData = gameData;
 
-		SetCreateMode();
-
 		// Show popup
 		gameObject.SetActive(true);
 
@@ -237,6 +235,8 @@ public class EditBoardPopup : MonoBehaviour
 			LoadChallengeTypes(_defaultChallengeTypes);
 
 		RefreshValidations();
+
+		SetCreateMode();
 
 		//Load Board Image
 		if (gameData.imageURL.IsNullOrWhitespace())
