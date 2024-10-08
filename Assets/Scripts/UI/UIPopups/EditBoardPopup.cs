@@ -19,7 +19,7 @@ public class EditBoardPopup : MonoBehaviour
 	[SerializeField] private Image _boardImage;//267x322
 	[SerializeField] private Button _playButton;
 	[SerializeField] private Button _createNewButton;
-	[SerializeField] private Button _backButton;
+	[SerializeField] private Button _closeButton;
 	[SerializeField] private Button _rerollImageButton;
 
 	[Header("Questions-Challenges Slider ")]
@@ -50,7 +50,6 @@ public class EditBoardPopup : MonoBehaviour
 	[SerializeField] private Button _nextChallengeButton;
 	[SerializeField] private Button _prevChallengeButton;
 
-
 	[Header("Challenges Types")]
 	[SerializeField] private List<string> _defaultChallengeTypes = new List<string>();
 	[SerializeField] private GameObject _challengeTypesPanel;
@@ -58,10 +57,11 @@ public class EditBoardPopup : MonoBehaviour
 	[SerializeField] private TMP_InputField _challengeDescriptionInput;
 	[SerializeField] private Button _addChallengeType;
 
-
 	private GameData _gameData = new GameData();
 	private int _validatedQuestionsCount = 0;
 	private int _validatedChallengesCount = 0;
+	private int _currentQuestionIndex = 0;
+	private int _currentChallengeIndex = 0;
 
 	#endregion
 
@@ -76,11 +76,13 @@ public class EditBoardPopup : MonoBehaviour
 	private void Start()
 	{
 		//Play
-		_playButton.onClick.AddListener(Play);
-		_playButton.interactable = false;
+		_playButton.onClick.AddListener(CreateOrPlay);
+
+		//Create New
+		_createNewButton.onClick.AddListener(CreateNewBoardFromCurrent);
 
 		//Back
-		_backButton.onClick.AddListener(Back);
+		_closeButton.onClick.AddListener(Close);
 
 		//Reroll Image
 		_rerollImageButton.onClick.AddListener(() => RerollImage().WrapErrors());
@@ -92,10 +94,25 @@ public class EditBoardPopup : MonoBehaviour
 		_validateChallengeButton.onClick.AddListener(ValidateChallenge);
 		_validateQuestionButton.onClick.AddListener(ValidateQuestion);
 
+		//Discards
+		_discardChallengeButton.onClick.AddListener(DiscardChallenge);
+		_discardQuestionButton.onClick.AddListener(DiscardQuestion);
+
+		//Prev/Next Buttons
+		_nextChallengeButton.onClick.AddListener(LoadNextChallenge);
+		_prevChallengeButton.onClick.AddListener(LoadPrevChallenge);
+		_nextQuestionButton.onClick.AddListener(LoadNextQuestion);
+		_prevQuestionButton.onClick.AddListener(LoadPrevQuestion);
+
 		//Slider Update!
 		_questionsChallengesSlider.onValueChanged.AddListener(SliderUpdated);
 	}
 
+	private void CreateNewBoardFromCurrent()
+	{
+		GameController.GameState = GameStateState.Creating;
+		ShowAsync(_gameData).WrapErrors();
+	}
 
 	#endregion
 
@@ -109,13 +126,14 @@ public class EditBoardPopup : MonoBehaviour
 		ShowAsync(gameData).WrapErrors();
 
 		SetEditMode();
-
-		_playButton.interactable = true;
 		
 		while (gameObject.activeSelf)
 		{
 			await Task.Yield();
 		}
+
+		if (_gameData == null)
+			return null;
 
 		return new BoardData(_gameData);
 	}
@@ -129,12 +147,20 @@ public class EditBoardPopup : MonoBehaviour
 		_discardQuestionButton.gameObject.SetActive(false);
 		_challengeTypesPanel.gameObject.SetActive(false);
 		_playButton.GetComponentInChildren<TextMeshProUGUI>().text = "Jugar";
+		_questionsToValidateText.text = $"0/{_gameData.questions.Count} Preguntas";
+		_challengesToValidateText.text = $"0/{_gameData.questions.Count} Desafíos";
+		_questionsCountText.text = "";
+		_challengesCountText.text = "";
+		_questionsToValidateText.color = Color.black;
+		_challengesToValidateText.color = Color.black;
 
 		_createNewButton.gameObject.SetActive(true);
 		_prevChallengeButton.gameObject.SetActive(true);
 		_nextChallengeButton.gameObject.SetActive(true);
 		_prevQuestionButton.gameObject.SetActive(true);
 		_nextQuestionButton.gameObject.SetActive(true);
+
+		_playButton.interactable = true;
 	}
 
 	private void SetCreateMode()
@@ -146,18 +172,28 @@ public class EditBoardPopup : MonoBehaviour
 		_discardQuestionButton.gameObject.SetActive(true);
 		_challengeTypesPanel.gameObject.SetActive(true);
 		_playButton.GetComponentInChildren<TextMeshProUGUI>().text = "Crear";
+		_questionsToValidateText.text = $"0/{_gameData.questions.Count} Preguntas Corregidas y Validadas";
+		_challengesToValidateText.text = $"0/{_gameData.challenges.Count} Desafíos Corregidos y Validados";
+		_validateChallengeButton.interactable = true;
+		_discardChallengeButton.interactable = true;
+		_validateQuestionButton.interactable = true;
+		_discardQuestionButton.interactable = true;
 
 		_createNewButton.gameObject.SetActive(false);
 		_prevChallengeButton.gameObject.SetActive(false);
 		_nextChallengeButton.gameObject.SetActive(false);
 		_prevQuestionButton.gameObject.SetActive(false);
 		_nextQuestionButton.gameObject.SetActive(false);
+
+		_playButton.interactable = false;
+
+		_validatedQuestionsCount = 0;
+		_validatedChallengesCount = 0;
 	}
 
 	public async Task<GameData> ShowAsync(GameData gameData)
 	{
 		_gameData = gameData;
-		GameController.GameState = GameStateState.Editing;
 
 		SetCreateMode();
 
@@ -167,29 +203,38 @@ public class EditBoardPopup : MonoBehaviour
 		// Set data in the UI elements
 		_tittleInput.text = gameData.tittle;
 		_proposalInput.text = gameData.proposal;
+		_questionsToValidateText.color = Color.red;
+		_challengesToValidateText.color = Color.red;
 
-		// Set question and challenge counts from the slider
-		_questionsChallengesSlider.gameObject.SetActive(true);
+		// Set questions and challenges for the slider
 		_questionsChallengesSlider.minValue = 0;
 		_questionsChallengesSlider.maxValue = 25;
-		if (gameData.challengesCount + gameData.questionsCount < 25)
+		if (gameData.challengesCount + gameData.questionsCount < 20)
 			_questionsChallengesSlider.value = 13;
 		else
 			_questionsChallengesSlider.value = gameData.challengesCount;
+
+		SliderUpdated(_questionsChallengesSlider.value);
+
 
 		// Place the first challenge and question into the UI
 		if (gameData.challenges.Count > 0)
 		{
 			LoadChallenge(gameData.challenges[0], 0);
+			_currentChallengeIndex = 0;
 		}
 
 		if (gameData.questions.Count > 0)
 		{
 			LoadQuestion(gameData.questions[0], 0);
+			_currentQuestionIndex = 0;
 		}
 
 		// Load challenge types as buttons
-		LoadChallengeTypes(gameData.challengesTypes);
+		if (gameData.challengesTypes.Count > 0)
+			LoadChallengeTypes(gameData.challengesTypes);
+		else
+			LoadChallengeTypes(_defaultChallengeTypes);
 
 		RefreshValidations();
 
@@ -205,8 +250,6 @@ public class EditBoardPopup : MonoBehaviour
 			await Task.Yield();
 		}
 
-		_playButton.interactable = false;
-
 		return _gameData;
 	}
 
@@ -216,7 +259,7 @@ public class EditBoardPopup : MonoBehaviour
 		if (challengeTypes == null)
 			challengeTypes = new List<string>();
 
-		if (boardData.questionsCount + boardData.challengesCount < 25)
+		if (boardData.questionsCount + boardData.challengesCount < 20)
 		{
 			boardData.challengesCount = boardData.tiles.Count(tile => tile.type == "Challenge");
 			boardData.questionsCount = boardData.tiles.Count(tile => tile.type == "Question");
@@ -254,13 +297,15 @@ public class EditBoardPopup : MonoBehaviour
 
 	#region Private Methods	
 
-	private void Play()
+	private void CreateOrPlay()
 	{
-		_gameData = CreateGameData();
+		if (GameController.GameState != GameStateState.Editing)
+			_gameData = CreateGameData();
+
 		gameObject.SetActive(false);
 	}
 
-	private void Back()
+	private void Close()
 	{
 		_gameData = null;
 		gameObject.SetActive(false);
@@ -290,10 +335,10 @@ public class EditBoardPopup : MonoBehaviour
 		}
 
 		// Challenges
-		newGameData.challenges = _gameData.challenges.Take(3).ToList();
+		newGameData.challenges = _gameData.challenges.Take(_validatedChallengesCount).ToList();
 
 		//Questions
-		newGameData.questions = _gameData.questions.Take(3).ToList();
+		newGameData.questions = _gameData.questions.Take(_validatedQuestionsCount).ToList();
 
 		newGameData.imageURL = _gameData.imageURL;
 
@@ -388,6 +433,78 @@ public class EditBoardPopup : MonoBehaviour
 
 	}
 
+	private void LoadPrevQuestion()
+	{
+		SetEditDataQuestion();
+
+		_currentQuestionIndex--;
+
+		if (_currentQuestionIndex < 0)
+			_currentQuestionIndex = _gameData.questions.Count-1;
+
+		LoadQuestion(_gameData.questions[_currentQuestionIndex], _validatedQuestionsCount);
+	}
+
+	private void LoadNextQuestion()
+	{
+		SetEditDataQuestion();
+		_currentQuestionIndex++;
+
+		if (_currentQuestionIndex >= _gameData.questions.Count)
+			_currentQuestionIndex = 0;
+
+		LoadQuestion(_gameData.questions[_currentQuestionIndex], _validatedQuestionsCount);
+	}
+
+	private void LoadPrevChallenge()
+	{
+		if (GameController.GameState == GameStateState.Editing)
+			SetEditDataChallenge();
+
+		_currentChallengeIndex--;
+
+		if (_currentChallengeIndex < 0)
+			_currentChallengeIndex = _gameData.challenges.Count-1;
+
+		LoadChallenge(_gameData.challenges[_currentChallengeIndex], _validatedChallengesCount);
+	}
+
+
+	private void LoadNextChallenge()
+	{		
+		if (GameController.GameState == GameStateState.Editing)
+			SetEditDataChallenge();
+
+		_currentChallengeIndex++;
+
+		if (_currentChallengeIndex >= _gameData.challenges.Count)
+			_currentChallengeIndex = 0;
+
+		LoadChallenge(_gameData.challenges[_currentChallengeIndex], _validatedChallengesCount);
+	}
+
+	private void SetEditDataQuestion()
+	{
+		// Collect the first question data
+		QuestionData question = new QuestionData
+		{
+			statement = _statementInput.text,
+			options = new string[_answersText.Length],
+			correctId = Array.FindIndex(_correctAnswerToggle, t => t.isOn)
+		};
+
+		for (int i = 0; i < _answersText.Length; i++)
+		{
+			question.options[i] = _answersText[i].text;
+		}
+
+		_gameData.questions[_currentQuestionIndex] = question;
+	}
+	private void SetEditDataChallenge()
+	{
+		_gameData.challenges[_currentChallengeIndex] = _challengeDescriptionInput.text;
+	}
+
 	private void ValidateQuestion()
 	{
 		// Collect the first question data
@@ -417,15 +534,35 @@ public class EditBoardPopup : MonoBehaviour
 			_questionsToValidateText.color = Color.blue;
 
 		if (_validatedQuestionsCount < _gameData.questions.Count)
-			LoadQuestion(_gameData.questions[_validatedQuestionsCount], _validatedQuestionsCount);
+			LoadNextQuestion();
 		else
 		{
 			_validateQuestionButton.interactable = false;
+			_discardQuestionButton.interactable = false;
+
 			_questionsToValidateText.text = "Validación Completada!";
-			_validateQuestionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Preguntas Validadas: " + _validatedQuestionsCount + 1;
 		}
 
 		RefreshPlayButton();
+	}
+
+	private void DiscardQuestion()
+	{
+		_gameData.questions.RemoveAt(_currentQuestionIndex);
+		if (_validatedQuestionsCount < _gameData.questions.Count)
+		{
+			LoadNextQuestion();
+			if (_currentQuestionIndex > 0)
+				_currentQuestionIndex--;
+			_questionsToValidateText.text = $"{_currentQuestionIndex}/{_gameData.questions.Count} Preguntas";
+		}
+		else
+		{
+			_validateQuestionButton.interactable = false;
+			_discardQuestionButton.interactable = false;
+
+			_questionsToValidateText.text = "Validación Completada!";
+		}
 	}
 
 	private void LoadQuestion(QuestionData questionData, int index)
@@ -436,13 +573,14 @@ public class EditBoardPopup : MonoBehaviour
 			_answersText[i].text = questionData.options[i];
 			_correctAnswerToggle[i].isOn = (i == questionData.correctId);
 		}
-		_validateQuestionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Validar Pregunta " + index;
+
+		if (GameController.GameState == GameStateState.Editing)
+			_questionsToValidateText.text = $"{_currentQuestionIndex}/{_gameData.questions.Count} Preguntas";				
 	}
 
 	int _validationChallengeIndex = 0;
 	private void ValidateChallenge()
 	{
-
 		_gameData.challenges[_validatedChallengesCount] = _challengeDescriptionInput.text;
 
 		_validatedChallengesCount++;
@@ -457,29 +595,50 @@ public class EditBoardPopup : MonoBehaviour
 			_challengesToValidateText.color = Color.blue;
 
 		if (_validatedChallengesCount < _gameData.challenges.Count)
-			LoadChallenge(_gameData.challenges[_validatedChallengesCount], _validatedChallengesCount);
+			LoadNextChallenge();
 		else
 		{
 			_validateChallengeButton.interactable = false;
+			_discardChallengeButton.interactable = false;
+
 			_challengesToValidateText.text = "Validación Completada!";
-			_validateQuestionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Desafíos Validados: " + _validatedChallengesCount + 1;
 
 		}
 
 		RefreshPlayButton();
 	}
 
+	private void DiscardChallenge()
+	{
+		_gameData.challenges.RemoveAt(_currentChallengeIndex);
+		if (_validatedChallengesCount < _gameData.challenges.Count)
+		{
+			LoadNextChallenge();
+			if (_currentChallengeIndex > 0)
+				_currentChallengeIndex--;
+			_challengesToValidateText.text = $"{_currentChallengeIndex}/{_gameData.challenges.Count} Preguntas";
+		}
+		else
+		{
+			_validateChallengeButton.interactable = false;
+			_discardChallengeButton.interactable = false;
+
+			_challengesToValidateText.text = "Validación Completada!";
+		}
+	}
+
 	private void LoadChallenge(string challenge, int i)
 	{
 		_challengeDescriptionInput.text = challenge;
-		_validateChallengeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Validar Desafío " + i;
 
+		if (GameController.GameState == GameStateState.Editing)
+			_challengesToValidateText.text = $"{_currentChallengeIndex}/{_gameData.challenges.Count} Desafíos";
 	}
 
 	private void RefreshValidations()
 	{
-		_questionsToValidateText.text = $"{_validatedQuestionsCount}/{_gameData.questions.Count} Preguntas Corregidas y Validadas";
-		_challengesToValidateText.text = $"{_validatedChallengesCount}/{_gameData.challenges.Count} Desafíos Corregidos y Validados";
+			_questionsToValidateText.text = $"{_validatedQuestionsCount}/{_gameData.questions.Count} Preguntas Corregidas y Validadas";
+			_challengesToValidateText.text = $"{_validatedChallengesCount}/{_gameData.challenges.Count} Desafíos Corregidos y Validados";		
 
 		if (_validatedChallengesCount < 3)
 			_validateChallengeButton.interactable = true;
@@ -490,6 +649,9 @@ public class EditBoardPopup : MonoBehaviour
 
 	private void RefreshPlayButton()
 	{
+		if (GameController.GameState == GameStateState.Editing)
+			return;
+
 		bool buttonState = true;
 		int challenges = (int)_questionsChallengesSlider.value;
 		int questions = 25 - challenges;

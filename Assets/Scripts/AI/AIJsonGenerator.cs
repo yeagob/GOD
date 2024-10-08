@@ -58,7 +58,6 @@ public class AIJsonGenerator
 		_basePrompt = CreateGameDataPrompt(unserPromptAnswer, gameData);
 
 		gameData = await GetGameData(_basePrompt);
-		gameData.challengesCount = 10;
 		gameData.challengesTypes = _defaultChallengeTypes;
 
 		return gameData;
@@ -108,28 +107,29 @@ public class AIJsonGenerator
 			string boardProposal = gameData.proposal;
 			string imageURL = gameData.imageURL;
 			List<string> challengesTypes = new List<string>(gameData.challengesTypes);
+			List<QuestionData> validatedQuestions = new List<QuestionData>(gameData.questions);
+			List<string> validatedChallenges = new List<string>(gameData.challenges);
 
 			string boardPrompt = CreateBoardPrompt(gameData);
 			GameData data = await GetGameData(boardPrompt);
 
-			boardData = ProcessData(data);
+			//Add VAlidated Questions & Challenges
+			data.questions.AddRange(validatedQuestions);
+			data.challenges.AddRange(validatedChallenges);
+
+			boardData = new BoardData(data);			
 
 			//Set previous title & Proposal
 			boardData.tittle = boardTittle;
 			boardData.proposal = boardProposal;
 			boardData.imageURL = imageURL;
-			boardData.challengeTypes = new List<string>(challengesTypes);
+			boardData.challengeTypes = new List<string>(challengesTypes);			
 		}
 		else
 			//TODO No me gusta cargar el tablero por defecto, me gustaría que diese error y te tirase para atrás!
 			boardData = new BoardData(LoadDefaultData());
 
 		return boardData;
-	}
-
-	private BoardData ProcessData(GameData data)
-	{
-		return new BoardData(data);
 	}
 
 	private string LoadDefaultData()

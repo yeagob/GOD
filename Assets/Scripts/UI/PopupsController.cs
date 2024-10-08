@@ -28,6 +28,7 @@ public class PopupsController : MonoBehaviour
 	[SerializeField] private RollDicePopup _rollDicePopup;
 	[SerializeField] private QuestionPopup _questionPopup;
 	[SerializeField] private ChallengePopup _challengePopup;
+	[SerializeField] private PublishBoardPopup _publishPopup;
 
 	#endregion
 
@@ -60,7 +61,7 @@ public class PopupsController : MonoBehaviour
 	public async Task<string> ShowCreateBoardQuestionPopup()
 	{
 		return await _createBoardQuestion.ShowAsync();
-	}
+	}	
 
 	internal async Task<BoardData> ShowChooseBoardPopup(List <BoardData> gameBoards)
 	{
@@ -95,6 +96,11 @@ public class PopupsController : MonoBehaviour
 	{
 		await _rollDicePopup.ShowAsync(diceValue);
 
+	}
+
+	public async Task<string> ShowPublishBoardPopup()
+	{
+		return await _publishPopup.ShowAsync();
 	}
 
 	public async Task ShowBoardInfoPopup(BoardData board)
@@ -158,6 +164,7 @@ public class PopupsController : MonoBehaviour
 		_createBoardQuestion.gameObject.SetActive(false);
 		_createOrChooosePopup.gameObject.SetActive(false);
 		_editBoardPopup.gameObject.SetActive(false);
+		_publishPopup.gameObject.SetActive(false);
 	}
 
 	#endregion

@@ -90,6 +90,7 @@ public class GameController : MonoBehaviour
 			_loadFromURLParam = true;
 
 		_saveButton.gameObject.SetActive(false);
+		_saveButton.onClick.AddListener(SaveBoard);
 	}
 
 	private async void Start()
@@ -99,7 +100,7 @@ public class GameController : MonoBehaviour
 		_volumeControl.Initialize();
 		_musicController.PlayBase();
 
-		//LOAD / CREATE BOARD
+		//LOAD BOARD
 		if (_loadDefault)
 		{
 			string boardJson = await LoadTextFileAsync(_defaultBoard);
@@ -152,9 +153,7 @@ public class GameController : MonoBehaviour
 				//Creating Board
 				boardData = await _aiJsonGenerator.GetJsonBoard(boardGameData);
 
-				_popupsController.PatoCienciaPopup.Hide();
-
-				GameState = GameStateState.Playing;
+				_popupsController.PatoCienciaPopup.Hide();				
 
 			}
 			//Select Board
@@ -178,7 +177,16 @@ public class GameController : MonoBehaviour
 		//EDIT BOARD
 		BoardData editedBoardData = await CheckEditMode(boardData);
 		if (editedBoardData != null)
+		{
 			boardData = editedBoardData;
+			if (GameState == GameStateState.Creating)
+			{
+				GameData gameData = EditBoardPopup.ConvertBoardDataToGameData(editedBoardData, editedBoardData.challengeTypes);
+				_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
+				boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
+				_popupsController.PatoCienciaPopup.Hide();
+			}
+		}
 
 		//CREATE BOARD!!!
 		CreateBoard(boardData);
@@ -247,7 +255,7 @@ public class GameController : MonoBehaviour
 
 		MovePlayersToInitialTile(players);
 		_musicController.PlayRock();
-
+		GameState = GameStateState.Playing;
 		OnGameStarts.Invoke();
 	}
 
@@ -255,6 +263,9 @@ public class GameController : MonoBehaviour
 	{
 		while (_gameState == GameStateState.Playing)
 		{
+			if (CurrentPlayer == null)
+				continue;
+
 			//LOST TURN
 			if (CurrentPlayer.State == PlayerState.LostTurn)
 			{
@@ -277,6 +288,7 @@ public class GameController : MonoBehaviour
 				if (completed)
 				{
 					OnHappy.Invoke();
+					_boardController.RefreshChallenge(_turnController.Players, CurrentTile);
 				}
 				else
 				{
@@ -357,7 +369,6 @@ public class GameController : MonoBehaviour
 
 				CurrentPlayer.State = PlayerState.OnChallenge;
 				await _popupsController.ShowChallengePlayer(CurrentPlayer, true);
-				_boardController.RefreshChallenge(CurrentPlayer.CurrentTile);
 				OnCuack.Invoke();
 
 				return false;
@@ -370,7 +381,7 @@ public class GameController : MonoBehaviour
 				{
 					OnHappy.Invoke();
 					CurrentPlayer.State = PlayerState.PlayAgain;
-					_boardController.RefreshQuestion(CurrentPlayer.CurrentTile);
+					_boardController.RefreshQuestion(CurrentTile);
 				}
 				else
 				{
@@ -433,19 +444,14 @@ public class GameController : MonoBehaviour
 	{
 		if (_gameState == GameStateState.Editing)
 		{
-			_saveButton.gameObject.SetActive(true);
-			_saveButton.onClick.AddListener(SaveBoard);
 
 			_popupsController.HideAll();
 
 			boardData = await _popupsController.ShowEditBoardPopup(boardData);
+			
+			if (boardData != null)
+				_saveButton.gameObject.SetActive(true);
 
-			//_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
-
-			//TODO: creo que esto no se debería hacer siempre... a veces solo quieres editar preguntas, no regenerar el board...
-			//boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
-
-			_popupsController.PatoCienciaPopup.Hide();
 			return boardData;
 
 		}
@@ -505,13 +511,19 @@ public class GameController : MonoBehaviour
 
 	private void SaveBoard()
 	{
-		//TODO: Show Edit Tittle & Descriptin
-		//TODO: Show Send Mail popup
-		//TODO: _boardController.BoardData.autor = email;
+		ShowPublish().WrapErrors();
+	}
 
-		_emailSender.SendEmail(_boardController.BoardData);
-		_popupsController.ShowBoardInfoPopup(_boardController.BoardData).WrapErrors();
+	private async Task ShowPublish()
+	{
+		string mail = await _popupsController.ShowPublishBoardPopup();
 
+		if (mail != "")
+		{
+			_boardController.BoardData.autor = mail;
+			_emailSender.SendEmail(_boardController.BoardData);
+			await _popupsController.ShowGenericMessage("Solicitud de publicación enviada!!");
+		}
 	}
 
 	//MOVER!
@@ -658,9 +670,9 @@ public class GameController : MonoBehaviour
 		if (_gameState == GameStateState.Editing)
 			Debug.Log("Salir del modo edición??");
 
+		GameState = GameStateState.Welcome;
 		_popupsController.HideAll();
 		_boardController.ResetBoard();
-		GameState = GameStateState.Welcome;
 	}
 
 	public void RestartGame()

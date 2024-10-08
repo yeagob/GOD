@@ -201,14 +201,21 @@ public class BoardController
 		_boardData = null;
 		foreach (Tile tile in _boardTiles)
 			GameObject.DestroyImmediate(tile);
-		Debug.Break();
 		_boardTiles.Clear();
 	}
 
-	internal void RefreshChallenge(Tile currentTile)
+	internal void RefreshChallenge(List<Player> players, Tile challengeTile)
 	{
 		if (_boardData.ExtraChallenges?.Count > 0)
-			currentTile.TileData.challenge.description = _boardData.ExtraChallenges.Dequeue();
+		{
+			int playerCountInSameTile = 0;
+			foreach (Player player in players)
+				if (player.CurrentTile == challengeTile)
+					playerCountInSameTile++;
+
+			if (playerCountInSameTile == 1)
+				challengeTile.TileData.challenge.description = _boardData.ExtraChallenges.Dequeue();
+		}
 	}
 
 	internal void RefreshQuestion(Tile currentTile)

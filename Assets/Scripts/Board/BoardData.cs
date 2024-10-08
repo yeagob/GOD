@@ -20,10 +20,8 @@ public class BoardData
 
 	private Queue<QuestionData> _extraQuestions;
 	private Queue<string> _extraChallenges;
-
 	public Queue<string> ExtraChallenges { get => _extraChallenges;}
 	public Queue<QuestionData> ExtraQuestions { get => _extraQuestions; }
-
 
 	#region Future
 	//public int id; // PK readonly
@@ -41,6 +39,7 @@ public class BoardData
 
 	public BoardData(GameData data)
 	{
+		Debug.Log("DAta: " +JsonUtility.ToJson(data));	
 		int[] rollAgainIds = new int[] { 2, 10, 17, 24, 29 };
 		int[] travelToIds = new int[] { 1, 7, 13, 21, 25, 33 };
 		int[] loseTurnIds = new int[] { 6, 18, 22, 30, 27, 34 };
@@ -50,6 +49,9 @@ public class BoardData
 		this.tittle = data.tittle;
 		this.proposal = data.proposal;
 		this.imageURL = data.imageURL;
+		this.challengesCount = data.challengesCount;
+		this.questionsCount = data.questionsCount;
+		this.challengeTypes = new List<string>(data.challengesTypes);
 
 		// Crear un array de 40 TileData
 		tiles = new TileData[40];
@@ -234,7 +236,7 @@ public class ChallengeData
 	#region Future
 
 	//public int id;
-	//	public float time_in_minutes;
+	//	public float time_in_seconds;
 	#endregion
 }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [Serializable]
@@ -26,20 +27,21 @@ public class TurnController
 		}
 	}
 
-	public List<Player> Players 
-	{ 
-		get 
-		{ 
-			return _players; 
-		} 
-		
-		set 
+	public List<Player> Players
+	{
+		get
 		{
-			_players = value;
+			return _players;
+		}
+
+		set
+		{
+			_players = value.OrderBy(x => Guid.NewGuid()).ToList();//Random Order
 			if (!_players.Contains(CurrentPlayer))
 				_currentIndex = 0;
-		} 
+		}
 	}
+
 
 	#endregion
 
@@ -47,7 +49,7 @@ public class TurnController
 	public TurnController(List<Player> players, PopupsController popupsController)
 	{
 		_popupsController = popupsController;//???????
-		_players = players;
+		Players = players;
 	}
 
 	public void NextTurn()

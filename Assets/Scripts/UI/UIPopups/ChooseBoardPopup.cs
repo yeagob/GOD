@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +21,7 @@ public class ChooseBoardPopup : MonoBehaviour
 	[SerializeField] private Button _editButton;
 
 	private BoardData _currentSelectedBoard;
+	private List<GameObject> _boardElements = new List<GameObject>();
 
 	#endregion
 
@@ -65,6 +67,12 @@ public class ChooseBoardPopup : MonoBehaviour
 
 	private async void Initialize(List<BoardData> boardDataList)
 	{
+		if (_boardElements.Count > 0)
+		{
+			foreach (GameObject board in _boardElements) 
+				Destroy(board);
+			_boardElements.Clear();
+		}
 
 		// Instantiate level items
 		foreach (BoardData boardData in boardDataList)
@@ -80,6 +88,8 @@ public class ChooseBoardPopup : MonoBehaviour
 			boardElement.Initialize(boardData, image, _toggleGroup);				
 
 			boardElement.OnBoardSelected += OnBoardSelected;
+
+			_boardElements.Add(boardElement.gameObject);
 		}
 
 		OnBoardSelected(boardDataList[0]);
