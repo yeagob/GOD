@@ -216,7 +216,7 @@ public class GameController : MonoBehaviour
 
 			await GameLoop();
 
-			//CREATING
+			//CREATING: No entiendo este caso!!
 			while (_gameState == GameStateState.Creating)
 				await Task.Yield();
 
