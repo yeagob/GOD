@@ -17,17 +17,17 @@ public class MusicController : MonoBehaviour
 
     public void PlayDrumBass()
 	{
-        _audioSource.clip = _clipDrumBass;
+       // _audioSource.clip = _clipDrumBass;
         _audioSource.Play();
     }   
     public void PlayBase()
 	{
-        _audioSource.clip = _clipBase;
+       // _audioSource.clip = _clipBase;
         _audioSource.Play();
     }    
     public void PlayRock()
 	{
-        _audioSource.clip = _clipRock;
+       // _audioSource.clip = _clipRock;
         _audioSource.Play();
     }
 }
