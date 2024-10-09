@@ -33,7 +33,7 @@ public class SettingsController : MonoBehaviour
         _extraButton.onClick.AddListener(OnExtraClicked);
         _okButton.onClick.AddListener(ClosePanel);
 
-        InvokeRepeating(nameof(CheckGameState), 1, 1);
+        InvokeRepeating(nameof(CheckGameState), 0, 1);
     }
 
     #endregion
