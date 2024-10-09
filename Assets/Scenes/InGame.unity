@@ -9762,7 +9762,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.5}
+  m_AnchoredPosition: {x: 0, y: -0.4999962}
   m_SizeDelta: {x: -20, y: -13}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &552560615
@@ -23118,8 +23118,8 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 4502593789865507772, guid: b9dd9d2cebc25d4449601bb8d01c7e45,
     type: 2}
-  m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 0
+  m_audioClip: {fileID: 8300000, guid: 062fc3453d7ab574eb9d854926ec8a03, type: 3}
+  m_PlayOnAwake: 1
   m_Volume: 0.13
   m_Pitch: 1
   Loop: 1
@@ -23216,9 +23216,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36e256abf3b48404eadbd61706e49389, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _clipDrumBass: {fileID: 0}
-  _clipRock: {fileID: 0}
-  _clipBase: {fileID: 0}
+  _clipDrumBass: {fileID: 8300000, guid: 9a29edae7d4b63147a7640f19d48ae67, type: 3}
+  _clipRock: {fileID: 8300000, guid: 99da022ab58245447ae5168b50f167e8, type: 3}
+  _clipBase: {fileID: 8300000, guid: 062fc3453d7ab574eb9d854926ec8a03, type: 3}
 --- !u!1 &1431742918
 GameObject:
   m_ObjectHideFlags: 0

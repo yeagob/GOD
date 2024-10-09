@@ -1,6 +1,7 @@
 using GOD.Utils;
 using Sirenix.OdinInspector;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -41,8 +42,6 @@ public class GameController : MonoBehaviour
 
 	[SerializeField, ReadOnly] private TurnController _turnController;
 
-	private int _round = 1;//Noseusa
-
 	 private bool _loadFromURLParam = false;
 
 	private static GameStateState _prevGameState;
@@ -60,8 +59,6 @@ public class GameController : MonoBehaviour
 
 	private Player CurrentPlayer => _turnController.CurrentPlayer;
 	private Tile CurrentTile => CurrentPlayer.CurrentTile;
-
-	public int Round => _round;
 
 	public static GameStateState GameState
 	{
@@ -99,6 +96,7 @@ public class GameController : MonoBehaviour
 
 		_saveButton.onClick.AddListener(SaveBoard);
 		_downloadButton.onClick.AddListener(DownloadBoard);
+		_downloadCamera.gameObject.SetActive(false);
 	}
 
 	private void Update()
@@ -681,6 +679,15 @@ public class GameController : MonoBehaviour
 
 	private void DownloadBoard()
 	{
+		StartCoroutine(DownloadBoardCorrutine());
+	}
+
+	private IEnumerator DownloadBoardCorrutine()
+	{
+		_downloadCamera.gameObject.SetActive(true);
+
+		yield return null;
+		
 		RenderTexture renderTexture = new RenderTexture(1920, 1080, 24);
 		_downloadCamera.targetTexture = renderTexture;
 		Texture2D screenShot = new Texture2D(1920, 1080, TextureFormat.RGB24, false);
@@ -698,8 +705,14 @@ public class GameController : MonoBehaviour
 		string base64Image = System.Convert.ToBase64String(bytes);
 
 		// Llamar a la función JS para generar el PDF
-		GeneratePDFFromUnity(base64Image,_boardController.BoardData.tittle);
+		GeneratePDFFromUnity(base64Image, _boardController.BoardData.tittle);
+		
+		yield return null;
+		
+		_downloadCamera.gameObject.SetActive(false);
+
 	}
+
 
 	#endregion
 
