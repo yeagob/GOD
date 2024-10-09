@@ -681,13 +681,13 @@ public class GameController : MonoBehaviour
 
 	private void DownloadBoard()
 	{
-		RenderTexture renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
+		RenderTexture renderTexture = new RenderTexture(1920, 1080, 24);
 		_downloadCamera.targetTexture = renderTexture;
-		Texture2D screenShot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+		Texture2D screenShot = new Texture2D(1920, 1080, TextureFormat.RGB24, false);
 
 		_downloadCamera.Render();
 		RenderTexture.active = renderTexture;
-		screenShot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+		screenShot.ReadPixels(new Rect(0, 0, 1920, 1080), 0, 0);
 		screenShot.Apply();
 
 		_downloadCamera.targetTexture = null;
