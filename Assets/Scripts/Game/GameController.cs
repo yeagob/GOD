@@ -97,7 +97,6 @@ public class GameController : MonoBehaviour
 		if (Application.absoluteURL.Contains("board"))
 			_loadFromURLParam = true;
 
-		_saveButton.gameObject.SetActive(false);
 		_saveButton.onClick.AddListener(SaveBoard);
 		_downloadButton.onClick.AddListener(DownloadBoard);
 	}
@@ -109,6 +108,7 @@ public class GameController : MonoBehaviour
 
 	private async void Start()
 	{
+		_saveButton.gameObject.SetActive(false);
 		BoardData boardData = null;
 		GameState = GameStateState.Welcome;
 		_volumeControl.Initialize();
@@ -215,8 +215,7 @@ public class GameController : MonoBehaviour
 
 		//PLAYER LIST
 		List<Player> players = await _popupsController.PlayerCreationController.ShowAsync();
-		if(players != null && players.Count > 0)
-			GameState = GameStateState.Playing;
+		
 
 		OnCuack.Invoke();
 
@@ -281,10 +280,10 @@ public class GameController : MonoBehaviour
 		
 		if (GameState != GameStateState.Playing)
 		{ 
-		MovePlayersToInitialTile(players);
-		_musicController.PlayRock();
-		GameState = GameStateState.Playing;
-		OnGameStarts.Invoke();
+			MovePlayersToInitialTile(players);
+			_musicController.PlayRock();
+			GameState = GameStateState.Playing;
+			OnGameStarts.Invoke();
 		}
 	}
 
@@ -629,6 +628,7 @@ public class GameController : MonoBehaviour
 	private void Fart()
 	{
 		CurrentPlayer.Token.Fart();
+		
 	}
 
 	//MOVER!!!

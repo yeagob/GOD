@@ -187,12 +187,14 @@ public class AIJsonGenerator
 
 		string challengeTypesPrompt = string.Empty;
 		foreach (string type in _defaultChallengeTypes)
-		{
 			challengeTypesPrompt += " " + type + ",";
-		}
 
 		if (challengeTypesPrompt == string.Empty)
 			challengeTypesPrompt = "Extrae los tipos de desafío de los ejemplos que hay al final del prompt.";
+
+		//Clear saltos de linea, rompen la petición
+		boardProposal = boardProposal.Replace("\n", "").Replace("\r", "");
+
 
 		string prompt = "Responde únicamente con un JSON siguiendo esta estructura exacta: La clase principal tiene los siguientes campos:" +
 			" tittle y proposal, de tipo string que son un título corto y una descripción basada en los intereses proporcionados aquí: "

@@ -95,6 +95,9 @@ public class PlayerToken : MonoBehaviour
 
 	public void MoveToTile(Tile tile)
 	{
+		if(tile?.transform == null || transform == null) 
+			return;
+
 		_currentTile = tile;
 		transform.position = tile.transform.position;
 	}
