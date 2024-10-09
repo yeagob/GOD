@@ -44,7 +44,7 @@ public class Tile : MonoBehaviour
 		_tileNumberText.text = i.ToString();
 	}
 
-	internal void SetTileData(TileData tileData)
+	public void SetTileData(TileData tileData)
 	{
 		_tileData = tileData;
 		_tileType = EnumConverter.StringToTileType(tileData.type);

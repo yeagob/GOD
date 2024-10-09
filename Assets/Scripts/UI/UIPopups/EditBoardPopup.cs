@@ -147,8 +147,8 @@ public class EditBoardPopup : MonoBehaviour
 		_discardQuestionButton.gameObject.SetActive(false);
 		_challengeTypesPanel.gameObject.SetActive(false);
 		_playButton.GetComponentInChildren<TextMeshProUGUI>().text = "Jugar";
-		_questionsToValidateText.text = $"0/{_gameData.questions.Count} Preguntas";
-		_challengesToValidateText.text = $"0/{_gameData.questions.Count} Desafíos";
+		_questionsToValidateText.text = $"1/{_gameData.questions.Count} Preguntas";
+		_challengesToValidateText.text = $"1/{_gameData.challenges.Count} Desafíos";
 		_questionsCountText.text = "";
 		_challengesCountText.text = "";
 		_questionsToValidateText.color = Color.black;

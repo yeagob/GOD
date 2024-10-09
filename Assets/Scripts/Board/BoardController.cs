@@ -226,17 +226,22 @@ public class BoardController
 
 	public void UpdateBoard(BoardData boardDataEdited)
 	{
-		for (int i = 0; i < boardDataEdited.tiles.Length; i++)
+		for (int i = 0; i < _boardData.tiles.Length; i++)
 		{
+			if (i >= boardDataEdited.tiles.Length)
+				break;
+
 			_boardData.tiles[i].type = boardDataEdited.tiles[i].type;
 
 			if (_boardData.tiles[i].type == "Challenge")
 			{
 				_boardData.tiles[i].challenge = boardDataEdited.tiles[i].challenge;
+				_boardTiles[i].SetTileData(_boardData.tiles[i]);
 			}
 			else if (_boardData.tiles[i].type == "Question")
 			{
 				_boardData.tiles[i].question = boardDataEdited.tiles[i].question;
+				_boardTiles[i].SetTileData(_boardData.tiles[i]);
 			}
 		}
 	}

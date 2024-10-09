@@ -232,7 +232,6 @@ public class GameController : MonoBehaviour
 				}
 				else
 				{
-					_boardController.ResetBoard();
 					_boardController.UpdateBoard(boardDataEdited);
 					GameState = GameStateState.Playing;
 				}
