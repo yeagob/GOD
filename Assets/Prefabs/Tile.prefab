@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2239162636405561205}
   - component: {fileID: 711866873619126308}
   - component: {fileID: 7399170056351690281}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: TileImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -168,7 +168,7 @@ GameObject:
   - component: {fileID: 1759332759123129108}
   - component: {fileID: 5363972157021281003}
   - component: {fileID: 1714009178683905786}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: TileText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -305,7 +305,7 @@ GameObject:
   - component: {fileID: 4222470227599304400}
   - component: {fileID: 8524550004411623969}
   - component: {fileID: 1205407068892384566}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: TileNumber
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -441,7 +441,7 @@ GameObject:
   - component: {fileID: 4172821466626401119}
   - component: {fileID: 1569548111580967117}
   - component: {fileID: 7999709140126930288}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: TileButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -561,7 +561,7 @@ GameObject:
   - component: {fileID: 8982535465181043443}
   - component: {fileID: 239432521556618215}
   - component: {fileID: 2601519123792757998}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: TileUICanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}

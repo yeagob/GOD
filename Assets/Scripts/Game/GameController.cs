@@ -3,6 +3,7 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -13,12 +14,19 @@ using UnityEngine.UI;
 /// </summary>
 public class GameController : MonoBehaviour
 {
+
 	#region Fields
+
+	[DllImport("__Internal")]
+	private static extern void GeneratePDFFromUnity(string base64Image, string name);
+
 	[SerializeField] private string _defaultBoard = "parent.json";
 
 	[Header("TEMP Elements")]
 	[SerializeField] private bool _loadDefault = false;
 	[SerializeField] private Button _saveButton;
+	[SerializeField] private Button _downloadButton;
+	[SerializeField] private Camera _downloadCamera;
 	[SerializeField] private GameObject _winEffects;
 	[SerializeField] private MusicController _musicController;
 
@@ -91,6 +99,12 @@ public class GameController : MonoBehaviour
 
 		_saveButton.gameObject.SetActive(false);
 		_saveButton.onClick.AddListener(SaveBoard);
+		_downloadButton.onClick.AddListener(DownloadBoard);
+	}
+
+	private void Update()
+	{
+		_downloadButton.gameObject.SetActive(GameState == GameStateState.Playing);
 	}
 
 	private async void Start()
@@ -663,6 +677,28 @@ public class GameController : MonoBehaviour
 				return null;
 			}
 		}
+	}
+
+	private void DownloadBoard()
+	{
+		RenderTexture renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
+		_downloadCamera.targetTexture = renderTexture;
+		Texture2D screenShot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+
+		_downloadCamera.Render();
+		RenderTexture.active = renderTexture;
+		screenShot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+		screenShot.Apply();
+
+		_downloadCamera.targetTexture = null;
+		RenderTexture.active = null;
+		Destroy(renderTexture);
+
+		byte[] bytes = screenShot.EncodeToPNG();
+		string base64Image = System.Convert.ToBase64String(bytes);
+
+		// Llamar a la función JS para generar el PDF
+		GeneratePDFFromUnity(base64Image,_boardController.BoardData.tittle);
 	}
 
 	#endregion
