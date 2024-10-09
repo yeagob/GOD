@@ -216,18 +216,27 @@ public class GameController : MonoBehaviour
 
 			await GameLoop();
 
-			//CREATING: No entiendo este caso!!
-			while (_gameState == GameStateState.Creating)
-				await Task.Yield();
-
 			//EDITING
 			BoardData boardDataEdited = await CheckEditMode(_boardController.BoardData);
 
 			if (boardDataEdited != null)
 			{
-				_boardController.ResetBoard();
-				CreateBoard(boardDataEdited);
-				continue;
+				if (GameState == GameStateState.Creating)
+				{
+					GameData gameData = EditBoardPopup.ConvertBoardDataToGameData(boardDataEdited, boardDataEdited.challengeTypes);
+					_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
+					boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
+					_popupsController.PatoCienciaPopup.Hide();
+					_boardController.ResetBoard();
+					CreateBoard(boardData);
+				}
+				else
+				{
+					_boardController.ResetBoard();
+					_boardController.UpdateBoard(boardDataEdited);
+					GameState = GameStateState.Playing;
+				}
+					continue;
 			}
 
 			//END GAME

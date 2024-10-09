@@ -224,6 +224,22 @@ public class BoardController
 			currentTile.TileData.question= _boardData.ExtraQuestions.Dequeue();
 	}
 
+	public void UpdateBoard(BoardData boardDataEdited)
+	{
+		for (int i = 0; i < boardDataEdited.tiles.Length; i++)
+		{
+			_boardData.tiles[i].type = boardDataEdited.tiles[i].type;
+
+			if (_boardData.tiles[i].type == "Challenge")
+			{
+				_boardData.tiles[i].challenge = boardDataEdited.tiles[i].challenge;
+			}
+			else if (_boardData.tiles[i].type == "Question")
+			{
+				_boardData.tiles[i].question = boardDataEdited.tiles[i].question;
+			}
+		}
+	}
 
 	#endregion
 
