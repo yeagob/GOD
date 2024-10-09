@@ -1,9 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +11,7 @@ public class ChooseBoardPopup : MonoBehaviour
 
 	[SerializeField] private BoardUIElement _boardUIElementPrefab;
 	[SerializeField] private ToggleGroup _toggleGroup;
+	[SerializeField] private RectTransform _contentScroll;
 
 	[SerializeField] private TextMeshProUGUI _selectedTitleText;
 	[SerializeField] private TextMeshProUGUI _selectedProposalText;
@@ -91,6 +90,10 @@ public class ChooseBoardPopup : MonoBehaviour
 
 			_boardElements.Add(boardElement.gameObject);
 		}
+
+		float newH = 400 * ((int)(boardDataList.Count / 3) + 1);
+		_contentScroll.sizeDelta = new Vector2(_contentScroll.sizeDelta.x, newH);
+
 
 		OnBoardSelected(boardDataList[0]);
 	}
