@@ -246,6 +246,14 @@ public class BoardController
 		}
 	}
 
+	public void EnableTextTiles(bool state)
+	{
+		for (int i = 0; i < _boardTiles.Count; i++)
+		{
+			_boardTiles[i].gameObject.SetActive(state);
+		}
+	}
+
 	#endregion
 
 	#region Private Methods

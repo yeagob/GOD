@@ -685,6 +685,7 @@ public class GameController : MonoBehaviour
 	private IEnumerator DownloadBoardCorrutine()
 	{
 		_downloadCamera.gameObject.SetActive(true);
+		_boardController.EnableTextTiles(true);
 
 		yield return null;
 		
@@ -710,7 +711,7 @@ public class GameController : MonoBehaviour
 		yield return null;
 		
 		_downloadCamera.gameObject.SetActive(false);
-
+		_boardController.EnableTextTiles(false);
 	}
 
 
