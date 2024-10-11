@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: f2c72883e993f25468f6632876e8722f
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - ABC Diatype Unlicensed Trial
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 52eb1a168f90a904a9c2c4b34e029d36, type: 3}
+  - {fileID: 12800000, guid: 90df0003ee4e4ec4ba7c40bc1ebdc73c, type: 3}
+  - {fileID: 12800000, guid: f0eb7693b7c80ec4abb1a95fba5edd04, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
