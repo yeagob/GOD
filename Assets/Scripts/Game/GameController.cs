@@ -27,6 +27,7 @@ public class GameController : MonoBehaviour
 	[SerializeField] private bool _loadDefault = false;
 	[SerializeField] private Button _saveButton;
 	[SerializeField] private Button _downloadButton;
+	[SerializeField] private Button _shareButton;
 	[SerializeField] private Camera _downloadCamera;
 	[SerializeField] private GameObject _winEffects;
 	[SerializeField] private MusicController _musicController;
@@ -48,6 +49,8 @@ public class GameController : MonoBehaviour
 	private static GameStateState _gameState;
 
 	private const string BOARDS_COLLECTION_FILE = "boardsCollection.json";
+
+	private List<string> _boardNames = new List<string>();
 
 	#endregion
 
@@ -83,6 +86,7 @@ public class GameController : MonoBehaviour
 	public event Action OnGameStarts;
 
 	public static bool JumpToCreateNew;
+	public static int SelectedIndex = -1;
 
 	#endregion
 
@@ -95,6 +99,7 @@ public class GameController : MonoBehaviour
 			_loadFromURLParam = true;
 
 		_saveButton.onClick.AddListener(SaveBoard);
+		_shareButton.onClick.AddListener(ShareBoard);
 		_downloadButton.onClick.AddListener(DownloadBoard);
 		_downloadCamera.gameObject.SetActive(false);
 	}
@@ -106,7 +111,10 @@ public class GameController : MonoBehaviour
 
 	private async void Start()
 	{
+		SelectedIndex = -1;
 		_saveButton.gameObject.SetActive(false);
+		_shareButton.gameObject.SetActive(false);
+
 		BoardData boardData = null;
 		GameState = GameStateState.Welcome;
 		_volumeControl.Initialize();
@@ -124,6 +132,8 @@ public class GameController : MonoBehaviour
 		else if (_loadFromURLParam)
 		{
 			string boardParam = Application.absoluteURL.Split("board=")[1];
+
+			_shareButton.gameObject.SetActive(true);
 
 			if (boardParam.Contains("&"))
 				boardParam = boardParam.Split('&')[0];
@@ -189,8 +199,6 @@ public class GameController : MonoBehaviour
 
 				_popupsController.PatoCienciaPopup.Hide();
 				_saveButton.gameObject.SetActive(true);
-
-
 			}
 			//Select Board
 			else
@@ -206,6 +214,9 @@ public class GameController : MonoBehaviour
 					Start();
 					return;
 				}
+				
+				_shareButton.gameObject.SetActive(true);
+
 			}
 
 			//ERROR CONTROL
@@ -604,6 +615,7 @@ public class GameController : MonoBehaviour
 
 		// Deserialize the collection of board names
 		BoardsCollection boardsCollection = JsonUtility.FromJson<BoardsCollection>(boardsCollectionJson);
+		_boardNames.Clear();
 
 		// Load each board's data
 		foreach (string boardName in boardsCollection.BoardNames)
@@ -617,6 +629,7 @@ public class GameController : MonoBehaviour
 
 			BoardData boardData = JsonUtility.FromJson<BoardData>(boardJson);
 			boards.Add(boardData);
+			_boardNames.Add(boardName);
 		}
 
 		return boards;
@@ -745,7 +758,14 @@ public class GameController : MonoBehaviour
 		_boardController.EnableTextTiles(false);
 	}
 
-
+	private void ShareBoard()
+	{
+		if (_loadFromURLParam)
+			_popupsController.ShowShareBoardPopup(Application.absoluteURL).WrapErrors();
+		else
+			if (SelectedIndex != -1)
+				_popupsController.ShowShareBoardPopup("https://xr-dreams.com/GOD?board="+_boardNames[SelectedIndex]).WrapErrors();
+	}
 	#endregion
 
 	#region Public Methods

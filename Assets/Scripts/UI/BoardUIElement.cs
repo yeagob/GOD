@@ -14,9 +14,11 @@ public class BoardUIElement : MonoBehaviour
 
 	private BoardData _boardData;
 
+	private int _index;
+
 	public event Action <BoardData> OnBoardSelected;
 
-	public void Initialize(BoardData data, Sprite image, ToggleGroup group)
+	public void Initialize(BoardData data, Sprite image, ToggleGroup group, int index)
 	{
 		_boardData = data;
 
@@ -27,6 +29,8 @@ public class BoardUIElement : MonoBehaviour
 		_toggle.onValueChanged.AddListener(OnToggleValueChanged);
 		_toggle.group = group;
 
+		_index = index;
+
 		gameObject.SetActive(true);
 	}
 
@@ -36,6 +40,7 @@ public class BoardUIElement : MonoBehaviour
 		{
 			OnBoardSelected?.Invoke(_boardData);
 			_selectedFeeback.SetActive(true);
+			GameController.SelectedIndex = _index;
 		}
 		else
 		{

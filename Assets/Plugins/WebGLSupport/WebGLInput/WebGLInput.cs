@@ -149,18 +149,18 @@ namespace WebGLSupport
             enabled = false;
 #endif
             // for mobile platform
-            if (Application.isMobilePlatform)
-            {
-                if (input.EnableMobileSupport)
-                {
-                    gameObject.AddComponent<WebGLInputMobile>();
-                }
-                else
-                {
-                    // when disable mobile input. disable self!
-                    enabled = false;
-                }
-            }
+            //if (Application.isMobilePlatform)
+            //{
+            //    if (input.EnableMobileSupport)
+            //    {
+            //        gameObject.AddComponent<WebGLInputMobile>();
+            //    }
+            //    else
+            //    {
+            //        // when disable mobile input. disable self!
+            //        enabled = false;
+            //    }
+            //}
         }
 
         /// <summary>

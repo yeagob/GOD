@@ -80,6 +80,7 @@ public class ChooseBoardPopup : MonoBehaviour
 		}
 
 		// Instantiate level items
+		int i = 0;
 		foreach (BoardData boardData in boardDataList)
 		{
 			BoardUIElement boardElement = Instantiate(_boardUIElementPrefab, _boardUIElementPrefab.transform.parent);
@@ -90,11 +91,12 @@ public class ChooseBoardPopup : MonoBehaviour
 				string url = Path.Combine(Application.streamingAssetsPath, "DefaultBoardImage.png");
 				image = await DALLE2.DownloadSprite(url);
 			}
-			boardElement.Initialize(boardData, image, _toggleGroup);				
+			boardElement.Initialize(boardData, image, _toggleGroup, i);				
 
 			boardElement.OnBoardSelected += OnBoardSelected;
 
 			_boardElements.Add(boardElement.gameObject);
+			i++;
 		}
 
 		float newH = 400 * ((int)(boardDataList.Count / 3) + 1);
