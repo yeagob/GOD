@@ -60,6 +60,7 @@ public class SettingsController : MonoBehaviour
 
         if (GameController.GameState == GameStateState.Editing)
         {
+            _quitGameButton.interactable = true;
             _rerollButton.interactable = true;
             _quitGameButton.interactable = true;
         }
@@ -103,7 +104,8 @@ public class SettingsController : MonoBehaviour
 
     private void OnExtraClicked()
     {
-        Debug.Log("Extra button clicked");
+        GameController.JumpToCreateNew = true;
+        OnQuitGameClicked();
     }
 
 

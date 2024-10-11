@@ -18,12 +18,12 @@ public class ChooseBoardPopup : MonoBehaviour
 
 	[SerializeField] private Button _playButton;
 	[SerializeField] private Button _editButton;
+	[SerializeField] private Button _backButton;
 
 	private BoardData _currentSelectedBoard;
 	private List<GameObject> _boardElements = new List<GameObject>();
 
 	#endregion
-
 
 	#region Unity Callbacks
 
@@ -39,6 +39,12 @@ public class ChooseBoardPopup : MonoBehaviour
 		_editButton.onClick.AddListener(() =>
 		{
 			GameController.GameState = GameStateState.Editing;
+			gameObject.SetActive(false);
+		});
+
+		_backButton.onClick.AddListener(() =>
+		{
+			_currentSelectedBoard = null;
 			gameObject.SetActive(false);
 		});
 	}
@@ -102,7 +108,12 @@ public class ChooseBoardPopup : MonoBehaviour
 	{
 		_currentSelectedBoard = board;		
 		_selectedTitleText.text = board.tittle;
-		_selectedProposalText.text = board.proposal;
+		int q = board.questionsCount;
+		int ch = board.challengesCount;
+		if (q > 0 || ch > 0)
+		_selectedProposalText.text = board.proposal + " ( "+q+" Preguntas / "+ch+" Desafíos )";
+		else
+		_selectedProposalText.text = board.proposal ;
 	}
 
 	#endregion

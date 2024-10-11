@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -7,11 +8,19 @@ public class CreateBoardQuestionPopup : MonoBehaviour
 {
 	[SerializeField] private float _minLength = 3;
 	[SerializeField] private Button _okButton;
+	[SerializeField] private Button _backButton;
 	[SerializeField] private TMP_InputField _promptInputText;
 
 	void Start()
 	{
 		_okButton.onClick.AddListener(OkButton);
+		_backButton.onClick.AddListener(BackButton);
+	}
+
+	private void BackButton()
+	{
+		_promptInputText.text = "";
+		gameObject.SetActive(false);
 	}
 
 	private void OkButton()

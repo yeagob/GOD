@@ -18,10 +18,43 @@ public class BoardData
 	public TileData[] tiles;
 	public List<string> challengeTypes = new List<string>();
 
+	#region Extra questions / challenges
+	// Fields for serialized lists
+	[SerializeField] private List<QuestionData> _serializedQuestions;
+	[SerializeField] private List<string> _serializedChallenges;
+
+	// Internal queues for runtime use
 	private Queue<QuestionData> _extraQuestions;
 	private Queue<string> _extraChallenges;
-	public Queue<string> ExtraChallenges { get => _extraChallenges;}
-	public Queue<QuestionData> ExtraQuestions { get => _extraQuestions; }
+
+	// Properties to expose the queues
+	public Queue<string> ExtraChallenges
+	{
+		get
+		{
+			if (_extraChallenges == null)
+				_extraChallenges = new Queue<string>(_serializedChallenges);
+			return _extraChallenges;
+		}
+	}
+
+	public Queue<QuestionData> ExtraQuestions
+	{
+		get
+		{
+			if (_extraQuestions == null)
+				_extraQuestions = new Queue<QuestionData>(_serializedQuestions);
+			return _extraQuestions;
+		}
+	}
+
+	// Method to update serialized lists before saving
+	public void UpdateSerializedData()
+	{
+		_serializedQuestions = new List<QuestionData>(_extraQuestions);
+		_serializedChallenges = new List<string>(_extraChallenges);
+	}
+	#endregion
 
 	#region Future
 	//public int id; // PK readonly
@@ -185,8 +218,8 @@ public class BoardData
 		if (availablePositions.Count > 0)
 			Debug.LogWarning("Hay casillas vacías!!");
 
-		_extraChallenges = new Queue<string>(availableChallenges);
-		_extraQuestions = new Queue<QuestionData>(availableQuestions);
+		_serializedChallenges = new List<string>(availableChallenges);
+		_serializedQuestions = new List<QuestionData>(availableQuestions);
 
 		Debug.Log("Board Data: " + JsonUtility.ToJson(this));
 	}

@@ -94,6 +94,11 @@ public class Tile : MonoBehaviour
 		}
 	}
 
+	internal void SetTextState(bool state)
+	{
+		_tileDescriptionText.gameObject.SetActive(state);
+	}
+
 	//private async Task GetURLImage(string url_image)
 	//{
 	//	Sprite sprite = await DALLE2.DownloadSprite(url_image);  // Assuming DALLE2 is a hypothetical API call

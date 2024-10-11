@@ -42,7 +42,7 @@ public class GameController : MonoBehaviour
 
 	[SerializeField, ReadOnly] private TurnController _turnController;
 
-	 private bool _loadFromURLParam = false;
+	private bool _loadFromURLParam = false;
 
 	private static GameStateState _prevGameState;
 	private static GameStateState _gameState;
@@ -74,8 +74,6 @@ public class GameController : MonoBehaviour
 			_gameState = value;
 		}
 	}
-	//For Back Implementation
-	public static GameStateState PreveGameState => _prevGameState;
 
 	public event Action OnCuack;
 	public event Action OnHappy;
@@ -83,6 +81,8 @@ public class GameController : MonoBehaviour
 	public event Action OnSad;
 	public event Action OnRollDices;
 	public event Action OnGameStarts;
+
+	public static bool JumpToCreateNew;
 
 	#endregion
 
@@ -121,7 +121,7 @@ public class GameController : MonoBehaviour
 			await _popupsController.ShowBoardInfoPopup(boardData);
 		}
 		//BOARD FROM URL PARAM
-		else if(_loadFromURLParam)
+		else if (_loadFromURLParam)
 		{
 			string boardParam = Application.absoluteURL.Split("board=")[1];
 
@@ -135,18 +135,33 @@ public class GameController : MonoBehaviour
 		}
 		else
 		{
-			//WELCOME
-			await _popupsController.ShowWelcome();
-			OnCuack.Invoke();
+			bool creating = true;
 
-			bool creating = await _popupsController.ShowCreateOrChooseBoard();
-			OnCuack.Invoke();
+			if (!JumpToCreateNew)
+			{
+				//WELCOME
+				await _popupsController.ShowWelcome();
+				OnCuack.Invoke();
+
+				creating = await _popupsController.ShowCreateOrChooseBoard();
+				OnCuack.Invoke();
+			}
 
 			if (creating)
 			{
+				JumpToCreateNew = false;
+
 				//First promt User Question
 				string promptBase = await _popupsController.ShowCreateBoardQuestionPopup();
+
 				OnCuack.Invoke();
+				//Back
+				if (promptBase == "")
+				{
+					Start();
+					return;
+				}
+
 
 				_popupsController.PatoCienciaPopup.Show("Preparando la propuesta...");
 
@@ -160,12 +175,19 @@ public class GameController : MonoBehaviour
 				//Creating seccond Game Data. Edit Board Mode
 				GameData boardGameData = await _popupsController.ShowEditBoardPopup(gameData);
 
+				if (boardGameData == null)
+				{
+					JumpToCreateNew = true;
+					Start();
+					return;
+				}
+
 				_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
 
 				//Creating Board
 				boardData = await _aiJsonGenerator.GetJsonBoard(boardGameData);
 
-				_popupsController.PatoCienciaPopup.Hide();		
+				_popupsController.PatoCienciaPopup.Hide();
 				_saveButton.gameObject.SetActive(true);
 
 
@@ -175,6 +197,15 @@ public class GameController : MonoBehaviour
 			{
 				List<BoardData> boards = await LoadBoardsData();
 				boardData = await _popupsController.ShowChooseBoardPopup(boards);
+
+				OnCuack.Invoke();
+
+				//Back
+				if (boardData == null)
+				{
+					Start();
+					return;
+				}
 			}
 
 			//ERROR CONTROL
@@ -209,11 +240,11 @@ public class GameController : MonoBehaviour
 
 		OnCuack.Invoke();
 
-		_boardController.OnMoveStep += Fart;		
+		_boardController.OnMoveStep += Fart;
 
 		//PLAYER LIST
 		List<Player> players = await _popupsController.PlayerCreationController.ShowAsync();
-		
+
 
 		OnCuack.Invoke();
 
@@ -246,7 +277,7 @@ public class GameController : MonoBehaviour
 					_boardController.UpdateBoard(boardDataEdited);
 					GameState = GameStateState.Playing;
 				}
-					continue;
+				continue;
 			}
 
 			//END GAME
@@ -275,9 +306,9 @@ public class GameController : MonoBehaviour
 	private void StartGame(List<Player> players)
 	{
 		_loadDefault = false;
-		
+
 		if (GameState != GameStateState.Playing)
-		{ 
+		{
 			MovePlayersToInitialTile(players);
 			_musicController.PlayRock();
 			GameState = GameStateState.Playing;
@@ -419,7 +450,7 @@ public class GameController : MonoBehaviour
 
 			case TileType.TravelToTile:
 
-				 _popupsController.ShowGenericMessage("De pato a pato y tiro porque...\n CUACK!!", 2, CurrentPlayer.Token.Color).WrapErrors();
+				_popupsController.ShowGenericMessage("De pato a pato y tiro porque...\n CUACK!!", 2, CurrentPlayer.Token.Color).WrapErrors();
 				OnHappy.Invoke();
 				await _boardController.TravelToNextTravelTile(CurrentPlayer);
 				CurrentPlayer.State = PlayerState.PlayAgain;
@@ -483,7 +514,7 @@ public class GameController : MonoBehaviour
 			return boardData;
 
 		}
-				
+
 		return null;
 	}
 
@@ -626,7 +657,7 @@ public class GameController : MonoBehaviour
 	private void Fart()
 	{
 		CurrentPlayer.Token.Fart();
-		
+
 	}
 
 	//MOVER!!!
@@ -688,7 +719,7 @@ public class GameController : MonoBehaviour
 		_boardController.EnableTextTiles(true);
 
 		yield return null;
-		
+
 		RenderTexture renderTexture = new RenderTexture(1920, 1080, 24);
 		_downloadCamera.targetTexture = renderTexture;
 		Texture2D screenShot = new Texture2D(1920, 1080, TextureFormat.RGB24, false);
@@ -707,9 +738,9 @@ public class GameController : MonoBehaviour
 
 		// Llamar a la función JS para generar el PDF
 		GeneratePDFFromUnity(base64Image, _boardController.BoardData.tittle);
-		
+
 		yield return null;
-		
+
 		_downloadCamera.gameObject.SetActive(false);
 		_boardController.EnableTextTiles(false);
 	}

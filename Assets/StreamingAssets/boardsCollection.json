@@ -1,9 +1,11 @@
 {
     "BoardNames": [
       "parent",    
+      "detox",
       "crecimiento",
-      "placer",
       "adolescencia",
-      "circulo"
+      "videojuegos_actuales",
+      "circulo",
+      "placer"
     ]
   }

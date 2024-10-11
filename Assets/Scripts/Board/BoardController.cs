@@ -250,7 +250,7 @@ public class BoardController
 	{
 		for (int i = 0; i < _boardTiles.Count; i++)
 		{
-			_boardTiles[i].gameObject.SetActive(state);
+			_boardTiles[i].SetTextState(state);
 		}
 	}
 
