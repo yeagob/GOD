@@ -204,6 +204,9 @@ public class EditBoardPopup : MonoBehaviour
 		_questionsToValidateText.color = Color.red;
 		_challengesToValidateText.color = Color.red;
 
+		_tittleInput.onEndEdit.AddListener(UpdateTittleData);
+		_proposalInput.onEndEdit.AddListener(UpdateProposalData);
+
 		// Set questions and challenges for the slider
 		_questionsChallengesSlider.minValue = 0;
 		_questionsChallengesSlider.maxValue = 25;
@@ -251,6 +254,17 @@ public class EditBoardPopup : MonoBehaviour
 		}
 
 		return _gameData;
+	}
+
+	private void UpdateTittleData(string data)
+	{
+		_gameData.tittle = data;
+	}
+
+	private void UpdateProposalData(string data)
+	{
+		_gameData.proposal = data;
+
 	}
 
 	public static GameData ConvertBoardDataToGameData(BoardData boardData, List<string> challengeTypes)

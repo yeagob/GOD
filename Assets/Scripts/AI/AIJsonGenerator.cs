@@ -126,6 +126,9 @@ public class AIJsonGenerator
 			string boardPrompt = CreateBoardPrompt(gameData);
 			GameData data = await GetGameData(boardPrompt);
 
+			if (data == null)
+				return null;
+
 			//Add VAlidated Questions & Challenges
 			data.questions.AddRange(validatedQuestions);
 			data.challenges.AddRange(validatedChallenges);

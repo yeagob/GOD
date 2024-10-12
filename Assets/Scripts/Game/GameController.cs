@@ -142,6 +142,9 @@ public class GameController : MonoBehaviour
 
 			//BOARD INFO
 			await _popupsController.ShowBoardInfoPopup(boardData);
+
+			//only first time
+			_loadFromURLParam = false;
 		}
 		else
 		{
