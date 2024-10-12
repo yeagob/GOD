@@ -58,7 +58,8 @@ public class AIJsonGenerator
 		_basePrompt = CreateGameDataPrompt(unserPromptAnswer, gameData);
 
 		gameData = await GetGameData(_basePrompt);
-		gameData.challengesTypes = _defaultChallengeTypes;
+		if (gameData != null)
+			gameData.challengesTypes = _defaultChallengeTypes;
 
 		return gameData;
 	}

@@ -321,7 +321,7 @@ public class EditBoardPopup : MonoBehaviour
 
 		// Set question and challenge counts based on slider
 		newGameData.challengesCount = Mathf.RoundToInt(_questionsChallengesSlider.value);
-		newGameData.questionsCount = 25 - newGameData.challengesCount;
+		newGameData.questionsCount = (int)_questionsChallengesSlider.maxValue - newGameData.challengesCount;
 
 		//Challenges Types
 		foreach (Button challengeButton in _challengeTypesButtons)
@@ -349,7 +349,7 @@ public class EditBoardPopup : MonoBehaviour
 	private void SliderUpdated(float value)
 	{
 		_gameData.challengesCount = Mathf.RoundToInt(_questionsChallengesSlider.value);
-		_gameData.questionsCount = 25 - _gameData.challengesCount;
+		_gameData.questionsCount = (int)_questionsChallengesSlider.maxValue - _gameData.challengesCount;
 
 		_challengesCountText.text = "Desafíos: " + _gameData.challengesCount;
 		_questionsCountText.text = "Preguntas: " + _gameData.questionsCount;

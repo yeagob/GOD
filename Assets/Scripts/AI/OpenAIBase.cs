@@ -91,7 +91,9 @@ public class GPT4Mini : OpenAIBase
 	public GPT4Mini(string apiKey) : base(apiKey) { }
 	public async Task<string> GetCompletion(string prompt)
 	{
-		string jsonData = "{\"model\": \"gpt-4o-mini\", \"messages\": [{\"role\": \"user\", \"content\": \""
+		//string temp = temperature.ToString().Replace(',', '.');//NO VA  si lo concateno!!!
+
+		string jsonData = "{\"model\": \"gpt-4o-mini\", \"temperature\": 0.2, \"messages\": [{\"role\": \"user\", \"content\": \""
 						   + prompt + "\"}, {\"role\":\"system\",\"content\": \"Eres un módulo de un juego llamado Game Of Duck, " +
 						   "inspirado en el Juego de la Oca que se encarga de convertir un prompt del usuario en  una " +
 						   " proposal y un tittle, que definen el board. A demás si se le da una estructura concreta, puede " +

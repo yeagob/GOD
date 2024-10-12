@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static Michsky.DreamOS.GameHubData;
+using Random = UnityEngine.Random;
 
 /// <summary>
 /// Representa un tablero de juego que contiene tiles y gestiona su ciclo de vida.
@@ -176,43 +177,86 @@ public class BoardData
 		// Mezclar las posiciones vacantes para aleatoriedad
 		Shuffle(availablePositions);
 
-		// Distribuir desafíos (challengesCount)
-		for (int i = 0; i < data.challengesCount && availableChallenges.Count > 0 && availablePositions.Count > 0; i++)
+		// Distribuir desafíos y preguntas de manera proporcional
+		while (availablePositions.Count > 0 && (availableChallenges.Count > 0 || availableQuestions.Count > 0))
 		{
-			int position = availablePositions[0];
-			availablePositions.RemoveAt(0);
+			int positionIndex = Random.Range(0, availablePositions.Count);
+			int position = availablePositions[positionIndex];
+			availablePositions.RemoveAt(positionIndex);
 
-			string challengeDescription = availableChallenges[0];
-			availableChallenges.RemoveAt(0);
-
-			tiles[position] = new TileData
+			if (availableChallenges.Count > 0 && availableQuestions.Count > 0)
 			{
-				id = position,
-				type = TileType.Challenge.ToString(),
-				challenge = new ChallengeData
+				int totalRemaining = availableChallenges.Count + availableQuestions.Count;
+				int randValue = Random.Range(0, totalRemaining);
+
+				if (randValue < availableChallenges.Count)
 				{
-					description = challengeDescription
-				},
-				question = null
-			};
-		}
+					// Asignar un desafío
+					string challengeDescription = availableChallenges[0];
+					availableChallenges.RemoveAt(0);
 
-		// Distribuir preguntas (questionsCount)
-		for (int i = 0; i < data.questionsCount && availableQuestions.Count > 0 && availablePositions.Count > 0; i++)
-		{
-			int position = availablePositions[0];
-			availablePositions.RemoveAt(0);
+					tiles[position] = new TileData
+					{
+						id = position,
+						type = TileType.Challenge.ToString(),
+						challenge = new ChallengeData
+						{
+							description = challengeDescription
+						},
+						question = null
+					};
+				}
+				else
+				{
+					// Asignar una pregunta
+					QuestionData question = availableQuestions[0];
+					availableQuestions.RemoveAt(0);
 
-			QuestionData question = availableQuestions[0];
-			availableQuestions.RemoveAt(0);
-
-			tiles[position] = new TileData
+					tiles[position] = new TileData
+					{
+						id = position,
+						type = TileType.Question.ToString(),
+						question = question,
+						challenge = null
+					};
+				}
+			}
+			else if (availableChallenges.Count > 0)
 			{
-				id = position,
-				type = TileType.Question.ToString(),
-				question = question,
-				challenge = null
-			};
+				// Solo quedan desafíos
+				string challengeDescription = availableChallenges[0];
+				availableChallenges.RemoveAt(0);
+
+				tiles[position] = new TileData
+				{
+					id = position,
+					type = TileType.Challenge.ToString(),
+					challenge = new ChallengeData
+					{
+						description = challengeDescription
+					},
+					question = null
+				};
+			}
+			else if (availableQuestions.Count > 0)
+			{
+				// Solo quedan preguntas
+				QuestionData question = availableQuestions[0];
+				availableQuestions.RemoveAt(0);
+
+				tiles[position] = new TileData
+				{
+					id = position,
+					type = TileType.Question.ToString(),
+					question = question,
+					challenge = null
+				};
+			}
+			else
+			{
+				// No quedan elementos para asignar
+				break;
+			}
 		}
 
 		if (availablePositions.Count > 0)

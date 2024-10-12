@@ -56,6 +56,7 @@ public class SettingsController : MonoBehaviour
             _editPlayersButton.interactable = true;
             _editBoardButton.interactable = true;
             _rerollButton.interactable = true;
+            _extraButton.interactable = true;
         }
 
         if (GameController.GameState == GameStateState.Editing)

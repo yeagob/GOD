@@ -179,8 +179,16 @@ public class GameController : MonoBehaviour
 				_aiJsonGenerator = new AIJsonGenerator();
 				//TODO: sHOW LOADING
 				GameData gameData = await _aiJsonGenerator.CreateBaseGameData(promptBase);
-
 				_popupsController.PatoCienciaPopup.Hide();
+				
+				//Error!!
+				if (gameData == null)
+				{
+					await _popupsController.ShowGenericMessage("Error Creando tablero. Intentalo de nuevo!", 5);
+					JumpToCreateNew = true;
+					Start();
+					return;
+				}
 
 				//Creating seccond Game Data. Edit Board Mode
 				GameData boardGameData = await _popupsController.ShowEditBoardPopup(gameData);
