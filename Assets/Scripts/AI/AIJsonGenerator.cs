@@ -82,7 +82,7 @@ public class AIJsonGenerator
 			"	- Añade recomendaciones y refinamientos que aumenten su atractivo y valor educativo." +
 			" FORMATO ESPERADO: informa que tiene que comportarse como profesor en la materia y describe " +
 			"como tiene que generar las preguntas/desafíos, cuales son sus características clave y cuales son las pautas para generar " +
-			"preguntas/desafíos de la misma calidad, los detalles a tener en cuenta. " +
+			"preguntas/desafíos que sigan lo más fielmente posible la misma línea que las de la data inicial. " +
 			"Indica el número de preguntas y/o desafíos que habrá que generar, en base a la data inicial antes, " +
 			"en los campos questionsCount y challengesCount. " +
 			"Indica cuales son los tipos de desafíos. " +

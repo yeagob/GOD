@@ -171,6 +171,7 @@ public class PopupsController : MonoBehaviour
 		_editBoardPopup.gameObject.SetActive(false);
 		_publishPopup.gameObject.SetActive(false);
 		_shareBoard.gameObject.SetActive(false);
+		PatoCienciaPopup.gameObject.SetActive(false);
 		_settingsPopup.gameObject.SetActive(false);
 	}
 
