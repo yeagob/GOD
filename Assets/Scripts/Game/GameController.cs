@@ -175,38 +175,30 @@ public class GameController : MonoBehaviour
 					return;
 				}
 
-
 				_popupsController.PatoCienciaPopup.Show("Preparando la propuesta...");
 
 				//Create First Game Data
 				_aiJsonGenerator = new AIJsonGenerator();
-				//TODO: sHOW LOADING
 				GameData gameData = await _aiJsonGenerator.CreateBaseGameData(promptBase);
+
 				_popupsController.PatoCienciaPopup.Hide();
 				
 				//Error!!
 				if (gameData == null)
 				{
 					await _popupsController.ShowGenericMessage("Error Creando tablero. Intentalo de nuevo!", 5);
+
 					JumpToCreateNew = true;
 					Start();
 					return;
 				}
 
-				//Creating seccond Game Data. Edit Board Mode
-				GameData boardGameData = await _popupsController.ShowEditBoardPopup(gameData);
-
-				if (boardGameData == null)
-				{
-					JumpToCreateNew = true;
-					Start();
-					return;
-				}
+				//SHOW EDIT INITIAL BOARD DATA
+				GameData initialGameData = await _popupsController.ShowEditBoardPopup(gameData);
 
 				_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
 
-				//Creating Board
-				boardData = await _aiJsonGenerator.GetJsonBoard(boardGameData);
+				boardData = await CreateBoardFromGamedata(initialGameData);
 
 				_popupsController.PatoCienciaPopup.Hide();
 				_saveButton.gameObject.SetActive(true);
@@ -248,9 +240,12 @@ public class GameController : MonoBehaviour
 			boardData = editedBoardData;
 			if (GameState == GameStateState.Creating)
 			{
-				GameData gameData = EditBoardPopup.ConvertBoardDataToGameData(editedBoardData, editedBoardData.challengeTypes);
+				GameData initialGameData = EditBoardPopup.ConvertBoardDataToGameData(editedBoardData, editedBoardData.challengeTypes);
+
 				_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
-				boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
+
+				boardData = await CreateBoardFromGamedata(initialGameData);
+
 				_popupsController.PatoCienciaPopup.Hide();
 			}
 		}
@@ -287,9 +282,9 @@ public class GameController : MonoBehaviour
 			{
 				if (GameState == GameStateState.Creating)
 				{
-					GameData gameData = EditBoardPopup.ConvertBoardDataToGameData(boardDataEdited, boardDataEdited.challengeTypes);
+					GameData initialGameData = EditBoardPopup.ConvertBoardDataToGameData(boardDataEdited, boardDataEdited.challengeTypes);
 					_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
-					boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
+					boardData = await CreateBoardFromGamedata(initialGameData);
 					_popupsController.PatoCienciaPopup.Hide();
 					_boardController.ResetBoard();
 					CreateBoard(boardData);
@@ -306,7 +301,6 @@ public class GameController : MonoBehaviour
 			if (_gameState == GameStateState.EndGame)
 			{
 				await FinishGame();
-				break;//Restart
 			}
 
 			//Back to Main Menu
@@ -565,10 +559,10 @@ public class GameController : MonoBehaviour
 				await Task.Yield();
 			}
 		}
-		_turnController.DestroyPlayerTokens();
-
-		_winEffects.gameObject.SetActive(false);
 		_musicController.PlayBase();
+		_winEffects.gameObject.SetActive(false);
+		await _popupsController.ShowSettings();
+
 
 	}
 
@@ -783,15 +777,31 @@ public class GameController : MonoBehaviour
 	public async Task RerollGame()
 	{
 		GameState = GameStateState.Creating;
+
 		_popupsController.HideAll();
+		
+		GameData initialGameData = EditBoardPopup.ConvertBoardDataToGameData(_boardController.BoardData, _boardController.BoardData.challengeTypes);
+		
 		_popupsController.PatoCienciaPopup.Show("Regenerando el tablero...");
-		GameData gameData = EditBoardPopup.ConvertBoardDataToGameData(_boardController.BoardData, _boardController.BoardData.challengeTypes);
+		
+		BoardData boardData = await CreateBoardFromGamedata(initialGameData); 
+
+		_popupsController.PatoCienciaPopup.Hide();
 
 		_boardController.ResetBoard();
-		BoardData boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
+
 		CreateBoard(boardData);
-		_popupsController.PatoCienciaPopup.Hide();
+		
 		GameState = GameStateState.Playing;
+	}
+
+	private async Task<BoardData> CreateBoardFromGamedata(GameData initialGameData)
+	{
+		string responseDataEvaluation = await _aiJsonGenerator.GetGameDataEvaluation(initialGameData);
+		
+		GameData gameData = JsonUtility.FromJson<GameData> (responseDataEvaluation);
+		
+		return new BoardData(gameData);
 	}
 
 	public void BackToMainMenu()

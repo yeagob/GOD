@@ -1,4 +1,6 @@
 using GOD.Utils;
+using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -59,6 +61,15 @@ public class SettingsController : MonoBehaviour
             _extraButton.interactable = true;
         }
 
+        if (GameController.GameState == GameStateState.EndGame)
+        {
+            _quitGameButton.interactable = true;
+            _restartGameButton.interactable = true;
+            _editBoardButton.interactable = true;
+            _rerollButton.interactable = true;
+            _extraButton.interactable = true;
+        }
+
         if (GameController.GameState == GameStateState.Editing)
         {
             _quitGameButton.interactable = true;
@@ -109,8 +120,19 @@ public class SettingsController : MonoBehaviour
         OnQuitGameClicked();
     }
 
+	internal async Task ShowAsync()
+	{
+        gameObject.SetActive(true);
+        _okButton.gameObject.SetActive(false);
 
-    private void ClosePanel()
+        while (gameObject.activeSelf)
+        {
+            await Task.Yield();
+        }
+
+    }
+
+	private void ClosePanel()
     {
         gameObject.SetActive(false);
     }

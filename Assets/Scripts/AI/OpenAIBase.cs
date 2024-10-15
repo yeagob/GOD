@@ -48,7 +48,7 @@ public abstract class OpenAIBase
 
 			if (request.result != UnityWebRequest.Result.Success)
 			{
-				Debug.LogError($"Error: {request.error}");			
+				Debug.LogError($"Error: {request.error}");
 				return null;
 			}
 
@@ -85,26 +85,67 @@ public class Message
 	public string content;
 }
 
-
 public class GPT4Mini : OpenAIBase
 {
 	public GPT4Mini(string apiKey) : base(apiKey) { }
+
+	[System.Serializable]
+	public class Message
+	{
+		public string role;
+		public string content;
+	}
+
+	[System.Serializable]
+	public class OpenAIRequest
+	{
+		public string model;
+		public float temperature;
+		public List<Message> messages;
+	}
+
 	public async Task<string> GetCompletion(string prompt)
 	{
-		//string temp = temperature.ToString().Replace(',', '.');//NO VA  si lo concateno!!!
+		List<Message> messages = new List<Message>
+			{
+				new Message
+				{
+					role = "system",
+					content = "Eres un módulo de un juego llamado Game Of Duck, inspirado en el Juego de la Oca, " +
+					"pero con preguntas y desafíos personalizables, que se encarga de analizar y generar tableros de juego."
+				},
+				new Message
+				{
+					role = "user",
+					content = prompt
+				}
+			};
 
-		string jsonData = "{\"model\": \"gpt-4o-mini\", \"temperature\": 0.2, \"messages\": [{\"role\": \"user\", \"content\": \""
-						   + prompt + "\"}, {\"role\":\"system\",\"content\": \"Eres un módulo de un juego llamado Game Of Duck, " +
-						   "inspirado en el Juego de la Oca que se encarga de convertir un prompt del usuario en  una " +
-						   " proposal y un tittle, que definen el board. A demás si se le da una estructura concreta, puede " +
-						   "generar estructuras JSON, con preguntas y desafíos relacionados con el tillte y la proposal. " +
-						   "Siempre dentro de los parámetros dados. Para así casillas de preguntas y desafíos para el tablero del juego.\"}]}";
+
+		OpenAIRequest requestBody = new OpenAIRequest
+		{
+			model = "gpt-4o-mini",
+			temperature = 0.2f,
+			messages = messages
+		};
+
+		string jsonData = JsonUtility.ToJson(requestBody);
+
+
+		//string jsonData = "{\"model\": \"gpt-4o-mini\", \"temperature\": 0.2, \"messages\": [{\"role\":\"system\",\"content\": " +
+		//	"				\"Eres un módulo de un juego llamado Game Of Duck, " +
+		//					"inspirado en el Juego de la Oca, pero con preguntas y desafíos personalizables," +
+		//					" que se encarga de analizar y generar tableros de juego.\"}, " +
+		//					"{\"role\": \"user\", \"content\": \"" +
+		//					prompt + "\"} ]}";
 
 		string response = await SendRequest("chat/completions", jsonData);
+
 		DataResponse dataResponse = JsonUtility.FromJson<DataResponse>(response);
-		if(dataResponse == null ) 
+
+		if (dataResponse == null)
 			return null;
-		
+
 		return dataResponse.choices[0].message.content;
 	}
 }
