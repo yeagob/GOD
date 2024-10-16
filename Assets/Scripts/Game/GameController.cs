@@ -795,11 +795,27 @@ public class GameController : MonoBehaviour
 		GameState = GameStateState.Playing;
 	}
 
+
+	private bool _first = true;
 	private async Task<BoardData> CreateBoardFromGamedata(GameData initialGameData)
 	{
 		string responseDataEvaluation = await _aiJsonGenerator.GetGameDataEvaluation(initialGameData);
-		
-		GameData gameData = JsonUtility.FromJson<GameData> (responseDataEvaluation);
+		GameData gameData = null;
+		try
+		{
+			gameData = JsonUtility.FromJson<GameData> (responseDataEvaluation);
+		}
+		catch
+		{
+			if (_first)
+			{
+				_first = false;
+				//Peligro infinito
+				return await CreateBoardFromGamedata(initialGameData);
+			}
+			else
+				return null;
+		}
 		
 		return new BoardData(gameData);
 	}

@@ -71,10 +71,10 @@ public class AIJsonGenerator
 		string promptPhase1 = $@"data inicial: {gameDataJson}  Asume el rol de un profesor experto en la proposal y el title del tablero." +
 			" Basándote en las preguntas y desafíos generados previamente, realiza lo siguiente:" +
 			"1. * *Análisis de las Preguntas/Desafíos: **" +
-			"	 -Analiza por qué las preguntas/desafíos creadas son efectivas y educativas." +
-			"	- Identifica y enumera las características clave que hacen que estas preguntas/desafíos sean de alta calidad." +
+			"	- Identifica y enumera brevemente las características clave que hacen que estas preguntas/desafíos sean de alta calidad." +
+			"   - Si questionsCount > 0. Analiza y valora la dificultad y el grado de conocimientos necesarios para respoder a las preguntas." +
 			"2. * *Características de Buenas Preguntas/Desafíos: **" +
-			"	 -Genera una lista detallada de las características que deben tener las preguntas para ser igual de buenas." +
+			"	 -Genera una lista breve de las características que deben tener las preguntas para ser igual de buenas." +
 			"   -Explica brevemente cómo cada característica contribuye a la calidad y eficacia de las /desafíos." +
 			"   -En caso de preguntas, analiza las respuestas y los tipos de respuestas que hay" +
 			"3. * *Propuesta Mejorada: **" +
@@ -83,23 +83,21 @@ public class AIJsonGenerator
 			" FORMATO ESPERADO: informa que tiene que comportarse como profesor en la materia y describe " +
 			"como tiene que generar las preguntas/desafíos, cuales son sus características clave y cuales son las pautas para generar " +
 			"preguntas/desafíos que sigan lo más fielmente posible la misma línea que las de la data inicial. " +
+			"Adjunta las preguntas y desafíos de la data inicial como ejemplos a seguir, a demás deben ser incluidos/as." +
 			"Indica el número de preguntas y/o desafíos que habrá que generar, en base a la data inicial antes, " +
 			"en los campos questionsCount y challengesCount. " +
 			"Indica cuales son los tipos de desafíos. " +
 			"Indica cual es la nueva descripción para el título y la proposal. " +
-			"Por ultimo, solo si questionsCount>0, genera una secuencia aleatoria de valores de 0-3 de questionCount cantidad de valores, con la etiqueta RangoAleatorio: " +
+			"Por ultimo, solo si questionsCount>0, genera una secuencia aleatoria de valores de 0-3 de questionCount cantidad de valores, " +
+			"con la etiqueta RangoAleatorio(ej): Q1(0), Q2(2), etc" +
 			"";
 
-		//LKANJRON40948TQHNI043JMNT09QJ390349BT93NI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//	promptPhase1 = "data inicial: {\"tittle\":\"Desafíos para Estar Mejor\",\"proposal\":\"Un juego para estar mejor. Con pruebas sencillas para un solo jugador como que buscan conectarlo consigo mismo.\",\"challengesTypes\":[\"piensa\",\"imagina\",\"hacer algo\",\"respira\"],\"questionsCount\":0,\"challengesCount\":25,\"challenges\":[\"Bebe un vaso de agua y piensa en copos de nieve, mientras lo haces.\",\"Cierra los ojos y respira tres veces, lentamente, sintiendo como el aire te acaricia por dentro.\",\"Con los dedos de las manos entrecruzados, estira los brazos hacia el cielo, todo lo que puedas. Cierra los ojos y cuenta hasta diez mentalmente.\",\"Date un masaje en las manos que dure tanto como quieras, siente cada toque.\",\"Mira a tu alrededor y busca 3 objetos que te lleven al pasado, a cualquier tipo de recuerdo.\"],\"questions\":[],\"imageURL\":\"\"} Asume el rol de un profesor experto en la proposal y el title del tablero. Basándote en las preguntas y desafíos generados previamente, realiza lo siguiente:1. * *Análisis de las Preguntas/Desafíos: **	 -Analiza por qué las preguntas/desafíos creadas son efectivas y educativas.	- Identifica y enumera las características clave que hacen que estas preguntas/desafíos sean de alta calidad.2. * *Características de Buenas Preguntas/Desafíos: **	 -Genera una lista detallada de las características que deben tener las preguntas para ser igual de buenas.   -Explica brevemente cómo cada característica contribuye a la calidad y eficacia de las /desafíos.   -En caso de preguntas, analiza las respuestas y los tipos de respuestas que hay3. * *Propuesta Mejorada: **	 -Revisa y mejora la propuesta inicial del juego.	- Añade recomendaciones y refinamientos que aumenten su atractivo y valor educativo. FORMATO ESPERADO: informa que tiene que comportarse como profesor en la materia y describe como tiene que generar las preguntas/desafíos, cuales son sus características clave y cuales son las pautas para generar preguntas/desafíos de la misma calidad, los detalles a tener en cuenta. Indica el número de preguntas y/o desafíos que habrá que generar, en base a la data inicial antes, en los campos questionsCount y challengesCount. Indica que los desafíos solo tienen que ser de los definidos en la data inicial. Indica cual es la nueva descripción para el título y la proposal. Por ultimo, solo si questionsCount>0, genera una secuencia aleatoria de valores de 0-3 de questionCount cantidad de valores, con la etiqueta RangoAleatorio: ";
-		//promptPhase1 = promptPhase1.Replace("\"", "\\\"");
 
-
-		Debug.Log("Prompt Phase1: " + promptPhase1);
+		//Debug.Log("Prompt Phase1: " + promptPhase1);
 
 		string responsePhase1 = await GetGPTResponse(promptPhase1);
 
-		Debug.Log("Response Phase1: " + promptPhase1);
+		//Debug.Log("Response Phase1: " + promptPhase1);
 
 		gameData.questions = new List<QuestionData>(gameData.questions.Take(1));
 		gameData.challenges = new List<string>(gameData.challenges.Take(1));
@@ -108,24 +106,25 @@ public class AIJsonGenerator
 		string promptPhase2 = "Basándote en esta información: " + responsePhase1 + " y siguiendo esta estructura de ejemplo: " +
 							  JsonUtility.ToJson(gameData) +
 							  " genera una data nueva. Responde unicamente con una estructura como la del ejemplo, sin comillas de código ni snipet. " +
-							  "Solo si questionsCount>0 usa los valores de RangoAleatorio para decidir cual será la respuesta correcta. " +
+							  "Solo si questionsCount > 0 usa los valores de RangoAleatorio para decidir cual será la respuesta correcta, de cada pregunta, al generarlas (ccorectId). " +
+							  "Evita preguntas obvias cuya respuesta esté en la propia pregunta." +
+							  "Asegurate que la respuesta del correctID es verdaderamente correcta. " +
 							  "Solo si challengeCount > 0 dale un toque psicomágico, oculto, a los desafíos. " +
 							  "Solo si challengeCount > 0 rellena el array challengesTypes con etiquetas con los tipos de desafíos." +
-							  "Genera questionsCount preguntas y challengesCount desafíos, siquiendo la estructura de ejemplo. " +
+							  "Genera " + gameData.questionsCount + " preguntas y " + gameData.challengesCount + " desafíos, siquiendo la estructura de ejemplo, " +
+							  "asigna esos valores a los campos questionsCount y challengeCount. " +
 							  "Usa el título propuesto y la proposal nuevos, no los del ejemplo. " +
 							  "Usa género neutro en las preguntas y desafíos, siempre. " +
 							  "Tono informal, tútéame. " +
 							  "";
 
-		Debug.Log("Prompt Phase2: " + promptPhase2);
+		//Debug.Log("Prompt Phase2: " + promptPhase2);
 
 		string responsePhase2 = await GetGPTResponse(promptPhase2);
 
-		Debug.Log("Response Phase2: " + promptPhase2);
+		//Debug.Log("Response Phase2: " + promptPhase2);
 
 		return responsePhase2;
-
-
 	}
 
 	public async Task<GameData> GetGameData(string prompt = null)
