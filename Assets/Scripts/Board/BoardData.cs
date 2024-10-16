@@ -259,6 +259,13 @@ public class BoardData
 			}
 		}
 
+		// Fuerzo La de tipo Die que está fallando!
+		tiles[37] = new TileData
+		{
+			id = 37,
+			type = TileType.Die.ToString(),
+		};
+
 		if (availablePositions.Count > 0)
 			Debug.LogWarning("Hay casillas vacías!!");
 

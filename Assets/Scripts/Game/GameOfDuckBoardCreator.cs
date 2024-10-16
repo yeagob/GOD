@@ -1,29 +1,38 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using Sirenix.OdinInspector;  
+using Sirenix.OdinInspector;
 
 public class GameOfDuckBoardCreator : MonoBehaviour
 {
+	#region Fields
 	[SerializeField] private Tile _tilePrefab;
+	[SerializeField] private LineRenderer _lineRenderer;
 
 	//BOARD DIMENSIONS
 	private const float A4_WIDTH = 29.7f;
 	private const float A4_HEIGHT = 21.0f;
 
 	[SerializeField, ReadOnly] private int numberOfCells = 40;
-	[SerializeField, ReadOnly] private float margin = 0.5f;  
+	[SerializeField, ReadOnly] private float margin = 1f;
 
 	private List<Rect> _cellRects = new List<Rect>();
 	private List<Tile> _boardTiles = new List<Tile>();
+	#endregion
 
-	public List<Tile>  GetBoard(BoardData data)
+	#region Public Methods
+	/// <summary>
+	/// Generates and instantiates the board based on BoardData provided.
+	/// </summary>
+	public List<Tile> GetBoard(BoardData data)
 	{
 		GenerateBoard(numberOfCells);
 		InstantiateBoard(data);
 		return _boardTiles;
 	}
+	#endregion
 
+	#region Private Methods
 	private void GenerateBoard(int numCells)
 	{
 		_cellRects.Clear();  // Clear previous cells
@@ -95,6 +104,7 @@ public class GameOfDuckBoardCreator : MonoBehaviour
 	{
 		if (_cellRects == null || _cellRects.Count == 0) return;
 
+		_lineRenderer.positionCount = _cellRects.Count;
 
 		for (int i = 0; i < _cellRects.Count; i++)
 		{
@@ -103,10 +113,15 @@ public class GameOfDuckBoardCreator : MonoBehaviour
 			Tile tile = Instantiate(_tilePrefab, rect.position, Quaternion.identity);
 			tile.Initialize(i);
 			_boardTiles.Add(tile);
+
+			_lineRenderer.SetPosition(i, tile.transform.position);
+			
 			if (i < data.tiles.Length)
 			{
 				tile.SetTileData(data.tiles[i]);
 			}
 		}
 	}
+
+	#endregion
 }
