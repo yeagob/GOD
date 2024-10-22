@@ -109,7 +109,8 @@ public class AIJsonGenerator
 							  "Solo si questionsCount > 0 usa los valores de RangoAleatorio para decidir cual será la respuesta correcta, de cada pregunta, al generarlas (ccorectId). " +
 							  "Evita preguntas obvias cuya respuesta esté en la propia pregunta." +
 							  "Asegurate que la respuesta del correctID es verdaderamente correcta. " +
-							  "Solo si challengeCount > 0 dale un toque psicomágico, oculto, a los desafíos. " +
+					//		  "Solo si challengeCount > 0 dale un toque psicomágico, oculto, a los desafíos. " +
+							  "Solo si challengeCount > 0 los desafíos son sencillos: una sola cosa cada vez, simples. " +
 							  "Solo si challengeCount > 0 rellena el array challengesTypes con etiquetas con los tipos de desafíos." +
 							  "Genera " + gameData.questionsCount + " preguntas y " + gameData.challengesCount + " desafíos, siquiendo la estructura de ejemplo, " +
 							  "asigna esos valores a los campos questionsCount y challengeCount. " +
