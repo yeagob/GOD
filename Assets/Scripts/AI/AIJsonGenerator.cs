@@ -67,12 +67,15 @@ public class AIJsonGenerator
 
 	public async Task<string> GetGameDataEvaluation(GameData gameData)
 	{
+		bool hasChallenges = gameData.challengesCount > 0;
+		bool hasQuestions = gameData.questionsCount > 0;
+
 		string gameDataJson = JsonUtility.ToJson(gameData);
 		string promptPhase1 = $@"data inicial: {gameDataJson}  Asume el rol de un profesor experto en la proposal y el title del tablero." +
 			" Basándote en las preguntas y desafíos generados previamente, realiza lo siguiente:" +
 			"1. * *Análisis de las Preguntas/Desafíos: **" +
 			"	- Identifica y enumera brevemente las características clave que hacen que estas preguntas/desafíos sean de alta calidad." +
-			"   - Si questionsCount > 0. Analiza y valora la dificultad y el grado de conocimientos necesarios para respoder a las preguntas." +
+			(hasQuestions? "   - Analiza y valora la dificultad y el grado de conocimientos necesarios para respoder a las preguntas.":"") +
 			"2. * *Características de Buenas Preguntas/Desafíos: **" +
 			"	 -Genera una lista breve de las características que deben tener las preguntas para ser igual de buenas." +
 			"   -Explica brevemente cómo cada característica contribuye a la calidad y eficacia de las /desafíos." +
@@ -80,16 +83,22 @@ public class AIJsonGenerator
 			"3. * *Propuesta Mejorada: **" +
 			"	 -Revisa y mejora la propuesta inicial del juego." +
 			"	- Añade recomendaciones y refinamientos que aumenten su atractivo y valor educativo." +
-			" FORMATO ESPERADO: informa que tiene que comportarse como profesor en la materia y describe " +
-			"como tiene que generar las preguntas/desafíos, cuales son sus características clave y cuales son las pautas para generar " +
-			"preguntas/desafíos que sigan lo más fielmente posible la misma línea que las de la data inicial. " +
-			"Adjunta las preguntas y desafíos de la data inicial como ejemplos a seguir, a demás deben ser incluidos/as." +
+			//" FORMATO ESPERADO: informa que tiene que comportarse como profesor en la materia y describe " +
+			//"como tiene que generar las preguntas/desafíos, cuales son sus características clave y cuales son las pautas para generar " +
+			//"preguntas/desafíos que sigan lo más fielmente posible la misma línea que las de la data inicial. " +
+			//"Adjunta las preguntas y desafíos de la data inicial como ejemplos a seguir, a demás deben ser incluidos/as." +
 			"Indica el número de preguntas y/o desafíos que habrá que generar, en base a la data inicial antes, " +
 			"en los campos questionsCount y challengesCount. " +
-			"Indica cuales son los tipos de desafíos. " +
 			"Indica cual es la nueva descripción para el título y la proposal. " +
-			"Por ultimo, solo si questionsCount>0, genera una secuencia aleatoria de valores de 0-3 de questionCount cantidad de valores, " +
-			"con la etiqueta RangoAleatorio(ej): Q1(0), Q2(2), etc" +
+
+			(hasQuestions? "Genera "+gameData.questionsCount+" preguntas con 4 opciones de respuesta, indicando la correcta, sobre el tema propuesto." +
+			"Luego analiza las preguntas y respuestas, una por una comprobando la veracidad de las mismas." +
+			"Revisa también si las preguntas son obvias o redundantes y si están correstamente expresadas. A demás analiza si son demasiado fáciles(para estudiantes básicos) y como podrían complicarse, si fuera necesario." +
+			"Para cada pregunta propon estos 4 análisis: Veracidad, Obviedad, Dificultad, Corrección propuesta." +
+			"Por ultimo vuelve a generar las preguntas y respuestas corregidas, reformulandolas, solo si es relamente necesario." +
+			"Desordena las respuestas para que la respuesta correcta no esté siempre en la misma posición.":"") +
+			//"Por ultimo, genera una secuencia aleatoria de valores de 0-3 de questionCount cantidad de valores, " +
+			//"con la etiqueta RangoAleatorio(ej): Q1(0), Q2(2), etc" +
 			"";
 
 
@@ -103,20 +112,19 @@ public class AIJsonGenerator
 		gameData.challenges = new List<string>(gameData.challenges.Take(1));
 		gameData.challengesTypes = new List<string>(gameData.challengesTypes.Take(1));
 
-		string promptPhase2 = "Basándote en esta información: " + responsePhase1 + " y siguiendo esta estructura de ejemplo: " +
+		string promptPhase2 = "Basándote en la información clave: " + responsePhase1 + " y siguiendo esta estructura de ejemplo: " +
 							  JsonUtility.ToJson(gameData) +
 							  " genera una data nueva. Responde unicamente con una estructura como la del ejemplo, sin comillas de código ni snipet. " +
-							  "Solo si questionsCount > 0 usa los valores de RangoAleatorio para decidir cual será la respuesta correcta, de cada pregunta, al generarlas (ccorectId). " +
-							  "Evita preguntas obvias cuya respuesta esté en la propia pregunta." +
-							  "Asegurate que la respuesta del correctID es verdaderamente correcta. " +
+							  " Incluye las preguntas y/o desafíos que aparezcan en la información clave´." +
+							 (hasQuestions? "Usa los valores de RangoAleatorio para decidir cual será la respuesta correcta, de cada pregunta, al generarlas (ccorectId). ":"") +
 					//		  "Solo si challengeCount > 0 dale un toque psicomágico, oculto, a los desafíos. " +
-							  "Solo si challengeCount > 0 los desafíos son sencillos: una sola cosa cada vez, simples. " +
-							  "Solo si challengeCount > 0 rellena el array challengesTypes con etiquetas con los tipos de desafíos." +
+							  (hasChallenges ? "Los desafíos son sencillos: una sola cosa cada vez, simples. " : "") +
+							  (hasChallenges ? "Rellena el array challengesTypes con etiquetas con los tipos de desafíos." : "") +
 							  "Genera " + gameData.questionsCount + " preguntas y " + gameData.challengesCount + " desafíos, siquiendo la estructura de ejemplo, " +
 							  "asigna esos valores a los campos questionsCount y challengeCount. " +
 							  "Usa el título propuesto y la proposal nuevos, no los del ejemplo. " +
 							  "Usa género neutro en las preguntas y desafíos, siempre. " +
-							  "Tono informal, tútéame. " +
+							  "Tono informal. " +
 							  "";
 
 		//Debug.Log("Prompt Phase2: " + promptPhase2);
