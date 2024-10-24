@@ -92,10 +92,11 @@ public class AIJsonGenerator
 			"Indica cual es la nueva descripción para el título y la proposal. " +
 
 			(hasQuestions? "Genera "+gameData.questionsCount+" preguntas con 4 opciones de respuesta, indicando la correcta, sobre el tema propuesto." +
-			"Luego analiza las preguntas y respuestas, una por una comprobando la veracidad de las mismas." +
-			"Revisa también si las preguntas son obvias o redundantes y si están correstamente expresadas. A demás analiza si son demasiado fáciles(para estudiantes básicos) y como podrían complicarse, si fuera necesario." +
-			"Para cada pregunta propon estos 4 análisis: Veracidad, Obviedad, Dificultad, Corrección propuesta." +
-			"Por ultimo vuelve a generar las preguntas y respuestas corregidas, reformulandolas, solo si es relamente necesario." +
+			"Tras cada pregunta, analiza la pregunta y larespuestas, comprobando la veracidad de las mismas." +
+			//"Revisa también si las preguntas son obvias o redundantes y si están correstamente expresadas. A demás analiza si son demasiado fáciles(para estudiantes básicos) y como podrían complicarse, si fuera necesario." +
+			"Para cada pregunta propon estos 4 análisis: Veracidad, Obviedad, Dificultad y Corrección propuesta." +
+			"Aseguraté de proponer como corregir las preguntas y respuestas corregidas, reformulandolas, solo si es necesario." +
+			"Propon reformular todas las preguntas de dificultad baja." +
 			"Desordena las respuestas para que la respuesta correcta no esté siempre en la misma posición.":"") +
 			//"Por ultimo, genera una secuencia aleatoria de valores de 0-3 de questionCount cantidad de valores, " +
 			//"con la etiqueta RangoAleatorio(ej): Q1(0), Q2(2), etc" +
