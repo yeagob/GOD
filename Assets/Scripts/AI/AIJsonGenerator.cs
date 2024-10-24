@@ -99,8 +99,8 @@ public class AIJsonGenerator
 			"Propón corrección en todas las preguntas de veracidad incorrecta."+
 			"Propón corrección en todas las preguntas de dificultad baja u obviedad alta." +
 			"Describe como corregir las preguntas y respuestas." +
-			"Para cada pregunta desarrolla estos 3 análisis: Veracidad, Obviedad y Dificultad." +
-			"Solo si es necesario añade el punto Corrección propuesta: " +
+			"Para cada pregunta desarrolla estos 3 análisis, muy sintetizados: Veracidad, Obviedad y Dificultad." +
+			"Solo si es necesario añade el punto Corrección propuesta, tras el análisis anaterior." +
 			"":"") +
 			//"Por ultimo, genera una secuencia aleatoria de valores de 0-3 de questionCount cantidad de valores, " +
 			//"con la etiqueta RangoAleatorio(ej): Q1(0), Q2(2), etc" +
