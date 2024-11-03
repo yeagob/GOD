@@ -138,7 +138,9 @@ public class AIJsonGenerator
 
 		//Debug.Log("Response Phase2: " + promptPhase2);
 
+#if UNITY_EDITOR
 		BoardPromptLogger.LogBoardCreation(gameData.tittle, promptPhase1, responsePhase1, promptPhase2, responsePhase2);
+#endif
 
 		return responsePhase2;
 	}
