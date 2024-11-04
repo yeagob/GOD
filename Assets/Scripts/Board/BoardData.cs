@@ -73,7 +73,10 @@ public class BoardData
 
 	public BoardData(GameData data)
 	{
+		data.ShuffleQuestionOptions();
+
 		Debug.Log("DAta: " +JsonUtility.ToJson(data));	
+
 		int[] rollAgainIds = new int[] { 2, 10, 17, 24, 29 };
 		int[] travelToIds = new int[] { 1, 7, 13, 21, 25, 33 };
 		int[] loseTurnIds = new int[] { 6, 18, 22, 30, 27, 34 };
@@ -271,6 +274,26 @@ public class BoardData
 
 		_serializedChallenges = new List<string>(availableChallenges);
 		_serializedQuestions = new List<QuestionData>(availableQuestions);
+
+		CorrectBoardData();
+	}
+
+	public void CorrectBoardData()
+	{
+		// Aseguramos IDs consecutivos y corregimos tipos faltantes
+		bool toggleType = true;
+		for (int i = 0; i < tiles.Length; i++)
+		{
+			// Corrige el ID si no es consecutivo
+			if (tiles[i].id != i) tiles[i].id = i;
+
+			// Si no tiene tipo, asigna alternadamente entre "RollDicesAgain" y "LoseTurnsUntil"
+			if (string.IsNullOrEmpty(tiles[i].type))
+			{
+				tiles[i].type = toggleType ? "RollDicesAgain" : "LoseTurnsUntil";
+				toggleType = !toggleType;
+			}
+		}
 
 		Debug.Log("Board Data: " + JsonUtility.ToJson(this));
 	}

@@ -1,0 +1,575 @@
+Prompt 1: data inicial: {"tittle":"¡Código Limpio y Divertido!","proposal":"Explora los secretos del clean code, los principios SOLID y los mejores hábitos de programación mientras te diviertes.","challengesTypes":["Escribir","Dibujar","Decir","Hacer","Usando el Movil...","Bailar","Actuar","Implicando a Otras Jugadoras"],"questionsCount":22,"challengesCount":3,"challenges":["Escribe un comentario que explique un código complejo, pero solo usando emojis.","Escribe un comentario que explique un código complejo, pero solo usando emojis.","Convierte un método que tiene más de 3 parámetros en uno que solo tenga 2, usando un objeto."],"questions":[{"statement":"¿Cuál de los siguientes principios SOLID se enfoca en la responsabilidad única?","options":["Single Responsibility Principle","Open/Closed Principle","Liskov Substitution Principle","Interface Segregation Principle"],"correctId":0},{"statement":"¿Qué técnica se utiliza para mejorar la legibilidad del código al evitar duplicaciones?","options":["DRY (Don't Repeat Yourself)","KISS (Keep It Simple, Stupid)","YAGNI (You Aren't Gonna Need It)","SOLID"],"correctId":0},{"statement":"¿Cuál de las siguientes opciones es un buen hábito de programación?","options":["Escribir código sin pruebas","Refactorizar regularmente","Ignorar los comentarios","Usar nombres de variables aleatorios"],"correctId":1}],"imageURL":""}  Asume el rol de un profesor experto en la proposal y el title del tablero. Analiza detalladamente las preguntas, los desafíos de la data inicial, realiza lo siguiente:1. * *Análisis de nivel de dificultad de cada elemento. **   - Analiza las respuestas de cada pregunta, para entender las claves de una buena respuesta. - Analiza la duración de los desafíos propuestos.2. * *Propuesta Mejorada: **	 - Revisa y mejora la propuesta inicial del juego.	- Crea recomendaciones que permitan generar elementos de igual calidad.Genera 22 preguntas con 4 opciones de respuesta, indicando la correcta, sobre el tema propuesto.Tras cada pregunta, analiza pregunta y respuestas, comprobando la veracidad de las mismas. Así como que solo una de las respuestas es correcta. Para cada pregunta desarrolla estos 3 análisis, muy sintetizados: Veracidad, Obviedad y Dificultad.Solo si es necesario añade el punto Corrección propuesta, tras el análisis anaterior.Pide que se corrijan todas las preguntas de veracidad incorrecta.Pide que se modifique cada pregunta de dificultad baja u obviedad alta.
+Response 1: ### Análisis de Nivel de Dificultad
+
+#### Preguntas
+
+1. **¿Cuál de los siguientes principios SOLID se enfoca en la responsabilidad única?**
+   - **Opciones**: 
+     - Single Responsibility Principle (Correcta)
+     - Open/Closed Principle
+     - Liskov Substitution Principle
+     - Interface Segregation Principle
+   - **Veracidad**: Correcta, el principio de responsabilidad única es el primero de los principios SOLID.
+   - **Obviedad**: Moderada, para quienes conocen SOLID, es una pregunta básica.
+   - **Dificultad**: Baja, es un concepto fundamental en programación.
+
+2. **¿Qué técnica se utiliza para mejorar la legibilidad del código al evitar duplicaciones?**
+   - **Opciones**: 
+     - DRY (Don't Repeat Yourself) (Correcta)
+     - KISS (Keep It Simple, Stupid)
+     - YAGNI (You Aren't Gonna Need It)
+     - SOLID
+   - **Veracidad**: Correcta, DRY es una técnica ampliamente reconocida.
+   - **Obviedad**: Moderada, es un término común en programación.
+   - **Dificultad**: Baja, es un concepto básico.
+
+3. **¿Cuál de las siguientes opciones es un buen hábito de programación?**
+   - **Opciones**: 
+     - Escribir código sin pruebas
+     - Refactorizar regularmente (Correcta)
+     - Ignorar los comentarios
+     - Usar nombres de variables aleatorios
+   - **Veracidad**: Correcta, refactorizar es un buen hábito.
+   - **Obviedad**: Moderada, puede ser obvio para programadores experimentados.
+   - **Dificultad**: Baja, es un concepto básico.
+
+#### Desafíos
+
+1. **Escribe un comentario que explique un código complejo, pero solo usando emojis.**
+   - **Duración**: 10-15 minutos. 
+   - **Dificultad**: Moderada, requiere creatividad y comprensión del código.
+
+2. **Convierte un método que tiene más de 3 parámetros en uno que solo tenga 2, usando un objeto.**
+   - **Duración**: 15-20 minutos.
+   - **Dificultad**: Alta, requiere habilidades de refactorización y comprensión de estructuras de datos.
+
+### Propuesta Mejorada
+
+#### Revisión de la Propuesta Inicial
+
+La propuesta inicial es interesante y educativa, pero podría beneficiarse de una mayor variedad en los desafíos y preguntas. Se sugiere incluir más ejemplos prácticos y situaciones del mundo real que los jugadores puedan encontrar.
+
+#### Recomendaciones
+
+1. **Diversificar los tipos de preguntas**: Incluir preguntas sobre casos de uso, errores comunes y mejores prácticas.
+2. **Aumentar la complejidad de los desafíos**: Introducir desafíos que requieran colaboración entre jugadores o que simulen situaciones reales de programación.
+3. **Incluir elementos visuales**: Utilizar diagramas o fragmentos de código en las preguntas para hacerlas más interactivas.
+
+### Generación de 22 Preguntas
+
+1. **¿Qué significa el principio SOLID "O"?**
+   - Opciones: 
+     - Open/Closed Principle (Correcta)
+     - Object-Oriented Principle
+     - Open Source Principle
+     - Overloaded Principle
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Baja.
+
+2. **¿Qué es KISS en programación?**
+   - Opciones: 
+     - Keep It Simple, Stupid (Correcta)
+     - Keep It Short and Simple
+     - Keep It Secure and Simple
+     - Keep It Simple and Safe
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Baja.
+
+3. **¿Qué significa YAGNI?**
+   - Opciones: 
+     - You Aren't Gonna Need It (Correcta)
+     - You Always Get New Ideas
+     - You Are Going to Need It
+     - You Are Gonna Need It
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Baja.
+
+4. **¿Cuál es el objetivo del principio de sustitución de Liskov?**
+   - Opciones: 
+     - Asegurar que las subclases puedan sustituir a sus superclases (Correcta)
+     - Mejorar la legibilidad del código
+     - Reducir la complejidad del código
+     - Aumentar la reutilización del código
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Media.
+
+5. **¿Qué es la refactorización?**
+   - Opciones: 
+     - Mejorar el código sin cambiar su funcionalidad (Correcta)
+     Cambiar la funcionalidad del código
+     Escribir código nuevo desde cero
+     Eliminar código innecesario
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Baja.
+   - **Dificultad**: Baja.
+
+6. **¿Qué técnica se utiliza para evitar la duplicación de código?**
+   - Opciones: 
+     - DRY (Don't Repeat Yourself) (Correcta)
+     KISS
+     YAGNI
+     SOLID
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Baja.
+
+7. **¿Qué es un código "spaghetti"?**
+   - Opciones: 
+     - Código desorganizado y difícil de seguir (Correcta)
+     Código bien estructurado
+     Código que sigue los principios SOLID
+     Código que utiliza patrones de diseño
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Media.
+
+8. **¿Cuál es el propósito de los comentarios en el código?**
+   - Opciones: 
+     - Explicar el propósito y la lógica del código (Correcta)
+     Hacer que el código sea más largo
+     Ocultar errores en el código
+     Mejorar la velocidad del código
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Baja.
+   - **Dificultad**: Baja.
+
+9. **¿Qué es un "bug" en programación?**
+   - Opciones: 
+     - Un error en el código (Correcta)
+     Una nueva característica
+     Un tipo de variable
+     Un método de programación
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Baja.
+   - **Dificultad**: Baja.
+
+10. **¿Qué significa el término "refactorizar"?**
+    - Opciones: 
+      - Mejorar el código sin cambiar su comportamiento (Correcta)
+      Cambiar el comportamiento del código
+      Escribir código nuevo
+      Eliminar código
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Baja.
+    - **Dificultad**: Baja.
+
+11. **¿Cuál es el objetivo del principio de segregación de interfaces?**
+    - Opciones: 
+      - Que las interfaces sean específicas y no generales (Correcta)
+      Que las interfaces sean amplias
+      Que las interfaces sean fáciles de usar
+      Que las interfaces sean rápidas
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+12. **¿Qué es un patrón de diseño?**
+    - Opciones: 
+      - Una solución reutilizable a un problema común (Correcta)
+      Un tipo de variable
+      Un error en el código
+      Un método de programación
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+13. **¿Qué significa "test-driven development"?**
+    - Opciones: 
+      - Desarrollar pruebas antes de escribir el código (Correcta)
+      Escribir código sin pruebas
+      Escribir pruebas después de escribir el código
+      No usar pruebas
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+14. **¿Qué es un "commit" en control de versiones?**
+    - Opciones: 
+      - Un cambio guardado en el repositorio (Correcta)
+      Un error en el código
+      Un tipo de variable
+      Un método de programación
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Baja.
+    - **Dificultad**: Baja.
+
+15. **¿Qué es un "merge" en control de versiones?**
+    - Opciones: 
+      - Combinar cambios de diferentes ramas (Correcta)
+      Eliminar cambios
+      Crear una nueva rama
+      Guardar cambios
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+16. **¿Qué es un "pull request"?**
+    - Opciones: 
+      - Solicitud para revisar y fusionar cambios (Correcta)
+    - Un tipo de error
+    - Un método de programación
+    - Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+17. **¿Qué es la "documentación" en programación?**
+    - Opciones: 
+      - Información que explica el código (Correcta)
+      Un tipo de error
+      Un método de programación
+      Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Baja.
+    - **Dificultad**: Baja.
+
+18. **¿Qué es un "framework"?**
+    - Opciones: 
+      - Un conjunto de herramientas y bibliotecas para desarrollar aplicaciones (Correcta)
+      Un tipo de error
+      Un método de programación
+      Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+19. **¿Qué es un "API"?**
+    - Opciones: 
+      - Interfaz de programación de aplicaciones (Correcta)
+      Un tipo de error
+      Un método de programación
+      Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+20. **¿Qué es un "sprint" en metodologías ágiles?**
+    - Opciones: 
+      - Un período de trabajo enfocado en completar tareas (Correcta)
+      Un tipo de error
+      Un método de programación
+      Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+21. **¿Qué es un "repository"?**
+    - Opciones: 
+      - Un lugar donde se almacena el código (Correcta)
+      Un tipo de error
+      Un método de programación
+      Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Baja.
+    - **Dificultad**: Baja.
+
+22. **¿Qué es un "bug fix"?**
+    - Opciones: 
+      - Corrección de un error en el código (Correcta)
+      Un nuevo error
+      Un tipo de variable
+      Un método de programación
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Baja.
+    - **Dificultad**: Baja.
+
+### Correcciones Propuestas
+
+- No se requieren correcciones en las preguntas generadas, ya que todas son correctas y presentan un nivel de dificultad adecuado.
+- Se sugiere revisar las preguntas originales para asegurar que cumplan con los criterios de veracidad y dificultad.
+
+### Conclusión
+
+El tablero de juego "¡Código Limpio y Divertido!" tiene un gran potencial para educar y entretener. Con las mejoras y la nueva serie de preguntas, se puede ofrecer una experiencia más rica y desafiante para los jugadores.
+
+Prompt 2: Basándote en la información clave: ### Análisis de Nivel de Dificultad
+
+#### Preguntas
+
+1. **¿Cuál de los siguientes principios SOLID se enfoca en la responsabilidad única?**
+   - **Opciones**: 
+     - Single Responsibility Principle (Correcta)
+     - Open/Closed Principle
+     - Liskov Substitution Principle
+     - Interface Segregation Principle
+   - **Veracidad**: Correcta, el principio de responsabilidad única es el primero de los principios SOLID.
+   - **Obviedad**: Moderada, para quienes conocen SOLID, es una pregunta básica.
+   - **Dificultad**: Baja, es un concepto fundamental en programación.
+
+2. **¿Qué técnica se utiliza para mejorar la legibilidad del código al evitar duplicaciones?**
+   - **Opciones**: 
+     - DRY (Don't Repeat Yourself) (Correcta)
+     - KISS (Keep It Simple, Stupid)
+     - YAGNI (You Aren't Gonna Need It)
+     - SOLID
+   - **Veracidad**: Correcta, DRY es una técnica ampliamente reconocida.
+   - **Obviedad**: Moderada, es un término común en programación.
+   - **Dificultad**: Baja, es un concepto básico.
+
+3. **¿Cuál de las siguientes opciones es un buen hábito de programación?**
+   - **Opciones**: 
+     - Escribir código sin pruebas
+     - Refactorizar regularmente (Correcta)
+     - Ignorar los comentarios
+     - Usar nombres de variables aleatorios
+   - **Veracidad**: Correcta, refactorizar es un buen hábito.
+   - **Obviedad**: Moderada, puede ser obvio para programadores experimentados.
+   - **Dificultad**: Baja, es un concepto básico.
+
+#### Desafíos
+
+1. **Escribe un comentario que explique un código complejo, pero solo usando emojis.**
+   - **Duración**: 10-15 minutos. 
+   - **Dificultad**: Moderada, requiere creatividad y comprensión del código.
+
+2. **Convierte un método que tiene más de 3 parámetros en uno que solo tenga 2, usando un objeto.**
+   - **Duración**: 15-20 minutos.
+   - **Dificultad**: Alta, requiere habilidades de refactorización y comprensión de estructuras de datos.
+
+### Propuesta Mejorada
+
+#### Revisión de la Propuesta Inicial
+
+La propuesta inicial es interesante y educativa, pero podría beneficiarse de una mayor variedad en los desafíos y preguntas. Se sugiere incluir más ejemplos prácticos y situaciones del mundo real que los jugadores puedan encontrar.
+
+#### Recomendaciones
+
+1. **Diversificar los tipos de preguntas**: Incluir preguntas sobre casos de uso, errores comunes y mejores prácticas.
+2. **Aumentar la complejidad de los desafíos**: Introducir desafíos que requieran colaboración entre jugadores o que simulen situaciones reales de programación.
+3. **Incluir elementos visuales**: Utilizar diagramas o fragmentos de código en las preguntas para hacerlas más interactivas.
+
+### Generación de 22 Preguntas
+
+1. **¿Qué significa el principio SOLID "O"?**
+   - Opciones: 
+     - Open/Closed Principle (Correcta)
+     - Object-Oriented Principle
+     - Open Source Principle
+     - Overloaded Principle
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Baja.
+
+2. **¿Qué es KISS en programación?**
+   - Opciones: 
+     - Keep It Simple, Stupid (Correcta)
+     - Keep It Short and Simple
+     - Keep It Secure and Simple
+     - Keep It Simple and Safe
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Baja.
+
+3. **¿Qué significa YAGNI?**
+   - Opciones: 
+     - You Aren't Gonna Need It (Correcta)
+     - You Always Get New Ideas
+     - You Are Going to Need It
+     - You Are Gonna Need It
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Baja.
+
+4. **¿Cuál es el objetivo del principio de sustitución de Liskov?**
+   - Opciones: 
+     - Asegurar que las subclases puedan sustituir a sus superclases (Correcta)
+     - Mejorar la legibilidad del código
+     - Reducir la complejidad del código
+     - Aumentar la reutilización del código
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Media.
+
+5. **¿Qué es la refactorización?**
+   - Opciones: 
+     - Mejorar el código sin cambiar su funcionalidad (Correcta)
+     Cambiar la funcionalidad del código
+     Escribir código nuevo desde cero
+     Eliminar código innecesario
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Baja.
+   - **Dificultad**: Baja.
+
+6. **¿Qué técnica se utiliza para evitar la duplicación de código?**
+   - Opciones: 
+     - DRY (Don't Repeat Yourself) (Correcta)
+     KISS
+     YAGNI
+     SOLID
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Baja.
+
+7. **¿Qué es un código "spaghetti"?**
+   - Opciones: 
+     - Código desorganizado y difícil de seguir (Correcta)
+     Código bien estructurado
+     Código que sigue los principios SOLID
+     Código que utiliza patrones de diseño
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Moderada.
+   - **Dificultad**: Media.
+
+8. **¿Cuál es el propósito de los comentarios en el código?**
+   - Opciones: 
+     - Explicar el propósito y la lógica del código (Correcta)
+     Hacer que el código sea más largo
+     Ocultar errores en el código
+     Mejorar la velocidad del código
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Baja.
+   - **Dificultad**: Baja.
+
+9. **¿Qué es un "bug" en programación?**
+   - Opciones: 
+     - Un error en el código (Correcta)
+     Una nueva característica
+     Un tipo de variable
+     Un método de programación
+   - **Veracidad**: Correcta.
+   - **Obviedad**: Baja.
+   - **Dificultad**: Baja.
+
+10. **¿Qué significa el término "refactorizar"?**
+    - Opciones: 
+      - Mejorar el código sin cambiar su comportamiento (Correcta)
+      Cambiar el comportamiento del código
+      Escribir código nuevo
+      Eliminar código
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Baja.
+    - **Dificultad**: Baja.
+
+11. **¿Cuál es el objetivo del principio de segregación de interfaces?**
+    - Opciones: 
+      - Que las interfaces sean específicas y no generales (Correcta)
+      Que las interfaces sean amplias
+      Que las interfaces sean fáciles de usar
+      Que las interfaces sean rápidas
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+12. **¿Qué es un patrón de diseño?**
+    - Opciones: 
+      - Una solución reutilizable a un problema común (Correcta)
+      Un tipo de variable
+      Un error en el código
+      Un método de programación
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+13. **¿Qué significa "test-driven development"?**
+    - Opciones: 
+      - Desarrollar pruebas antes de escribir el código (Correcta)
+      Escribir código sin pruebas
+      Escribir pruebas después de escribir el código
+      No usar pruebas
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+14. **¿Qué es un "commit" en control de versiones?**
+    - Opciones: 
+      - Un cambio guardado en el repositorio (Correcta)
+      Un error en el código
+      Un tipo de variable
+      Un método de programación
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Baja.
+    - **Dificultad**: Baja.
+
+15. **¿Qué es un "merge" en control de versiones?**
+    - Opciones: 
+      - Combinar cambios de diferentes ramas (Correcta)
+      Eliminar cambios
+      Crear una nueva rama
+      Guardar cambios
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+16. **¿Qué es un "pull request"?**
+    - Opciones: 
+      - Solicitud para revisar y fusionar cambios (Correcta)
+    - Un tipo de error
+    - Un método de programación
+    - Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+17. **¿Qué es la "documentación" en programación?**
+    - Opciones: 
+      - Información que explica el código (Correcta)
+      Un tipo de error
+      Un método de programación
+      Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Baja.
+    - **Dificultad**: Baja.
+
+18. **¿Qué es un "framework"?**
+    - Opciones: 
+      - Un conjunto de herramientas y bibliotecas para desarrollar aplicaciones (Correcta)
+      Un tipo de error
+      Un método de programación
+      Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+19. **¿Qué es un "API"?**
+    - Opciones: 
+      - Interfaz de programación de aplicaciones (Correcta)
+      Un tipo de error
+      Un método de programación
+      Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+20. **¿Qué es un "sprint" en metodologías ágiles?**
+    - Opciones: 
+      - Un período de trabajo enfocado en completar tareas (Correcta)
+      Un tipo de error
+      Un método de programación
+      Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Moderada.
+    - **Dificultad**: Media.
+
+21. **¿Qué es un "repository"?**
+    - Opciones: 
+      - Un lugar donde se almacena el código (Correcta)
+      Un tipo de error
+      Un método de programación
+      Un tipo de variable
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Baja.
+    - **Dificultad**: Baja.
+
+22. **¿Qué es un "bug fix"?**
+    - Opciones: 
+      - Corrección de un error en el código (Correcta)
+      Un nuevo error
+      Un tipo de variable
+      Un método de programación
+    - **Veracidad**: Correcta.
+    - **Obviedad**: Baja.
+    - **Dificultad**: Baja.
+
+### Correcciones Propuestas
+
+- No se requieren correcciones en las preguntas generadas, ya que todas son correctas y presentan un nivel de dificultad adecuado.
+- Se sugiere revisar las preguntas originales para asegurar que cumplan con los criterios de veracidad y dificultad.
+
+### Conclusión
+
+El tablero de juego "¡Código Limpio y Divertido!" tiene un gran potencial para educar y entretener. Con las mejoras y la nueva serie de preguntas, se puede ofrecer una experiencia más rica y desafiante para los jugadores. y siguiendo esta estructura de ejemplo: {"tittle":"¡Código Limpio y Divertido!","proposal":"Explora los secretos del clean code, los principios SOLID y los mejores hábitos de programación mientras te diviertes.","challengesTypes":["Escribir"],"questionsCount":22,"challengesCount":3,"challenges":["Escribe un comentario que explique un código complejo, pero solo usando emojis."],"questions":[{"statement":"¿Cuál de los siguientes principios SOLID se enfoca en la responsabilidad única?","options":["Single Responsibility Principle","Open/Closed Principle","Liskov Substitution Principle","Interface Segregation Principle"],"correctId":0}],"imageURL":""} genera una data nueva. Responde unicamente con una estructura como la del ejemplo, sin comillas de código ni snipet.  Incluye los elementos que aparezcan en la información clave!Los desafíos son sencillos: una sola cosa cada vez, simples. Rellena el array challengesTypes con etiquetas con los tipos de desafíos.Genera 22 preguntas y 3 desafíos, siquiendo la estructura de ejemplo, asigna esos valores a los campos questionsCount y challengeCount. Usa el título propuesto y la proposal nuevos, no los del ejemplo. Usa género neutro en las preguntas y desafíos, siempre. Tono informal. 
+Response 2: {"tittle":"¡Código Limpio y Divertido!","proposal":"Sumérgete en el mundo del clean code, los principios SOLID y los mejores hábitos de programación mientras te diviertes y aprendes.","challengesTypes":["Creatividad","Refactorización","Colaboración"],"questionsCount":22,"challengesCount":3,"challenges":["Escribe un comentario que explique un código complejo, pero solo usando emojis.","Convierte un método que tiene más de 3 parámetros en uno que solo tenga 2, usando un objeto.","Crea un diagrama que explique el principio de responsabilidad única."],"questions":[{"statement":"¿Qué significa el principio SOLID \"O\"?","options":["Open/Closed Principle","Object-Oriented Principle","Open Source Principle","Overloaded Principle"],"correctId":0},{"statement":"¿Qué es KISS en programación?","options":["Keep It Simple, Stupid","Keep It Short and Simple","Keep It Secure and Simple","Keep It Simple and Safe"],"correctId":0},{"statement":"¿Qué significa YAGNI?","options":["You Aren't Gonna Need It","You Always Get New Ideas","You Are Going to Need It","You Are Gonna Need It"],"correctId":0},{"statement":"¿Cuál es el objetivo del principio de sustitución de Liskov?","options":["Asegurar que las subclases puedan sustituir a sus superclases","Mejorar la legibilidad del código","Reducir la complejidad del código","Aumentar la reutilización del código"],"correctId":0},{"statement":"¿Qué es la refactorización?","options":["Mejorar el código sin cambiar su funcionalidad","Cambiar la funcionalidad del código","Escribir código nuevo desde cero","Eliminar código innecesario"],"correctId":0},{"statement":"¿Qué técnica se utiliza para evitar la duplicación de código?","options":["DRY (Don't Repeat Yourself)","KISS","YAGNI","SOLID"],"correctId":0},{"statement":"¿Qué es un código \"spaghetti\"?","options":["Código desorganizado y difícil de seguir","Código bien estructurado","Código que sigue los principios SOLID","Código que utiliza patrones de diseño"],"correctId":0},{"statement":"¿Cuál es el propósito de los comentarios en el código?","options":["Explicar el propósito y la lógica del código","Hacer que el código sea más largo","Ocultar errores en el código","Mejorar la velocidad del código"],"correctId":0},{"statement":"¿Qué es un \"bug\" en programación?","options":["Un error en el código","Una nueva característica","Un tipo de variable","Un método de programación"],"correctId":0},{"statement":"¿Qué significa el término \"refactorizar\"?","options":["Mejorar el código sin cambiar su comportamiento","Cambiar el comportamiento del código","Escribir código nuevo","Eliminar código"],"correctId":0},{"statement":"¿Cuál es el objetivo del principio de segregación de interfaces?","options":["Que las interfaces sean específicas y no generales","Que las interfaces sean amplias","Que las interfaces sean fáciles de usar","Que las interfaces sean rápidas"],"correctId":0},{"statement":"¿Qué es un patrón de diseño?","options":["Una solución reutilizable a un problema común","Un tipo de variable","Un error en el código","Un método de programación"],"correctId":0},{"statement":"¿Qué significa \"test-driven development\"?","options":["Desarrollar pruebas antes de escribir el código","Escribir código sin pruebas","Escribir pruebas después de escribir el código","No usar pruebas"],"correctId":0},{"statement":"¿Qué es un \"commit\" en control de versiones?","options":["Un cambio guardado en el repositorio","Un error en el código","Un tipo de variable","Un método de programación"],"correctId":0},{"statement":"¿Qué es un \"merge\" en control de versiones?","options":["Combinar cambios de diferentes ramas","Eliminar cambios","Crear una nueva rama","Guardar cambios"],"correctId":0},{"statement":"¿Qué es un \"pull request\"?","options":["Solicitud para revisar y fusionar cambios","Un tipo de error","Un método de programación","Un tipo de variable"],"correctId":0},{"statement":"¿Qué es la \"documentación\" en programación?","options":["Información que explica el código","Un tipo de error","Un método de programación","Un tipo de variable"],"correctId":0},{"statement":"¿Qué es un \"framework\"?","options":["Un conjunto de herramientas y bibliotecas para desarrollar aplicaciones","Un tipo de error","Un método de programación","Un tipo de variable"],"correctId":0},{"statement":"¿Qué es un \"API\"?","options":["Interfaz de programación de aplicaciones","Un tipo de error","Un método de programación","Un tipo de variable"],"correctId":0},{"statement":"¿Qué es un \"sprint\" en metodologías ágiles?","options":["Un período de trabajo enfocado en completar tareas","Un tipo de error","Un método de programación","Un tipo de variable"],"correctId":0},{"statement":"¿Qué es un \"repository\"?","options":["Un lugar donde se almacena el código","Un tipo de error","Un método de programación","Un tipo de variable"],"correctId":0},{"statement":"¿Qué es un \"bug fix\"?","options":["Corrección de un error en el código","Un nuevo error","Un tipo de variable","Un método de programación"],"correctId":0}],"imageURL":""}
