@@ -522,19 +522,19 @@ public class EditBoardPopup : MonoBehaviour
 	private void ValidateQuestion()
 	{
 		// Collect the first question data
-		QuestionData question = new QuestionData
-		{
-			statement = _statementInput.text,
-			options = new string[_answersText.Length],
-			correctId = Array.FindIndex(_correctAnswerToggle, t => t.isOn)
-		};
+		//QuestionData question = new QuestionData
+		//{
+		//	statement = _statementInput.text,
+		//	options = new string[_answersText.Length],
+		//	correctId = Array.FindIndex(_correctAnswerToggle, t => t.isOn)
+		//};
 
-		for (int i = 0; i < _answersText.Length; i++)
-		{
-			question.options[i] = _answersText[i].text;
-		}
+		//for (int i = 0; i < _answersText.Length; i++)
+		//{
+		//	question.options[i] = _answersText[i].text;
+		//}
 
-		_gameData.questions[_validatedQuestionsCount] = question;
+		//_gameData.questions[_validatedQuestionsCount] = question;
 
 		_validatedQuestionsCount++;
 
@@ -595,7 +595,7 @@ public class EditBoardPopup : MonoBehaviour
 	int _validationChallengeIndex = 0;
 	private void ValidateChallenge()
 	{
-		_gameData.challenges[_validatedChallengesCount] = _challengeDescriptionInput.text;
+		//_gameData.challenges[_validatedChallengesCount] = _challengeDescriptionInput.text;
 
 		_validatedChallengesCount++;
 

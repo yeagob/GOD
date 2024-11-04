@@ -34,9 +34,9 @@ public class EmailSender : MonoBehaviour
         }
     }
 
-    public void SendEmail(BoardData data)
+    public void SendEmail(string data)
     {
-        StartCoroutine(SendEmailCoroutine(JsonUtility.ToJson(data)));
+        StartCoroutine(SendEmailCoroutine(data));
     }
 
     IEnumerator SendEmailCoroutine(string json)

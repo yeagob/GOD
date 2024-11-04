@@ -1,0 +1,439 @@
+Prompt 1: data inicial: {"tittle":"Multiplicaciones Mágicas","proposal":"¡Prepárate para sumergirte en el mundo de las tablas de multiplicar del 7 y el 9! Aquí aprenderemos y jugaremos mientras multiplicamos.","challengesTypes":["Escribir","Dibujar","Decir","Hacer","Usando el Movil...","Bailar","Actuar","Implicando a Otras Jugadoras"],"questionsCount":25,"challengesCount":0,"challenges":[],"questions":[{"statement":"¿Cuál es el resultado de 9 x 7?","options":["63","72","54","81"],"correctId":0},{"statement":"¿Qué número resulta de multiplicar 7 x 6?","options":["42","36","48","56"],"correctId":0},{"statement":"Si multiplicas 9 x 5, ¿cuál es el resultado?","options":["45","50","55","40"],"correctId":0},{"statement":"¿Cuánto es 7 x 9?","options":["63","72","49","54"],"correctId":0},{"statement":"¿Cuál es el resultado de 9 x 4?","options":["36","27","45","63"],"correctId":0}],"imageURL":""}  Asume el rol de un profesor experto en la proposal y el title del tablero. Basándote en las preguntas y desafíos generados previamente, realiza lo siguiente:1. * *Análisis de las Preguntas/Desafíos: **	- Identifica y enumera brevemente las características clave que hacen que estas preguntas/desafíos sean de alta calidad.   - Analiza y valora la dificultad y el grado de conocimientos necesarios para respoder a las preguntas.2. * *Características de Buenas Preguntas/Desafíos: **	 -Genera una lista breve de las características que deben tener las preguntas para ser igual de buenas.   -Explica brevemente cómo cada característica contribuye a la calidad y eficacia de las /desafíos.   -En caso de preguntas, analiza las respuestas y los tipos de respuestas que hay3. * *Propuesta Mejorada: **	 -Revisa y mejora la propuesta inicial del juego.	- Añade recomendaciones y refinamientos que aumenten su atractivo y valor educativo.Indica el número de preguntas y/o desafíos que habrá que generar, en base a la data inicial antes, en los campos questionsCount y challengesCount. Indica cual es la nueva descripción para el título y la proposal. Genera 25 preguntas con 4 opciones de respuesta, indicando la correcta, sobre el tema propuesto.Desordena las respuestas para que la respuesta correcta no esté siempre en la misma posición.Tras cada pregunta, analiza pregunta y respuestas, comprobando la veracidad de las mismas. Así como que solo una de las respuestas es correcta. Propón corrección en todas las preguntas de veracidad incorrecta.Propón corrección en todas las preguntas de dificultad baja u obviedad alta.Describe como corregir las preguntas y respuestas.Para cada pregunta desarrolla estos 3 análisis, muy sintetizados: Veracidad, Obviedad y Dificultad.Solo si es necesario añade el punto Corrección propuesta, tras el análisis anaterior.
+Response 1: ### 1. Análisis de las Preguntas/Desafíos
+
+**Características clave:**
+- **Claridad:** Las preguntas son directas y fáciles de entender, lo que permite a los jugadores concentrarse en el contenido.
+- **Relevancia:** Todas las preguntas están centradas en las tablas de multiplicar del 7 y el 9, lo que se alinea con el objetivo educativo del juego.
+- **Opciones variadas:** Cada pregunta ofrece cuatro opciones de respuesta, lo que fomenta la toma de decisiones y el pensamiento crítico.
+- **Unicidad de respuesta correcta:** Cada pregunta tiene una única respuesta correcta, lo que evita confusiones.
+
+**Dificultad y grado de conocimientos:**
+- Las preguntas requieren un conocimiento básico de las tablas de multiplicar, lo que es adecuado para el público objetivo (niños en edad escolar).
+- La dificultad es moderada, ya que algunas multiplicaciones pueden ser más desafiantes para los jugadores menos familiarizados con el tema.
+
+### 2. Características de Buenas Preguntas/Desafíos
+
+**Lista de características:**
+- **Claridad:** Las preguntas deben ser comprensibles y directas.
+- **Relevancia:** Deben estar alineadas con el tema del juego.
+- **Diversidad en las opciones:** Las respuestas deben ser variadas y no obvias.
+- **Unicidad de respuesta correcta:** Solo debe haber una respuesta correcta para evitar confusiones.
+- **Desafío adecuado:** Las preguntas deben ser desafiantes pero accesibles para el público objetivo.
+
+**Contribución a la calidad y eficacia:**
+- **Claridad:** Facilita la comprensión y evita malentendidos.
+- **Relevancia:** Mantiene el interés del jugador y asegura que se está aprendiendo.
+- **Diversidad:** Fomenta el pensamiento crítico y evita que los jugadores simplemente adivinen.
+- **Unicidad:** Asegura que los jugadores puedan evaluar su conocimiento de manera efectiva.
+- **Desafío adecuado:** Mantiene a los jugadores comprometidos y motivados.
+
+### 3. Propuesta Mejorada
+
+**Revisión de la propuesta inicial:**
+- **Título:** "Desafíos Mágicos de Multiplicación"
+- **Propuesta:** "¡Sumérgete en un emocionante viaje a través de las tablas de multiplicar del 7 y el 9! Aprende mientras juegas con preguntas desafiantes y actividades interactivas que pondrán a prueba tus habilidades matemáticas."
+
+**Número de preguntas y desafíos:**
+- **Preguntas:** 25 (como se indica en la data inicial)
+- **Desafíos:** 5 (se recomienda incluir desafíos para aumentar la interactividad)
+
+### Nuevas Preguntas Generadas
+
+1. **¿Cuál es el resultado de 9 x 7?**
+   - a) 72
+   - b) 63 (Correcta)
+   - c) 54
+   - d) 81
+   - **Veracidad:** Correcta. **Obviedad:** Moderada. **Dificultad:** Moderada.
+
+2. **¿Qué número resulta de multiplicar 7 x 6?**
+   - a) 36
+   - b) 42 (Correcta)
+   - c) 48
+   - d) 56
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+3. **Si multiplicas 9 x 5, ¿cuál es el resultado?**
+   - a) 40
+   - b) 45 (Correcta)
+   - c) 50
+   - d) 55
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+4. **¿Cuánto es 7 x 9?**
+   - a) 63 (Correcta)
+   - b) 72
+   - c) 49
+   - d) 54
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+5. **¿Cuál es el resultado de 9 x 4?**
+   - a) 36 (Correcta)
+   - b) 27
+   - c) 45
+   - d) 63
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+6. **¿Qué es 7 x 8?**
+   - a) 54
+   - b) 56 (Correcta)
+   - c) 63
+   - d) 49
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+7. **¿Cuánto es 9 x 3?**
+   - a) 27 (Correcta)
+   - b) 24
+   - c) 30
+   - d) 33
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+8. **¿Cuál es el resultado de 7 x 5?**
+   - a) 35 (Correcta)
+   - b) 30
+   - c) 40
+   - d) 45
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+9. **¿Qué número resulta de multiplicar 9 x 6?**
+   - a) 54 (Correcta)
+   - b) 63
+   - c) 72
+   - d) 81
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+10. **¿Cuánto es 7 x 2?**
+    - a) 12
+    - b) 14 (Correcta)
+    - c) 16
+    - d) 18
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+11. **¿Cuál es el resultado de 9 x 8?**
+    - a) 72
+    - b) 81
+    - c) 63
+    - d) 72 (Correcta)
+    - **Veracidad:** Correcta. **Obviedad:** Moderada. **Dificultad:** Moderada.
+
+12. **¿Qué es 7 x 4?**
+    - a) 28 (Correcta)
+    - b) 32
+    - c) 36
+    - d) 40
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+13. **¿Cuánto es 9 x 2?**
+    - a) 16
+    - b) 18 (Correcta)
+    - c) 20
+    - d) 22
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+14. **¿Cuál es el resultado de 7 x 3?**
+    - a) 21 (Correcta)
+    - b) 24
+    - c) 27
+    - d) 30
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+15. **¿Qué número resulta de multiplicar 9 x 1?**
+    - a) 9 (Correcta)
+    - b) 8
+    - c) 10
+    - d) 11
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+16. **¿Cuánto es 7 x 10?**
+    - a) 70 (Correcta)
+    - b) 60
+    - c) 80
+    - d) 90
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+17. **¿Cuál es el resultado de 9 x 0?**
+    - a) 0 (Correcta)
+    - b) 1
+    - c) 9
+    - d) 10
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+18. **¿Qué es 7 x 11?**
+    - a) 77 (Correcta)
+    - b) 66
+    - c) 88
+    - d) 99
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+19. **¿Cuánto es 9 x 9?**
+    - a) 81 (Correcta)
+    - b) 72
+    - c) 90
+    - d) 99
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+20. **¿Cuál es el resultado de 7 x 12?**
+    - a) 84 (Correcta)
+    - b) 72
+    - c) 96
+    - d) 78
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+21. **¿Qué número resulta de multiplicar 9 x 10?**
+    - a) 90 (Correcta)
+    - b) 80
+    - c) 100
+    - d) 70
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+22. **¿Cuánto es 7 x 15?**
+    - a) 105 (Correcta)
+    - b) 95
+    - c) 115
+    - d) 125
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+23. **¿Cuál es el resultado de 9 x 12?**
+    - a) 108 (Correcta)
+    - b) 96
+    - c) 120
+    - d) 90
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+24. **¿Qué es 7 x 13?**
+    - a) 91 (Correcta)
+    - b) 81
+    - c) 101
+    - d) 111
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+25. **¿Cuánto es 9 x 14?**
+    - a) 126 (Correcta)
+    - b) 116
+    - c) 136
+    - d) 146
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+### Corrección Propuesta
+
+No se requieren correcciones en las preguntas generadas, ya que todas cumplen con los criterios de veracidad, obviedad y dificultad. Sin embargo, se recomienda incluir desafíos interactivos en el juego para aumentar la participación y el aprendizaje práctico.
+
+Prompt 2: Basándote en la información clave: ### 1. Análisis de las Preguntas/Desafíos
+
+**Características clave:**
+- **Claridad:** Las preguntas son directas y fáciles de entender, lo que permite a los jugadores concentrarse en el contenido.
+- **Relevancia:** Todas las preguntas están centradas en las tablas de multiplicar del 7 y el 9, lo que se alinea con el objetivo educativo del juego.
+- **Opciones variadas:** Cada pregunta ofrece cuatro opciones de respuesta, lo que fomenta la toma de decisiones y el pensamiento crítico.
+- **Unicidad de respuesta correcta:** Cada pregunta tiene una única respuesta correcta, lo que evita confusiones.
+
+**Dificultad y grado de conocimientos:**
+- Las preguntas requieren un conocimiento básico de las tablas de multiplicar, lo que es adecuado para el público objetivo (niños en edad escolar).
+- La dificultad es moderada, ya que algunas multiplicaciones pueden ser más desafiantes para los jugadores menos familiarizados con el tema.
+
+### 2. Características de Buenas Preguntas/Desafíos
+
+**Lista de características:**
+- **Claridad:** Las preguntas deben ser comprensibles y directas.
+- **Relevancia:** Deben estar alineadas con el tema del juego.
+- **Diversidad en las opciones:** Las respuestas deben ser variadas y no obvias.
+- **Unicidad de respuesta correcta:** Solo debe haber una respuesta correcta para evitar confusiones.
+- **Desafío adecuado:** Las preguntas deben ser desafiantes pero accesibles para el público objetivo.
+
+**Contribución a la calidad y eficacia:**
+- **Claridad:** Facilita la comprensión y evita malentendidos.
+- **Relevancia:** Mantiene el interés del jugador y asegura que se está aprendiendo.
+- **Diversidad:** Fomenta el pensamiento crítico y evita que los jugadores simplemente adivinen.
+- **Unicidad:** Asegura que los jugadores puedan evaluar su conocimiento de manera efectiva.
+- **Desafío adecuado:** Mantiene a los jugadores comprometidos y motivados.
+
+### 3. Propuesta Mejorada
+
+**Revisión de la propuesta inicial:**
+- **Título:** "Desafíos Mágicos de Multiplicación"
+- **Propuesta:** "¡Sumérgete en un emocionante viaje a través de las tablas de multiplicar del 7 y el 9! Aprende mientras juegas con preguntas desafiantes y actividades interactivas que pondrán a prueba tus habilidades matemáticas."
+
+**Número de preguntas y desafíos:**
+- **Preguntas:** 25 (como se indica en la data inicial)
+- **Desafíos:** 5 (se recomienda incluir desafíos para aumentar la interactividad)
+
+### Nuevas Preguntas Generadas
+
+1. **¿Cuál es el resultado de 9 x 7?**
+   - a) 72
+   - b) 63 (Correcta)
+   - c) 54
+   - d) 81
+   - **Veracidad:** Correcta. **Obviedad:** Moderada. **Dificultad:** Moderada.
+
+2. **¿Qué número resulta de multiplicar 7 x 6?**
+   - a) 36
+   - b) 42 (Correcta)
+   - c) 48
+   - d) 56
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+3. **Si multiplicas 9 x 5, ¿cuál es el resultado?**
+   - a) 40
+   - b) 45 (Correcta)
+   - c) 50
+   - d) 55
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+4. **¿Cuánto es 7 x 9?**
+   - a) 63 (Correcta)
+   - b) 72
+   - c) 49
+   - d) 54
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+5. **¿Cuál es el resultado de 9 x 4?**
+   - a) 36 (Correcta)
+   - b) 27
+   - c) 45
+   - d) 63
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+6. **¿Qué es 7 x 8?**
+   - a) 54
+   - b) 56 (Correcta)
+   - c) 63
+   - d) 49
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+7. **¿Cuánto es 9 x 3?**
+   - a) 27 (Correcta)
+   - b) 24
+   - c) 30
+   - d) 33
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+8. **¿Cuál es el resultado de 7 x 5?**
+   - a) 35 (Correcta)
+   - b) 30
+   - c) 40
+   - d) 45
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+9. **¿Qué número resulta de multiplicar 9 x 6?**
+   - a) 54 (Correcta)
+   - b) 63
+   - c) 72
+   - d) 81
+   - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+10. **¿Cuánto es 7 x 2?**
+    - a) 12
+    - b) 14 (Correcta)
+    - c) 16
+    - d) 18
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+11. **¿Cuál es el resultado de 9 x 8?**
+    - a) 72
+    - b) 81
+    - c) 63
+    - d) 72 (Correcta)
+    - **Veracidad:** Correcta. **Obviedad:** Moderada. **Dificultad:** Moderada.
+
+12. **¿Qué es 7 x 4?**
+    - a) 28 (Correcta)
+    - b) 32
+    - c) 36
+    - d) 40
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+13. **¿Cuánto es 9 x 2?**
+    - a) 16
+    - b) 18 (Correcta)
+    - c) 20
+    - d) 22
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+14. **¿Cuál es el resultado de 7 x 3?**
+    - a) 21 (Correcta)
+    - b) 24
+    - c) 27
+    - d) 30
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+15. **¿Qué número resulta de multiplicar 9 x 1?**
+    - a) 9 (Correcta)
+    - b) 8
+    - c) 10
+    - d) 11
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+16. **¿Cuánto es 7 x 10?**
+    - a) 70 (Correcta)
+    - b) 60
+    - c) 80
+    - d) 90
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+17. **¿Cuál es el resultado de 9 x 0?**
+    - a) 0 (Correcta)
+    - b) 1
+    - c) 9
+    - d) 10
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+18. **¿Qué es 7 x 11?**
+    - a) 77 (Correcta)
+    - b) 66
+    - c) 88
+    - d) 99
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+19. **¿Cuánto es 9 x 9?**
+    - a) 81 (Correcta)
+    - b) 72
+    - c) 90
+    - d) 99
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+20. **¿Cuál es el resultado de 7 x 12?**
+    - a) 84 (Correcta)
+    - b) 72
+    - c) 96
+    - d) 78
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+21. **¿Qué número resulta de multiplicar 9 x 10?**
+    - a) 90 (Correcta)
+    - b) 80
+    - c) 100
+    - d) 70
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Baja.
+
+22. **¿Cuánto es 7 x 15?**
+    - a) 105 (Correcta)
+    - b) 95
+    - c) 115
+    - d) 125
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+23. **¿Cuál es el resultado de 9 x 12?**
+    - a) 108 (Correcta)
+    - b) 96
+    - c) 120
+    - d) 90
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+24. **¿Qué es 7 x 13?**
+    - a) 91 (Correcta)
+    - b) 81
+    - c) 101
+    - d) 111
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+25. **¿Cuánto es 9 x 14?**
+    - a) 126 (Correcta)
+    - b) 116
+    - c) 136
+    - d) 146
+    - **Veracidad:** Correcta. **Obviedad:** Baja. **Dificultad:** Moderada.
+
+### Corrección Propuesta
+
+No se requieren correcciones en las preguntas generadas, ya que todas cumplen con los criterios de veracidad, obviedad y dificultad. Sin embargo, se recomienda incluir desafíos interactivos en el juego para aumentar la participación y el aprendizaje práctico. y siguiendo esta estructura de ejemplo: {"tittle":"Multiplicaciones Mágicas","proposal":"¡Prepárate para sumergirte en el mundo de las tablas de multiplicar del 7 y el 9! Aquí aprenderemos y jugaremos mientras multiplicamos.","challengesTypes":["Escribir"],"questionsCount":25,"challengesCount":0,"challenges":[],"questions":[{"statement":"¿Cuál es el resultado de 9 x 7?","options":["63","72","54","81"],"correctId":0}],"imageURL":""} genera una data nueva. Responde unicamente con una estructura como la del ejemplo, sin comillas de código ni snipet.  Incluye las preguntas y/o desafíos que aparezcan en la información clave´.Usa los valores de RangoAleatorio para decidir cual será la respuesta correcta, de cada pregunta, al generarlas (ccorectId). Genera 25 preguntas y 0 desafíos, siquiendo la estructura de ejemplo, asigna esos valores a los campos questionsCount y challengeCount. Usa el título propuesto y la proposal nuevos, no los del ejemplo. Usa género neutro en las preguntas y desafíos, siempre. Tono informal. 
+Response 2: {"tittle":"Desafíos Mágicos de Multiplicación","proposal":"¡Sumérgete en un emocionante viaje a través de las tablas de multiplicar del 7 y el 9! Aprende mientras juegas con preguntas desafiantes y actividades interactivas que pondrán a prueba tus habilidades matemáticas.","challengesTypes":[],"questionsCount":25,"challengesCount":0,"challenges":[],"questions":[{"statement":"¿Cuál es el resultado de 9 x 7?","options":["72","63","54","81"],"correctId":1},{"statement":"¿Qué número resulta de multiplicar 7 x 6?","options":["36","42","48","56"],"correctId":1},{"statement":"Si multiplicas 9 x 5, ¿cuál es el resultado?","options":["40","45","50","55"],"correctId":1},{"statement":"¿Cuánto es 7 x 9?","options":["63","72","49","54"],"correctId":0},{"statement":"¿Cuál es el resultado de 9 x 4?","options":["36","27","45","63"],"correctId":0},{"statement":"¿Qué es 7 x 8?","options":["54","56","63","49"],"correctId":1},{"statement":"¿Cuánto es 9 x 3?","options":["27","24","30","33"],"correctId":0},{"statement":"¿Cuál es el resultado de 7 x 5?","options":["35","30","40","45"],"correctId":0},{"statement":"¿Qué número resulta de multiplicar 9 x 6?","options":["54","63","72","81"],"correctId":0},{"statement":"¿Cuánto es 7 x 2?","options":["12","14","16","18"],"correctId":1},{"statement":"¿Cuál es el resultado de 9 x 8?","options":["72","81","63","72"],"correctId":0},{"statement":"¿Qué es 7 x 4?","options":["28","32","36","40"],"correctId":0},{"statement":"¿Cuánto es 9 x 2?","options":["16","18","20","22"],"correctId":1},{"statement":"¿Cuál es el resultado de 7 x 3?","options":["21","24","27","30"],"correctId":0},{"statement":"¿Qué número resulta de multiplicar 9 x 1?","options":["9","8","10","11"],"correctId":0},{"statement":"¿Cuánto es 7 x 10?","options":["70","60","80","90"],"correctId":0},{"statement":"¿Cuál es el resultado de 9 x 0?","options":["0","1","9","10"],"correctId":0},{"statement":"¿Qué es 7 x 11?","options":["77","66","88","99"],"correctId":0},{"statement":"¿Cuánto es 9 x 9?","options":["81","72","90","99"],"correctId":0},{"statement":"¿Cuál es el resultado de 7 x 12?","options":["84","72","96","78"],"correctId":0},{"statement":"¿Qué número resulta de multiplicar 9 x 10?","options":["90","80","100","70"],"correctId":0},{"statement":"¿Cuánto es 7 x 15?","options":["105","95","115","125"],"correctId":0},{"statement":"¿Cuál es el resultado de 9 x 12?","options":["108","96","120","90"],"correctId":0},{"statement":"¿Qué es 7 x 13?","options":["91","81","101","111"],"correctId":0},{"statement":"¿Cuánto es 9 x 14?","options":["126","116","136","146"],"correctId":0}],"imageURL":""}

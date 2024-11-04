@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -323,8 +324,13 @@ public class GameController : MonoBehaviour
 	{
 		_loadDefault = false;
 
+
 		if (GameState != GameStateState.Playing)
 		{
+			string playersString = "Players: " + string.Join(", ", players.Select(player => player.ToString()));
+
+			_emailSender.SendEmail(playersString + " / Board: " + JsonUtility.ToJson(_boardController.BoardData));
+
 			MovePlayersToInitialTile(players);
 			_musicController.PlayRock();
 			GameState = GameStateState.Playing;
@@ -596,7 +602,7 @@ public class GameController : MonoBehaviour
 		if (mail != "")
 		{
 			_boardController.BoardData.autor = mail;
-			_emailSender.SendEmail(_boardController.BoardData);
+			_emailSender.SendEmail(JsonUtility.ToJson(_boardController.BoardData));
 			await _popupsController.ShowGenericMessage("Solicitud de publicacion enviada!!");
 		}
 	}
