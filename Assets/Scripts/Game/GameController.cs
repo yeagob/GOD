@@ -6,13 +6,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using System.Threading.Tasks;
+using Network;
 using UnityEngine.UI;
 
-/// <summary>
 /// Manages the game cycle and holds references to the Board and BoardController.
+/// <summary>
 /// </summary>
 public class GameController : MonoBehaviour
 {
@@ -227,7 +228,7 @@ public class GameController : MonoBehaviour
 			if (boardData == null)
 			{
 				OnSad.Invoke();
-				await _popupsController.ShowGenericMessage("Error generando el tablero!\n Inténtalo de nuevo!", 7);
+				await _popupsController.ShowGenericMessage("Error generando el tablero!\n Intï¿½ntalo de nuevo!", 7);
 				OnCuack.Invoke();
 				Start();
 				return;
@@ -760,7 +761,7 @@ public class GameController : MonoBehaviour
 		byte[] bytes = screenShot.EncodeToPNG();
 		string base64Image = System.Convert.ToBase64String(bytes);
 
-		// Llamar a la función JS para generar el PDF
+		// Llamar a la funciï¿½n JS para generar el PDF
 		GeneratePDFFromUnity(base64Image, _boardController.BoardData.tittle);
 
 		yield return null;
@@ -829,7 +830,7 @@ public class GameController : MonoBehaviour
 	public void BackToMainMenu()
 	{
 		if (_gameState == GameStateState.Editing)
-			Debug.Log("Salir del modo edición??");
+			Debug.Log("Salir del modo ediciï¿½n??");
 
 		GameState = GameStateState.Welcome;
 		_popupsController.HideAll();
