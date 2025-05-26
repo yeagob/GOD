@@ -1,7 +1,10 @@
 {
     "name": "Network",
-    "rootNamespace": "Network",
-    "references": [],
+    "rootNamespace": "",
+    "references": [
+        "Firebase.Database",
+        "Firebase.App"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
