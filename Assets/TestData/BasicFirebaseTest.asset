@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11889900112233445566aabbccddeeff, type: 3}
+  m_Name: BasicFirebaseTest
+  m_EditorClassIdentifier: 
+  testPlayerId: test_player_1
+  testPlayerName: Test Player
+  testBoardType: classic
+  maxPlayers: 4
+  testScenarios:
+  - scenarioName: Connection Test
+    description: Basic Firebase connection test
+    actions:
+    - actionType: 0
+      parameters: 
+      delay: 2
+  - scenarioName: Complete Game Flow
+    description: Test full game lifecycle
+    actions:
+    - actionType: 0
+      parameters: 
+      delay: 2
+    - actionType: 1
+      parameters: 
+      delay: 3
+    - actionType: 2
+      parameters: 
+      delay: 2
+    - actionType: 4
+      parameters: 
+      delay: 1
+    - actionType: 3
+      parameters: 
+      delay: 2
+    - actionType: 4
+      parameters: 
+      delay: 1
+    - actionType: 3
+      parameters: 
+      delay: 2
+    - actionType: 6
+      parameters: 
+      delay: 2
+  - scenarioName: Multiple Players Simulation
+    description: Simulate multiple player actions
+    actions:
+    - actionType: 0
+      parameters: 
+      delay: 2
+    - actionType: 1
+      parameters: 
+      delay: 3
+    - actionType: 2
+      parameters: player1
+      delay: 2
+    - actionType: 2
+      parameters: player2
+      delay: 2
+    - actionType: 4
+      parameters: 
+      delay: 1
+    - actionType: 3
+      parameters: 
+      delay: 1
+    - actionType: 4
+      parameters: 
+      delay: 1
+    - actionType: 3
+      parameters: 
+      delay: 1
+    - actionType: 6
+      parameters: 
+      delay: 2
