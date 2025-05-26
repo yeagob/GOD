@@ -1,75 +1,85 @@
 using System;
-using System.Collections.Generic;
-using Network.Models;
+using System.Threading.Tasks;
+using UnityEngine;
 
-namespace Network.Presenters
+public class GameEventPresenter : MonoBehaviour
 {
-    public class GameEventPresenter : IGameEventPresenter
+    private readonly GameEventModel gameEventModel;
+    private readonly PlayerMatchModel playerMatchModel;
+    private readonly MatchModel matchModel;
+    
+    public event Action<GameEventData> OnEventLogged;
+    public event Action<string, int, int> OnPlayerMoveLogged;
+    public event Action<string, int> OnDiceRollLogged;
+    public event Action<string, string, string> OnSpecialTileLogged;
+    public event Action<string> OnError;
+    
+    public GameEventPresenter(GameEventModel gameEventModel, PlayerMatchModel playerMatchModel, MatchModel matchModel)
     {
-        private readonly IGameEventModel _gameEventModel;
-        private readonly IPlayerMatchModel _playerMatchModel;
-        private readonly IMatchModel _matchModel;
-        
-        // Tipos de evento
-        public const int EVENT_TYPE_MOVE = 0;
-        public const int EVENT_TYPE_JUMP = 1;
-        public const int EVENT_TYPE_QUESTION = 2;
-        public const int EVENT_TYPE_SCORE_CHANGE = 3;
-        public const int EVENT_TYPE_REVIEW = 4;
-
-        public GameEventPresenter(
-            IGameEventModel gameEventModel,
-            IPlayerMatchModel playerMatchModel,
-            IMatchModel matchModel)
+        this.gameEventModel = gameEventModel ?? throw new ArgumentNullException(nameof(gameEventModel));
+        this.playerMatchModel = playerMatchModel ?? throw new ArgumentNullException(nameof(playerMatchModel));
+        this.matchModel = matchModel ?? throw new ArgumentNullException(nameof(matchModel));
+    }
+    
+    public async Task LogPlayerMove(string matchId, string playerId, int fromPosition, int toPosition, int turn)
+    {
+        try
         {
-            _gameEventModel = gameEventModel;
-            _playerMatchModel = playerMatchModel;
-            _matchModel = matchModel;
+            var eventData = await gameEventModel.LogPlayerMove(matchId, playerId, fromPosition, toPosition, turn);
+            await playerMatchModel.UpdatePlayerPosition(playerId, matchId, toPosition);
+            
+            OnEventLogged?.Invoke(eventData);
+            OnPlayerMoveLogged?.Invoke(playerId, fromPosition, toPosition);
         }
-
-        public void RecordMovement(string playerId, string matchId, int targetTile, Action<GameEventData> callback = null)
+        catch (Exception ex)
         {
-            _gameEventModel.CreateGameEvent(playerId, matchId, EVENT_TYPE_MOVE, targetTile, callback);
+            OnError?.Invoke($"Failed to log player move: {ex.Message}");
         }
-
-        public void RecordJump(string playerId, string matchId, int targetTile, Action<GameEventData> callback = null)
+    }
+    
+    public async Task LogDiceRoll(string matchId, string playerId, int diceValue, int turn)
+    {
+        try
         {
-            _gameEventModel.CreateGameEvent(playerId, matchId, EVENT_TYPE_JUMP, targetTile, callback);
+            var eventData = await gameEventModel.LogDiceRoll(matchId, playerId, diceValue, turn);
+            
+            OnEventLogged?.Invoke(eventData);
+            OnDiceRollLogged?.Invoke(playerId, diceValue);
         }
-
-        public void RecordQuestion(string playerId, string matchId, int targetTile, Action<GameEventData> callback = null)
+        catch (Exception ex)
         {
-            _gameEventModel.CreateGameEvent(playerId, matchId, EVENT_TYPE_QUESTION, targetTile, callback);
+            OnError?.Invoke($"Failed to log dice roll: {ex.Message}");
         }
-
-        public void RecordScoreChange(string playerId, string matchId, int targetTile, Action<GameEventData> callback = null)
+    }
+    
+    public async Task LogSpecialTile(string matchId, string playerId, string tileType, string effect, int turn)
+    {
+        try
         {
-            _gameEventModel.CreateGameEvent(playerId, matchId, EVENT_TYPE_SCORE_CHANGE, targetTile, callback);
+            var eventData = await gameEventModel.LogSpecialTile(matchId, playerId, tileType, effect, turn);
+            
+            OnEventLogged?.Invoke(eventData);
+            OnSpecialTileLogged?.Invoke(playerId, tileType, effect);
         }
-
-        public void RecordReview(string playerId, string matchId, int targetTile, Action<GameEventData> callback = null)
+        catch (Exception ex)
         {
-            _gameEventModel.CreateGameEvent(playerId, matchId, EVENT_TYPE_REVIEW, targetTile, callback);
+            OnError?.Invoke($"Failed to log special tile: {ex.Message}");
         }
-
-        public void GetMatchTimeline(string matchId, Action<List<GameEventData>> callback)
+    }
+    
+    public async Task GetEvent(string eventId)
+    {
+        try
         {
-            _gameEventModel.GetEventsByMatch(matchId, callback);
+            var eventData = await gameEventModel.GetEvent(eventId);
+            if (!string.IsNullOrEmpty(eventData.EventId))
+            {
+                OnEventLogged?.Invoke(eventData);
+            }
         }
-
-        public void GetPlayerTimeline(string playerId, Action<List<GameEventData>> callback)
+        catch (Exception ex)
         {
-            _gameEventModel.GetEventsByPlayer(playerId, callback);
-        }
-
-        public void ListenForMatchEvents(string matchId, Action<List<GameEventData>> callback)
-        {
-            _gameEventModel.ListenForMatchEvents(matchId, callback);
-        }
-
-        public void StopListeningForMatchEvents(string matchId)
-        {
-            _gameEventModel.StopListeningForMatchEvents(matchId);
+            OnError?.Invoke($"Failed to get event: {ex.Message}");
         }
     }
 }
