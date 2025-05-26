@@ -262,8 +262,7 @@ public class GameController : MonoBehaviour
 		_boardController.OnMoveStep += Fart;
 
 		//PLAYER LIST
-		List<Player> players = await _popupsController.PlayerCreationController.ShowAsync();
-
+		List<Player> players = await _popupsController.PlayerCreationController.ShowAsync(false);//false = no multiplayer mode
 
 		OnCuack.Invoke();
 
@@ -846,7 +845,7 @@ public class GameController : MonoBehaviour
 	public async Task EditPlayers()
 	{
 		//PLAYER LIST
-		List<Player> players = await _popupsController.PlayerCreationController.ShowAsync(_turnController.Players);
+		List<Player> players = await _popupsController.PlayerCreationController.ShowAsync(false, _turnController.Players);
 		_turnController.Players = players;
 
 		OnCuack.Invoke();

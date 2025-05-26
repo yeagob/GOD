@@ -165,10 +165,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3489763419326358436}
+  - component: {fileID: 8497323254798666144}
   - component: {fileID: 4210798934025213698}
   - component: {fileID: 6525550559793640927}
   m_Layer: 5
-  m_Name: Player1 Panel
+  m_Name: Player Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -195,6 +196,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 102.874146}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8497323254798666144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3860174381197911850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0d571a2b89e0a4a8d8f1ef02ff1a94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ColorImage: {fileID: 5895266855638551538}
+  NameInputField: {fileID: 839987602706699801}
 --- !u!222 &4210798934025213698
 CanvasRenderer:
   m_ObjectHideFlags: 0

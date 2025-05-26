@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System;
 using System.Linq;
+using UI.UIPopups;
 
 public class PlayerCreationController : MonoBehaviour
 {
@@ -23,9 +24,11 @@ public class PlayerCreationController : MonoBehaviour
 
 	#region Fields
 
+	[SerializeField] private MultiplayerPanel _multiplayerPanel;
 	[SerializeField] private TMP_InputField[] _playerNameInputs;
 	[SerializeField] private Image[] _playerImageColors;
 	[SerializeField] private Button _okButton;
+	[SerializeField] private Button _multiplayerButton;
 	[SerializeField] private PlayerToken _playerTokenPrefab;
 	private Color[] _playerColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.cyan, Color.black };
 	private List<Player> _players = new List<Player>();
@@ -49,6 +52,7 @@ public class PlayerCreationController : MonoBehaviour
 	private void Start()
 	{
 		_okButton.onClick.AddListener(CreatePlayers);
+		_multiplayerButton.onClick.AddListener(StartMultiplayer);
 	}
 
 
@@ -60,11 +64,13 @@ public class PlayerCreationController : MonoBehaviour
 				play = true;
 		_okButton.gameObject.SetActive(play);
 	}
+
 	#endregion
 
 	#region Private Methods
 
 	//TODO: No mola que sea este quien crea los players!!
+
 	private void CreatePlayers()
 	{
 		for (int i = 0; i < _playerNameInputs.Length; i++)
@@ -99,8 +105,13 @@ public class PlayerCreationController : MonoBehaviour
 		CloseInputPlayers();
 	}
 
+	private void StartMultiplayer()
+	{
+		//TODO: convertir esto en un metodo Activate, que entre en modo host o cliente.
+		_multiplayerPanel.gameObject.SetActive(true);
+	}
 
-	internal async Task<List<Player>> ShowAsync(List<Player> players = null)
+	internal async Task<List<Player>> ShowAsync(bool multiplayer, List<Player> players = null)
 	{
 		if (players != null)
 			_previousPlayers = new List<Player>(players);
