@@ -7,6 +7,9 @@ using UnityEngine.EventSystems;
 using System;
 using System.Linq;
 using UI.UIPopups;
+using Network.Services;
+using Network.Repositories;
+using Network.Models;
 
 public class PlayerCreationController : MonoBehaviour
 {
@@ -30,10 +33,13 @@ public class PlayerCreationController : MonoBehaviour
 	[SerializeField] private Button _okButton;
 	[SerializeField] private Button _multiplayerButton;
 	[SerializeField] private PlayerToken _playerTokenPrefab;
+	
 	private Color[] _playerColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.cyan, Color.black };
 	private List<Player> _players = new List<Player>();
 	private List<Player> _previousPlayers = new List<Player>();
-
+	
+	private IFirebaseService _firebaseService;
+	private MultiplayerMatchRepository _matchRepository;
 
 	private const string PLAYERS_KEY = "players";
 
@@ -43,6 +49,8 @@ public class PlayerCreationController : MonoBehaviour
 
 	private void Awake()
 	{
+		InitializeNetworkServices();
+		
 		for (int i = 0; i < _playerImageColors.Length; i++)
 		{
 			_playerImageColors[i].color = _playerColors[i];
@@ -54,7 +62,6 @@ public class PlayerCreationController : MonoBehaviour
 		_okButton.onClick.AddListener(CreatePlayers);
 		_multiplayerButton.onClick.AddListener(StartMultiplayer);
 	}
-
 
 	private void Update()
 	{
@@ -69,7 +76,12 @@ public class PlayerCreationController : MonoBehaviour
 
 	#region Private Methods
 
-	//TODO: No mola que sea este quien crea los players!!
+	private void InitializeNetworkServices()
+	{
+		_firebaseService = new FirebaseService();
+		_firebaseService.Initialize();
+		_matchRepository = new MultiplayerMatchRepository(_firebaseService);
+	}
 
 	private void CreatePlayers()
 	{
@@ -94,7 +106,6 @@ public class PlayerCreationController : MonoBehaviour
 			}
 		}
 
-		//Destroy old players
 		if (_previousPlayers.Count > 0)
 		{
 			foreach (Player player in _previousPlayers)
@@ -105,10 +116,32 @@ public class PlayerCreationController : MonoBehaviour
 		CloseInputPlayers();
 	}
 
-	private void StartMultiplayer()
+	private async void StartMultiplayer()
 	{
-		//TODO: convertir esto en un metodo Activate, que entre en modo host o cliente.
+		await CreateMultiplayerMatch();
 		_multiplayerPanel.gameObject.SetActive(true);
+	}
+
+	private async Task CreateMultiplayerMatch()
+	{
+		try
+		{
+			MultiplayerMatchData matchData = new MultiplayerMatchData("testGOD", "waiting");
+			bool success = await _matchRepository.CreateMatchAsync(matchData);
+			
+			if (success)
+			{
+				Debug.Log("Multiplayer match created successfully in Firebase");
+			}
+			else
+			{
+				Debug.LogError("Failed to create multiplayer match in Firebase");
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.LogError($"Error creating multiplayer match: {ex.Message}");
+		}
 	}
 
 	internal async Task<List<Player>> ShowAsync(bool multiplayer, List<Player> players = null)
@@ -123,7 +156,6 @@ public class PlayerCreationController : MonoBehaviour
 			await Task.Yield();
 
 		return _players;
-
 	}
 
 	private void ShowInputPlayers()
@@ -144,12 +176,8 @@ public class PlayerCreationController : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	/// <summary>
-	/// Load the players data from PlayerPrefs and populate the input fields.
-	/// </summary>
 	public void LoadPlayers(List<Player> previousPlayers = null)
 	{
-		//Editing
 		if (previousPlayers != null)
 		{
 			foreach (Player player in previousPlayers)
@@ -174,9 +202,6 @@ public class PlayerCreationController : MonoBehaviour
 		}
 	}
 
-	/// <summary>
-	/// Save the players data to PlayerPrefs as JSON.
-	/// </summary>
 	private void SavePlayers()
 	{
 		List<PlayerList> players = new List<PlayerList>();
@@ -199,5 +224,4 @@ public class PlayerCreationController : MonoBehaviour
 	}
 
 	#endregion
-
 }
