@@ -3,13 +3,15 @@ using System.Threading.Tasks;
 using Network.Models;
 using Network.Services;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Network.Repositories
 {
     public class MultiplayerMatchRepository
     {
         private readonly IFirebaseService _firebaseService;
-        private const string MATCHES_PATH = "matches";
+        private const string MATCHES_PATH = "Match";
+        private const string PLAYERS_PATH = "Players";
         
         public MultiplayerMatchRepository(IFirebaseService firebaseService)
         {
@@ -48,6 +50,38 @@ namespace Network.Repositories
             catch (Exception ex)
             {
                 Debug.LogError($"Error getting match: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<Dictionary<string, object>> GetAllMatchesAsync()
+        {
+            try
+            {
+                var tcs = new TaskCompletionSource<Dictionary<string, object>>();
+                _firebaseService.GetData<Dictionary<string, object>>(MATCHES_PATH, data => tcs.SetResult(data));
+                
+                return await tcs.Task;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error getting all matches: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<Dictionary<string, object>> GetAllPlayersAsync()
+        {
+            try
+            {
+                var tcs = new TaskCompletionSource<Dictionary<string, object>>();
+                _firebaseService.GetData<Dictionary<string, object>>(PLAYERS_PATH, data => tcs.SetResult(data));
+                
+                return await tcs.Task;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error getting all players: {ex.Message}");
                 return null;
             }
         }
