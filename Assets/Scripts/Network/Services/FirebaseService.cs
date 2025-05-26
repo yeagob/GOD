@@ -11,7 +11,7 @@ namespace Network.Services
     {
         private FirebaseDatabase _database;
         private bool _isInitialized = false;
-        private Dictionary<string, ValueChangedEventHandler> _listeners = new Dictionary<string, ValueChangedEventHandler>();
+        private Dictionary<string, System.EventHandler<ValueChangedEventArgs>> _listeners = new Dictionary<string, System.EventHandler<ValueChangedEventArgs>>();
 
         public async void Initialize()
         {
@@ -144,7 +144,7 @@ namespace Network.Services
 
             try
             {
-                ValueChangedEventHandler listener = (sender, args) => 
+                System.EventHandler<ValueChangedEventArgs> listener = (sender, args) => 
                 {
                     if (args.DatabaseError != null)
                     {
