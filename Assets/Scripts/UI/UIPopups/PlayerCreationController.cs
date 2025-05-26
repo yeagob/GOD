@@ -61,6 +61,8 @@ public class PlayerCreationController : MonoBehaviour
 	{
 		_okButton.onClick.AddListener(CreatePlayers);
 		_multiplayerButton.onClick.AddListener(StartMultiplayer);
+		
+		ReadExistingFirebaseData();
 	}
 
 	private void Update()
@@ -81,6 +83,42 @@ public class PlayerCreationController : MonoBehaviour
 		_firebaseService = new FirebaseService();
 		_firebaseService.Initialize();
 		_matchRepository = new MultiplayerMatchRepository(_firebaseService);
+	}
+
+	private async void ReadExistingFirebaseData()
+	{
+		Debug.Log("=== READING EXISTING FIREBASE DATA ===");
+		
+		var matches = await _matchRepository.GetAllMatchesAsync();
+		var players = await _matchRepository.GetAllPlayersAsync();
+		
+		Debug.Log("=== MATCHES DATA ===");
+		if (matches != null && matches.Count > 0)
+		{
+			foreach (var match in matches)
+			{
+				Debug.Log($"Match Key: {match.Key}, Value: {match.Value}");
+			}
+		}
+		else
+		{
+			Debug.Log("No matches found in Firebase");
+		}
+		
+		Debug.Log("=== PLAYERS DATA ===");
+		if (players != null && players.Count > 0)
+		{
+			foreach (var player in players)
+			{
+				Debug.Log($"Player Key: {player.Key}, Value: {player.Value}");
+			}
+		}
+		else
+		{
+			Debug.Log("No players found in Firebase");
+		}
+		
+		Debug.Log("=== END FIREBASE DATA READING ===");
 	}
 
 	private void CreatePlayers()
@@ -126,12 +164,15 @@ public class PlayerCreationController : MonoBehaviour
 	{
 		try
 		{
+			Debug.Log("Creating multiplayer match...");
+			
 			MultiplayerMatchData matchData = new MultiplayerMatchData("testGOD", "waiting");
 			bool success = await _matchRepository.CreateMatchAsync(matchData);
 			
 			if (success)
 			{
 				Debug.Log("Multiplayer match created successfully in Firebase");
+				await ReadExistingFirebaseData();
 			}
 			else
 			{
