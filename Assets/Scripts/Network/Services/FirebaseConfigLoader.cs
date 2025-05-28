@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Networking;
+using System.Collections;
 using System.IO;
 using Network.Models;
 
@@ -8,7 +10,63 @@ namespace Network.Services
     {
         private const string CONFIG_FILE_NAME = "firebase-config.json";
         
-        public static FirebaseConfigData LoadConfig()
+        public static void LoadConfigAsync(System.Action<FirebaseConfigData> callback)
+        {
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                LoadConfigWebGL(callback);
+            }
+            else
+            {
+                LoadConfigLocal(callback);
+            }
+        }
+        
+        private static void LoadConfigWebGL(System.Action<FirebaseConfigData> callback)
+        {
+            string configPath = Path.Combine(Application.streamingAssetsPath, CONFIG_FILE_NAME);
+            
+            UnityEngine.MonoBehaviour coroutineRunner = UnityEngine.Object.FindObjectOfType<UnityEngine.MonoBehaviour>();
+            if (coroutineRunner != null)
+            {
+                coroutineRunner.StartCoroutine(LoadConfigCoroutine(configPath, callback));
+            }
+            else
+            {
+                Debug.LogError("No MonoBehaviour found to run coroutine");
+                callback?.Invoke(CreateDefaultConfig());
+            }
+        }
+        
+        private static IEnumerator LoadConfigCoroutine(string configPath, System.Action<FirebaseConfigData> callback)
+        {
+            using (UnityWebRequest request = UnityWebRequest.Get(configPath))
+            {
+                yield return request.SendWebRequest();
+                
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    try
+                    {
+                        string jsonContent = request.downloadHandler.text;
+                        FirebaseConfigData config = JsonUtility.FromJson<FirebaseConfigData>(jsonContent);
+                        callback?.Invoke(config);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogError($"Failed to parse Firebase config: {ex.Message}");
+                        callback?.Invoke(CreateDefaultConfig());
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"Failed to load Firebase config: {request.error}");
+                    callback?.Invoke(CreateDefaultConfig());
+                }
+            }
+        }
+        
+        private static void LoadConfigLocal(System.Action<FirebaseConfigData> callback)
         {
             string configPath = Path.Combine(Application.streamingAssetsPath, CONFIG_FILE_NAME);
             
@@ -17,18 +75,19 @@ namespace Network.Services
                 if (File.Exists(configPath))
                 {
                     string jsonContent = File.ReadAllText(configPath);
-                    return JsonUtility.FromJson<FirebaseConfigData>(jsonContent);
+                    FirebaseConfigData config = JsonUtility.FromJson<FirebaseConfigData>(jsonContent);
+                    callback?.Invoke(config);
                 }
                 else
                 {
                     Debug.LogError($"Firebase config file not found at: {configPath}");
-                    return CreateDefaultConfig();
+                    callback?.Invoke(CreateDefaultConfig());
                 }
             }
             catch (System.Exception ex)
             {
                 Debug.LogError($"Failed to load Firebase config: {ex.Message}");
-                return CreateDefaultConfig();
+                callback?.Invoke(CreateDefaultConfig());
             }
         }
         
