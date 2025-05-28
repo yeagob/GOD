@@ -38,6 +38,7 @@ public class PlayerCreationController : MonoBehaviour
 	private List<Player> _previousPlayers = new List<Player>();
 
 	private IMatchModel _matchModel;
+	private NetworkInstaller _networkInstaller;
 	private const string PLAYERS_KEY = "players";
 
 	#endregion
@@ -50,18 +51,14 @@ public class PlayerCreationController : MonoBehaviour
 		{
 			_playerImageColors[i].color = _playerColors[i];
 		}
+		
+		InitializeNetworking();
 	}
 
 	private void Start()
 	{
 		_okButton.onClick.AddListener(CreatePlayers);
 		_multiplayerButton.onClick.AddListener(StartMultiplayer);
-		
-		_matchModel = NetworkInstaller.Resolve<IMatchModel>();
-		if (_matchModel == null)
-		{
-			Debug.LogError("MatchModel not found! Make sure NetworkInstaller is initialized.");
-		}
 	}
 
 	private void Update()
@@ -80,6 +77,35 @@ public class PlayerCreationController : MonoBehaviour
 	#endregion
 
 	#region Private Methods
+
+	private void InitializeNetworking()
+	{
+		_networkInstaller = FindObjectOfType<NetworkInstaller>();
+		if (_networkInstaller == null)
+		{
+			GameObject networkObj = new GameObject("NetworkInstaller");
+			_networkInstaller = networkObj.AddComponent<NetworkInstaller>();
+			DontDestroyOnLoad(networkObj);
+			Debug.Log("PlayerCreationController: Created NetworkInstaller");
+		}
+
+		StartCoroutine(WaitForNetworkInitialization());
+	}
+
+	private System.Collections.IEnumerator WaitForNetworkInitialization()
+	{
+		yield return new WaitForSeconds(0.5f);
+		
+		_matchModel = NetworkInstaller.Resolve<IMatchModel>();
+		if (_matchModel == null)
+		{
+			Debug.LogError("PlayerCreationController: MatchModel not found after initialization!");
+		}
+		else
+		{
+			Debug.Log("PlayerCreationController: MatchModel successfully resolved");
+		}
+	}
 
 	private void CreatePlayers()
 	{
@@ -118,33 +144,78 @@ public class PlayerCreationController : MonoBehaviour
 
 	private void StartMultiplayer()
 	{
+		Debug.Log("PlayerCreationController: StartMultiplayer called");
+
 		if (_matchModel == null)
 		{
-			Debug.LogError("Cannot start multiplayer: MatchModel not initialized");
-			return;
+			Debug.LogError("PlayerCreationController: MatchModel not initialized, attempting to resolve again...");
+			_matchModel = NetworkInstaller.Resolve<IMatchModel>();
+			
+			if (_matchModel == null)
+			{
+				Debug.LogError("PlayerCreationController: Failed to resolve MatchModel. Cannot start multiplayer.");
+				return;
+			}
 		}
 
-		string currentUrl = Application.absoluteURL;
-		if (string.IsNullOrEmpty(currentUrl))
-		{
-			currentUrl = "http://localhost/multiplayer";
-		}
+		string currentUrl = GetCurrentGameUrl();
+		Debug.Log($"PlayerCreationController: Creating match with URL: {currentUrl}");
 
 		_matchModel.CreateMatch(currentUrl, 0, (matchData) => {
-			if (!string.IsNullOrEmpty(matchData._id))
+			HandleMatchCreationResult(matchData, currentUrl);
+		});
+	}
+
+	private string GetCurrentGameUrl()
+	{
+		string currentUrl = Application.absoluteURL;
+		
+		if (string.IsNullOrEmpty(currentUrl))
+		{
+			currentUrl = "https://gameofduckai.netlify.app/";
+			Debug.Log("PlayerCreationController: Using default URL (no absoluteURL available)");
+		}
+		else
+		{
+			Debug.Log($"PlayerCreationController: Using current URL: {currentUrl}");
+		}
+
+		return currentUrl;
+	}
+
+	private void HandleMatchCreationResult(MatchData matchData, string originalUrl)
+	{
+		if (!string.IsNullOrEmpty(matchData._id))
+		{
+			Debug.Log($"PlayerCreationController: Match created successfully!");
+			Debug.Log($"PlayerCreationController: Match ID: {matchData._id}");
+			Debug.Log($"PlayerCreationController: Match URL: {matchData._url}");
+			Debug.Log($"PlayerCreationController: Match State: {matchData._state}");
+			Debug.Log($"PlayerCreationController: Created At: {matchData._createdAt}");
+			
+			string multiplayerUrl = BuildMultiplayerUrl(originalUrl, matchData._id);
+			Debug.Log($"PlayerCreationController: Generated multiplayer URL: {multiplayerUrl}");
+			
+			if (_multiplayerPanel != null)
 			{
-				Debug.Log($"Match created successfully with ID: {matchData._id}");
-				
-				string multiplayerUrl = $"{currentUrl}?match={matchData._id}&multiplayer=true";
-				Debug.Log($"Multiplayer URL: {multiplayerUrl}");
-				
 				_multiplayerPanel.gameObject.SetActive(true);
+				Debug.Log("PlayerCreationController: MultiplayerPanel activated");
 			}
 			else
 			{
-				Debug.LogError("Failed to create match");
+				Debug.LogWarning("PlayerCreationController: MultiplayerPanel is null!");
 			}
-		});
+		}
+		else
+		{
+			Debug.LogError("PlayerCreationController: Failed to create match - received empty match data");
+		}
+	}
+
+	private string BuildMultiplayerUrl(string baseUrl, string matchId)
+	{
+		string separator = baseUrl.Contains("?") ? "&" : "?";
+		return $"{baseUrl}{separator}match={matchId}&multiplayer=true";
 	}
 
 	internal async Task<List<Player>> ShowAsync(bool multiplayer, List<Player> players = null)
