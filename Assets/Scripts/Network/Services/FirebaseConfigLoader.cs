@@ -95,7 +95,21 @@ namespace Network.Services
         {
             return new FirebaseConfigData
             {
-                databaseURL = "https://game-of-duck-multiplayer-default-rtdb.europe-west1.firebasedatabase.app/"
+                databaseURL = "https://game-of-duck-multiplayer-default-rtdb.europe-west1.firebasedatabase.app/",
+                serviceAccount = new ServiceAccountData
+                {
+                    type = "service_account",
+                    project_id = "game-of-duck-multiplayer",
+                    private_key_id = "800ac48ca756bbbe8c8b9dc5b1be0b579eccd93e",
+                    private_key = "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC7tUu9cH7NqZQH\nUalcZPvIhtlHdVdukDT+QibfgPkrcgJlRfdvCEcPKEYyz2jonEPK6LE5aNIU8vkW\nTviqjuvT1ModY0jmfoUE1xFuszqwbnzLEhkj0aw/98tkZcOPdlx2a/tKTERkAhpo\nkSM6rLbkLe6pYlUiXw3u4nZiQNx2EOA/jhEHgqEVbm8C6JrRhNujYU+WALwic1N0\n9b+x8uriQUkrEQ1oDBf5lqVhDhBtZb9MXTNnaMwzmygE5ZrmnPKblevcGg4sOyOt\nrPMesG3lmtqD/p1822VuDtwh8hDo6zKb1bytxL8DBxni51dNb7U9/84iSpbRyHQS\n6nS0g+AXAgMBAAECggEAEPzfjcBUcYd4h/sKK/xQVH3DxKBS2S+VjtyXc7XSlxh6\ngrDaK63LmeG9Yf7RvJoxK81zBezodRCSSMRn49kLGxY7Hn1sTRPuikQZO0le3+B3\n9ybm/eNixpKbUTWWhRwjUm0DsTMwI1Q/Ze7wtHA0yHd8YyRXlm8/gxBIF4H4PHpd\nwutdrYPv8Ni+gTGl/tFE9WzvckpX1MQ7RDbAzGQDWI0OIeGZl91kzm4kV5KvSZmB\nlqfc54g+ZSbmAlXYbVlOB5mr2i4c0gpZmv6tgcPRVkAReOAcoI7WqqF04+9k7qSB\niXG6x+YdjitGqRpOv5FvzyB5l93ppuVny9ZoXMlMEQKBgQDpJIBXe3tFLa9NORuj\ncCLN+PXJjg/ewcZi+B+TG8CExNEptxLaKeQeHXCE/nO15SWyA+KUkwMbfNZlSFQn\np9UereCgNxB8HiX5MrA+uJeJtZ45qf0veW05stOqLWeoAwA07FNAoKzQiPOdeHPn\nxTSV3JNZeTquMRBfXsq7YZQzRwKBgQDOHHcbflWTy3XfBtxfxqTFB8MVNeysPYgr\n2hY/U740SCpO0ZnXw0g9Qe8XMmIBNCiFRBmj8RJl9k/MsI+iHFAjXWNPx72y/snx\nZf22Mx+c7nik7PUKzHGT/053Ss064PqDp6SLPun1f/1HhrdSPrm+PCQiwNY8iut8\nSeiC5U40sQKBgQCRI58eVwoLrAApA/dXzPRt46Inwt/QXjPB4xPNAgbc4KYR4R3E\nYTXZJZypvrqML0ZDRzXkJo1VrGbQELILKel8OuTO+NizXBVpyIt90G7OVRlWbqPm\nzSIZPGGW3MNeDdgwGjtNzXkoLUnz60vEqrks3m+A0P6d+H9nz9xHwNyA+wKBgQCi\n6+VKmkZTGVUHAolYO9Eq3cPbFFEMpWbqIu3LCQskkJbAzvXok7iak2/GylCl2vDc\nxsPtzzVX26egiUBASFkgW0WRXrYYs0Y1xwUR7L9kcSx0UcowywJMllcT/NDVZdkg\nEHgEiaquIIm47Egkfuib8zYtMnkmSjlyeYmNTmzPQQKBgQDGhHVrXPk92ch+sdc0\nui/QFfBTkivi+bDGDfuOvhvqS+GmPgUUUSnB8HmP/LjSb/4Wt1Ug/a9ECw23MKeH\nFICcp7Mxq6lLxdiDi2G6+v2LfQ4ApeMLnDXoodZ3LLAKYf9KvGBdcO7PEEE3J4Bs\nJ/RKWlNlDg/ZgNGnXxEuX8CH2g==\n-----END PRIVATE KEY-----\n",
+                    client_email = "firebase-adminsdk-fbsvc@game-of-duck-multiplayer.iam.gserviceaccount.com",
+                    client_id = "106505944126890827034",
+                    auth_uri = "https://accounts.google.com/o/oauth2/auth",
+                    token_uri = "https://oauth2.googleapis.com/token",
+                    auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs",
+                    client_x509_cert_url = "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40game-of-duck-multiplayer.iam.gserviceaccount.com",
+                    universe_domain = "googleapis.com"
+                }
             };
         }
     }
