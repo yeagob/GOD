@@ -7,6 +7,9 @@ using UnityEngine.EventSystems;
 using System;
 using System.Linq;
 using UI.UIPopups;
+using Network.Infrastructure;
+using Network.Models;
+using Network;
 
 public class PlayerCreationController : MonoBehaviour
 {
@@ -34,7 +37,7 @@ public class PlayerCreationController : MonoBehaviour
 	private List<Player> _players = new List<Player>();
 	private List<Player> _previousPlayers = new List<Player>();
 
-
+	private IMatchModel _matchModel;
 	private const string PLAYERS_KEY = "players";
 
 	#endregion
@@ -53,23 +56,30 @@ public class PlayerCreationController : MonoBehaviour
 	{
 		_okButton.onClick.AddListener(CreatePlayers);
 		_multiplayerButton.onClick.AddListener(StartMultiplayer);
+		
+		_matchModel = NetworkInstaller.Resolve<IMatchModel>();
+		if (_matchModel == null)
+		{
+			Debug.LogError("MatchModel not found! Make sure NetworkInstaller is initialized.");
+		}
 	}
-
 
 	private void Update()
 	{
 		bool play = false;
 		for (int i = 0; i < _playerNameInputs.Length; i++)
+		{
 			if (_playerNameInputs[i].text != "")
+			{
 				play = true;
+			}
+		}
 		_okButton.gameObject.SetActive(play);
 	}
 
 	#endregion
 
 	#region Private Methods
-
-	//TODO: No mola que sea este quien crea los players!!
 
 	private void CreatePlayers()
 	{
@@ -94,11 +104,12 @@ public class PlayerCreationController : MonoBehaviour
 			}
 		}
 
-		//Destroy old players
 		if (_previousPlayers.Count > 0)
 		{
 			foreach (Player player in _previousPlayers)
+			{
 				Destroy(player.Token.gameObject);
+			}
 			_previousPlayers.Clear();
 		}
 
@@ -107,34 +118,65 @@ public class PlayerCreationController : MonoBehaviour
 
 	private void StartMultiplayer()
 	{
-		//TODO: convertir esto en un metodo Activate, que entre en modo host o cliente.
-		_multiplayerPanel.gameObject.SetActive(true);
+		if (_matchModel == null)
+		{
+			Debug.LogError("Cannot start multiplayer: MatchModel not initialized");
+			return;
+		}
+
+		string currentUrl = Application.absoluteURL;
+		if (string.IsNullOrEmpty(currentUrl))
+		{
+			currentUrl = "http://localhost/multiplayer";
+		}
+
+		_matchModel.CreateMatch(currentUrl, 0, (matchData) => {
+			if (!string.IsNullOrEmpty(matchData._id))
+			{
+				Debug.Log($"Match created successfully with ID: {matchData._id}");
+				
+				string multiplayerUrl = $"{currentUrl}?match={matchData._id}&multiplayer=true";
+				Debug.Log($"Multiplayer URL: {multiplayerUrl}");
+				
+				_multiplayerPanel.gameObject.SetActive(true);
+			}
+			else
+			{
+				Debug.LogError("Failed to create match");
+			}
+		});
 	}
 
 	internal async Task<List<Player>> ShowAsync(bool multiplayer, List<Player> players = null)
 	{
 		if (players != null)
+		{
 			_previousPlayers = new List<Player>(players);
+		}
 
 		_players.Clear();
 		ShowInputPlayers();
 
 		while(gameObject.activeSelf)
+		{
 			await Task.Yield();
+		}
 
 		return _players;
-
 	}
 
 	private void ShowInputPlayers()
 	{
 		if(GameController.GameState == GameStateState.Playing)
+		{
 			LoadPlayers(_previousPlayers);
+		}
 		else
+		{
 			LoadPlayers();
+		}
 
 		EventSystem.current.SetSelectedGameObject(_playerNameInputs[0].gameObject);
-
 		gameObject.SetActive(true);
 	}
 
@@ -144,17 +186,13 @@ public class PlayerCreationController : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	/// <summary>
-	/// Load the players data from PlayerPrefs and populate the input fields.
-	/// </summary>
 	public void LoadPlayers(List<Player> previousPlayers = null)
 	{
-		//Editing
 		if (previousPlayers != null)
 		{
 			foreach (Player player in previousPlayers)
 			{
-					_playerNameInputs[player.Id].text = player.Name;
+				_playerNameInputs[player.Id].text = player.Name;
 			}
 			return;
 		}
@@ -174,9 +212,6 @@ public class PlayerCreationController : MonoBehaviour
 		}
 	}
 
-	/// <summary>
-	/// Save the players data to PlayerPrefs as JSON.
-	/// </summary>
 	private void SavePlayers()
 	{
 		List<PlayerList> players = new List<PlayerList>();
@@ -199,5 +234,4 @@ public class PlayerCreationController : MonoBehaviour
 	}
 
 	#endregion
-
 }
