@@ -4,12 +4,12 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
 using System.Text;
+using Network.Infrastructure;
 
 namespace Network.Services
 {
     public class FirebaseService : MonoBehaviour, IFirebaseService
     {
-        private const string DATABASE_URL = "https://game-of-duck-multiplayer-default-rtdb.europe-west1.firebasedatabase.app/";
         private Dictionary<string, object> _listeners = new Dictionary<string, object>();
         private bool _isInitialized = false;
 
@@ -18,7 +18,7 @@ namespace Network.Services
             if (!_isInitialized)
             {
                 _isInitialized = true;
-                Debug.Log($"Firebase service initialized with URL: {DATABASE_URL}");
+                Debug.Log($"Firebase service initialized with URL: {NetworkConstants.FIREBASE_DATABASE_URL}");
                 StartCoroutine(TestConnection());
             }
         }
@@ -73,7 +73,7 @@ namespace Network.Services
 
         private IEnumerator TestConnection()
         {
-            string testUrl = $"{DATABASE_URL}.json";
+            string testUrl = $"{NetworkConstants.FIREBASE_DATABASE_URL}.json";
             using (UnityWebRequest request = UnityWebRequest.Get(testUrl))
             {
                 yield return request.SendWebRequest();
@@ -85,13 +85,14 @@ namespace Network.Services
                 else
                 {
                     Debug.LogError($"Firebase: Connection test failed - {request.error}");
+                    Debug.LogError($"Firebase: Response Code: {request.responseCode}");
                 }
             }
         }
 
         private IEnumerator SetDataCoroutine(string path, string json, Action<bool> callback)
         {
-            string url = $"{DATABASE_URL}{path}.json";
+            string url = $"{NetworkConstants.FIREBASE_DATABASE_URL}{path}.json";
             Debug.Log($"Firebase: PUT to {url}");
             
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
@@ -127,7 +128,7 @@ namespace Network.Services
 
         private IEnumerator GetDataCoroutine<T>(string path, Action<T> callback)
         {
-            string url = $"{DATABASE_URL}{path}.json";
+            string url = $"{NetworkConstants.FIREBASE_DATABASE_URL}{path}.json";
             Debug.Log($"Firebase: GET from {url}");
             
             using (UnityWebRequest request = UnityWebRequest.Get(url))
@@ -174,7 +175,7 @@ namespace Network.Services
             while (_listeners.ContainsKey(path))
             {
                 yield return GetDataCoroutine<T>(path, callback);
-                yield return new WaitForSeconds(2f);
+                yield return new WaitForSeconds(NetworkConstants.FIREBASE_POLLING_INTERVAL);
             }
         }
 
