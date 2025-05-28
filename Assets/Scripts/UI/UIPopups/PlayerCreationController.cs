@@ -94,7 +94,7 @@ public class PlayerCreationController : MonoBehaviour
 
 	private System.Collections.IEnumerator WaitForNetworkInitialization()
 	{
-		yield return new WaitForSeconds(0.5f);
+		yield return new WaitForSeconds(NetworkConstants.NETWORK_INITIALIZATION_DELAY);
 		
 		_matchModel = NetworkInstaller.Resolve<IMatchModel>();
 		if (_matchModel == null)
@@ -161,7 +161,7 @@ public class PlayerCreationController : MonoBehaviour
 		string currentUrl = GetCurrentGameUrl();
 		Debug.Log($"PlayerCreationController: Creating match with URL: {currentUrl}");
 
-		_matchModel.CreateMatch(currentUrl, 0, (matchData) => {
+		_matchModel.CreateMatch(currentUrl, NetworkConstants.MATCH_STATE_WAITING, (matchData) => {
 			HandleMatchCreationResult(matchData, currentUrl);
 		});
 	}
@@ -190,8 +190,10 @@ public class PlayerCreationController : MonoBehaviour
 			Debug.Log($"PlayerCreationController: Match created successfully!");
 			Debug.Log($"PlayerCreationController: Match ID: {matchData._id}");
 			Debug.Log($"PlayerCreationController: Match URL: {matchData._url}");
-			Debug.Log($"PlayerCreationController: Match State: {matchData._state}");
+			Debug.Log($"PlayerCreationController: Match State: {matchData._state} ({GetMatchStateDescription(matchData._state)})");
 			Debug.Log($"PlayerCreationController: Created At: {matchData._createdAt}");
+			Debug.Log($"PlayerCreationController: Max Players: {matchData._maxPlayers}");
+			Debug.Log($"PlayerCreationController: Game Mode: {matchData._gameMode}");
 			
 			string multiplayerUrl = BuildMultiplayerUrl(originalUrl, matchData._id);
 			Debug.Log($"PlayerCreationController: Generated multiplayer URL: {multiplayerUrl}");
@@ -209,6 +211,23 @@ public class PlayerCreationController : MonoBehaviour
 		else
 		{
 			Debug.LogError("PlayerCreationController: Failed to create match - received empty match data");
+		}
+	}
+
+	private string GetMatchStateDescription(int state)
+	{
+		switch (state)
+		{
+			case NetworkConstants.MATCH_STATE_WAITING:
+				return "Waiting for players";
+			case NetworkConstants.MATCH_STATE_PLAYING:
+				return "Game in progress";
+			case NetworkConstants.MATCH_STATE_FINISHED:
+				return "Game finished";
+			case NetworkConstants.MATCH_STATE_CANCELLED:
+				return "Game cancelled";
+			default:
+				return "Unknown state";
 		}
 	}
 
