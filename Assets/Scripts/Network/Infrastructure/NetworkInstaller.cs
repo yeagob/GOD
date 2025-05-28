@@ -11,6 +11,8 @@ namespace Network.Infrastructure
     public class NetworkInstaller : MonoBehaviour
     {
         private static Dictionary<Type, object> _container = new Dictionary<Type, object>();
+        
+        [SerializeField] private FirebaseService firebaseServicePrefab;
 
         void Awake()
         {
@@ -22,7 +24,16 @@ namespace Network.Infrastructure
 
         private void InitializeServices()
         {
-            RegisterSingleton<IFirebaseService>(new FirebaseService());
+            FirebaseService firebaseService = FindObjectOfType<FirebaseService>();
+            if (firebaseService == null)
+            {
+                GameObject firebaseObj = new GameObject("FirebaseService");
+                firebaseService = firebaseObj.AddComponent<FirebaseService>();
+                DontDestroyOnLoad(firebaseObj);
+            }
+            
+            firebaseService.Initialize();
+            RegisterSingleton<IFirebaseService>(firebaseService);
         }
 
         private void InitializeRepositories()
