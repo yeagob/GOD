@@ -4,11 +4,13 @@ using UnityEngine;
 using Firebase;
 using Firebase.Database;
 using System.Threading.Tasks;
+using Network.Models;
 
 namespace Network.Services
 {
     public class FirebaseService : IFirebaseService
     {
+        private FirebaseApp _app;
         private FirebaseDatabase _database;
         private bool _isInitialized = false;
         private Dictionary<string, System.EventHandler<ValueChangedEventArgs>> _listeners = new Dictionary<string, System.EventHandler<ValueChangedEventArgs>>();
@@ -21,11 +23,18 @@ namespace Network.Services
                 
                 if (dependencyStatus == DependencyStatus.Available)
                 {
-                    var app = FirebaseApp.DefaultInstance;
-                    _database = FirebaseDatabase.DefaultInstance;
+                    FirebaseConfigData config = FirebaseConfigLoader.LoadConfig();
+                    
+                    if (string.IsNullOrEmpty(config.databaseURL))
+                    {
+                        throw new InvalidOperationException("Database URL is not configured");
+                    }
+
+                    _app = FirebaseApp.DefaultInstance;
+                    _database = FirebaseDatabase.GetInstance(_app, config.databaseURL);
                     _database.SetPersistenceEnabled(false);
                     _isInitialized = true;
-                    Debug.Log("Firebase initialized successfully");
+                    Debug.Log($"Firebase initialized successfully with URL: {config.databaseURL}");
                 }
                 else
                 {
