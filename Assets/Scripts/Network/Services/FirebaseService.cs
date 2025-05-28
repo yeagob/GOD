@@ -23,8 +23,25 @@ namespace Network.Services
                 
                 if (dependencyStatus == DependencyStatus.Available)
                 {
-                    FirebaseConfigData config = FirebaseConfigLoader.LoadConfig();
-                    
+                    InitializeWithConfig();
+                }
+                else
+                {
+                    Debug.LogError($"Could not resolve Firebase dependencies: {dependencyStatus}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Firebase initialization failed: {ex.Message}");
+            }
+        }
+        
+        private void InitializeWithConfig()
+        {
+            FirebaseConfigLoader.LoadConfigAsync(config => 
+            {
+                try
+                {
                     if (string.IsNullOrEmpty(config.databaseURL))
                     {
                         throw new InvalidOperationException("Database URL is not configured");
@@ -36,15 +53,11 @@ namespace Network.Services
                     _isInitialized = true;
                     Debug.Log($"Firebase initialized successfully with URL: {config.databaseURL}");
                 }
-                else
+                catch (Exception ex)
                 {
-                    Debug.LogError($"Could not resolve Firebase dependencies: {dependencyStatus}");
+                    Debug.LogError($"Firebase initialization with config failed: {ex.Message}");
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Firebase initialization failed: {ex.Message}");
-            }
+            });
         }
 
         public void SetData<T>(string path, T data, Action<bool> callback = null)
