@@ -1,0 +1,27 @@
+{
+  "rules": {
+    "matches": {
+      "$matchId": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.hasChildren(['_id', '_url', '_state', '_createdAt', '_maxPlayers', '_gameMode'])"
+      }
+    },
+    "player_matches": {
+      "$matchId": {
+        "$playerId": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "game_events": {
+      "$matchId": {
+        "$eventId": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    }
+  }
+}
