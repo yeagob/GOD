@@ -11,20 +11,41 @@ namespace Network.Services
     {
         private const string DATABASE_URL = "https://game-of-duck-multiplayer-default-rtdb.europe-west1.firebasedatabase.app/";
         private Dictionary<string, object> _listeners = new Dictionary<string, object>();
+        private bool _isInitialized = false;
 
         public void Initialize()
         {
-            Debug.Log("Firebase service initialized with URL: " + DATABASE_URL);
+            if (!_isInitialized)
+            {
+                _isInitialized = true;
+                Debug.Log($"Firebase service initialized with URL: {DATABASE_URL}");
+                StartCoroutine(TestConnection());
+            }
         }
 
         public void SetData<T>(string path, T data, Action<bool> callback = null)
         {
+            if (!_isInitialized)
+            {
+                Debug.LogError("Firebase service not initialized!");
+                callback?.Invoke(false);
+                return;
+            }
+
             string json = JsonUtility.ToJson(data);
+            Debug.Log($"Firebase: Setting data at {path} with JSON: {json}");
             StartCoroutine(SetDataCoroutine(path, json, callback));
         }
 
         public void GetData<T>(string path, Action<T> callback)
         {
+            if (!_isInitialized)
+            {
+                Debug.LogError("Firebase service not initialized!");
+                callback?.Invoke(default);
+                return;
+            }
+
             StartCoroutine(GetDataCoroutine<T>(path, callback));
         }
 
@@ -50,13 +71,36 @@ namespace Network.Services
             return id;
         }
 
+        private IEnumerator TestConnection()
+        {
+            string testUrl = $"{DATABASE_URL}.json";
+            using (UnityWebRequest request = UnityWebRequest.Get(testUrl))
+            {
+                yield return request.SendWebRequest();
+                
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    Debug.Log("Firebase: Connection test successful");
+                }
+                else
+                {
+                    Debug.LogError($"Firebase: Connection test failed - {request.error}");
+                }
+            }
+        }
+
         private IEnumerator SetDataCoroutine(string path, string json, Action<bool> callback)
         {
             string url = $"{DATABASE_URL}{path}.json";
+            Debug.Log($"Firebase: PUT to {url}");
             
-            using (UnityWebRequest request = UnityWebRequest.Put(url, json))
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            using (UnityWebRequest request = new UnityWebRequest(url, "PUT"))
             {
+                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Content-Type", "application/json");
+                
                 yield return request.SendWebRequest();
 
                 bool success = request.result == UnityWebRequest.Result.Success;
@@ -64,10 +108,17 @@ namespace Network.Services
                 if (success)
                 {
                     Debug.Log($"Firebase: Data set successfully at path {path}");
+                    Debug.Log($"Firebase: Response: {request.downloadHandler.text}");
                 }
                 else
                 {
-                    Debug.LogError($"Firebase: Failed to set data at {path}: {request.error}");
+                    Debug.LogError($"Firebase: Failed to set data at {path}");
+                    Debug.LogError($"Firebase: Error: {request.error}");
+                    Debug.LogError($"Firebase: Response Code: {request.responseCode}");
+                    if (request.downloadHandler != null)
+                    {
+                        Debug.LogError($"Firebase: Response: {request.downloadHandler.text}");
+                    }
                 }
                 
                 callback?.Invoke(success);
@@ -77,6 +128,7 @@ namespace Network.Services
         private IEnumerator GetDataCoroutine<T>(string path, Action<T> callback)
         {
             string url = $"{DATABASE_URL}{path}.json";
+            Debug.Log($"Firebase: GET from {url}");
             
             using (UnityWebRequest request = UnityWebRequest.Get(url))
             {
@@ -85,6 +137,7 @@ namespace Network.Services
                 if (request.result == UnityWebRequest.Result.Success)
                 {
                     string responseText = request.downloadHandler.text;
+                    Debug.Log($"Firebase: Raw response from {path}: {responseText}");
                     
                     if (!string.IsNullOrEmpty(responseText) && responseText != "null")
                     {
@@ -92,11 +145,12 @@ namespace Network.Services
                         {
                             T result = JsonUtility.FromJson<T>(responseText);
                             callback?.Invoke(result);
-                            Debug.Log($"Firebase: Data retrieved from path {path}");
+                            Debug.Log($"Firebase: Data retrieved and parsed from path {path}");
                         }
                         catch (Exception e)
                         {
                             Debug.LogError($"Firebase: Failed to parse JSON from {path}: {e.Message}");
+                            Debug.LogError($"Firebase: JSON was: {responseText}");
                             callback?.Invoke(default);
                         }
                     }
@@ -109,6 +163,7 @@ namespace Network.Services
                 else
                 {
                     Debug.LogError($"Firebase: Failed to get data from {path}: {request.error}");
+                    Debug.LogError($"Firebase: Response Code: {request.responseCode}");
                     callback?.Invoke(default);
                 }
             }
@@ -121,6 +176,11 @@ namespace Network.Services
                 yield return GetDataCoroutine<T>(path, callback);
                 yield return new WaitForSeconds(2f);
             }
+        }
+
+        private void OnDestroy()
+        {
+            _listeners.Clear();
         }
     }
 }
