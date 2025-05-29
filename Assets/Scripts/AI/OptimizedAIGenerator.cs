@@ -85,6 +85,9 @@ public class OptimizedAIGenerator
                 gameData.challenges = await GenerateChallengesAsync(request);
             }
 
+            // Generar descripción automática basada en el contenido
+            gameData.proposal = await GenerateDescription(gameData);
+
             var validationResult = await ValidateAndOptimizeContent(gameData);
             
             return new GenerationResult
@@ -107,7 +110,7 @@ public class OptimizedAIGenerator
         return new GameData
         {
             tittle = GenerateTitle(request.topic),
-            proposal = request.proposal,
+            proposal = request.proposal, // Se reemplazará con la descripción generada
             questionsCount = request.questionsCount,
             challengesCount = request.challengesCount,
             challengesTypes = request.challengeTypes ?? _defaultChallengeTypes,
@@ -132,6 +135,35 @@ public class OptimizedAIGenerator
         return ParseChallengesFromResponse(response);
     }
 
+    private async Task<string> GenerateDescription(GameData gameData)
+    {
+        if (gameData.questions.Count == 0 && gameData.challenges.Count == 0)
+        {
+            return gameData.proposal; // Fallback to original if no content
+        }
+
+        try
+        {
+            string prompt = _promptManager.CreateDescriptionGenerationPrompt(gameData);
+            string response = await _gpt.GetCompletion(prompt);
+            
+            string cleanResponse = response.Trim().Replace("\"", "");
+            
+            // Validar que la descripción no sea muy corta o genérica
+            if (cleanResponse.Length < 50 || cleanResponse.ToLower().Contains("este tablero"))
+            {
+                return $"Explora {gameData.tittle.ToLower()} a través de preguntas desafiantes y actividades prácticas que refuerzan tu aprendizaje.";
+            }
+            
+            return cleanResponse;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"Error generating description: {ex.Message}");
+            return $"Descubre y aprende sobre {gameData.tittle.ToLower()} mediante preguntas interactivas y desafíos educativos.";
+        }
+    }
+
     private async Task<(GameData gameData, string feedback, List<ContentIssue> issues)> ValidateAndOptimizeContent(GameData gameData)
     {
         var issues = _validator.ValidateContent(gameData);
@@ -142,53 +174,131 @@ public class OptimizedAIGenerator
         }
 
         var criticalIssues = issues.FindAll(i => i.severity == "Critical");
+        var highIssues = issues.FindAll(i => i.severity == "High");
         
-        if (criticalIssues.Count > 0)
+        // Intentar corregir issues críticos y de alta prioridad
+        if (criticalIssues.Count > 0 || highIssues.Count > 0)
         {
-            var fixedGameData = await FixCriticalIssues(gameData, criticalIssues);
-            return (fixedGameData, "Contenido corregido automáticamente", issues);
+            var fixedGameData = await FixCriticalAndHighIssues(gameData, criticalIssues.Count > 0 ? criticalIssues : highIssues);
+            
+            // Re-validar después de las correcciones
+            var newIssues = _validator.ValidateContent(fixedGameData);
+            string feedback = $"Contenido corregido automáticamente. Issues resueltos: {issues.Count - newIssues.Count}";
+            
+            return (fixedGameData, feedback, newIssues);
         }
 
         return (gameData, "Contenido con issues menores", issues);
     }
 
-    private async Task<GameData> FixCriticalIssues(GameData gameData, List<ContentIssue> criticalIssues)
+    private async Task<GameData> FixCriticalAndHighIssues(GameData gameData, List<ContentIssue> issuesToFix)
     {
-        foreach (var issue in criticalIssues)
+        var fixedGameData = gameData;
+        int maxRetries = 2; // Límite para evitar loops infinitos
+        
+        foreach (var issue in issuesToFix)
         {
-            if (issue.type == "Question")
+            int retryCount = 0;
+            bool fixed = false;
+            
+            while (!fixed && retryCount < maxRetries)
             {
-                var fixedQuestion = await FixQuestion(gameData.questions[issue.itemIndex], issue.description);
-                gameData.questions[issue.itemIndex] = fixedQuestion;
+                try
+                {
+                    if (issue.type == "Question" && issue.itemIndex < fixedGameData.questions.Count)
+                    {
+                        var fixedQuestion = await FixQuestion(fixedGameData.questions[issue.itemIndex], issue.description);
+                        if (fixedQuestion != null)
+                        {
+                            fixedGameData.questions[issue.itemIndex] = fixedQuestion;
+                            fixed = true;
+                        }
+                    }
+                    else if (issue.type == "Challenge" && issue.itemIndex < fixedGameData.challenges.Count)
+                    {
+                        var fixedChallenge = await FixChallenge(fixedGameData.challenges[issue.itemIndex], issue.description);
+                        if (!string.IsNullOrEmpty(fixedChallenge))
+                        {
+                            fixedGameData.challenges[issue.itemIndex] = fixedChallenge;
+                            fixed = true;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Error fixing issue: {ex.Message}");
+                }
+                
+                retryCount++;
             }
-            else if (issue.type == "Challenge")
+            
+            if (!fixed)
             {
-                var fixedChallenge = await FixChallenge(gameData.challenges[issue.itemIndex], issue.description);
-                gameData.challenges[issue.itemIndex] = fixedChallenge;
+                Debug.LogWarning($"Could not fix issue: {issue.description} for {issue.type} {issue.itemIndex}");
             }
         }
 
-        return gameData;
+        return fixedGameData;
     }
 
     private async Task<QuestionData> FixQuestion(QuestionData question, string issue)
     {
-        string prompt = _promptManager.CreateQuestionFixPrompt(question, issue);
-        string response = await _gpt.GetCompletion(prompt);
+        try
+        {
+            string prompt = _promptManager.CreateQuestionFixPrompt(question, issue);
+            string response = await _gpt.GetCompletion(prompt);
+            
+            var fixedQuestion = ParseSingleQuestionFromResponse(response);
+            
+            // Validar que la corrección sea válida
+            if (fixedQuestion != null && 
+                !string.IsNullOrEmpty(fixedQuestion.statement) && 
+                fixedQuestion.options != null && 
+                fixedQuestion.options.Length == 4 &&
+                fixedQuestion.correctId >= 0 && 
+                fixedQuestion.correctId < 4)
+            {
+                return fixedQuestion;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"Error fixing question: {ex.Message}");
+        }
         
-        return ParseSingleQuestionFromResponse(response) ?? question;
+        return question; // Fallback to original if fix fails
     }
 
     private async Task<string> FixChallenge(string challenge, string issue)
     {
-        string prompt = _promptManager.CreateChallengeFixPrompt(challenge, issue);
-        string response = await _gpt.GetCompletion(prompt);
+        try
+        {
+            string prompt = _promptManager.CreateChallengeFixPrompt(challenge, issue);
+            string response = await _gpt.GetCompletion(prompt);
+            
+            var fixedChallenge = ParseSingleChallengeFromResponse(response);
+            
+            // Validar que la corrección sea válida
+            if (!string.IsNullOrEmpty(fixedChallenge) && fixedChallenge.Length > 10)
+            {
+                return fixedChallenge;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"Error fixing challenge: {ex.Message}");
+        }
         
-        return ParseSingleChallengeFromResponse(response) ?? challenge;
+        return challenge; // Fallback to original if fix fails
     }
 
     private string GenerateTitle(string topic)
     {
+        if (string.IsNullOrEmpty(topic))
+        {
+            return "Tablero Educativo";
+        }
+        
         return $"Tablero de {topic}";
     }
 
