@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GOD.Utils;
 using UnityEngine;
 
 public class ShareService
@@ -32,11 +31,11 @@ public class ShareService
     {
         if (_urlParameterHandler.ShouldLoadFromURL)
         {
-            _popupsController.ShowShareBoardPopup(Application.absoluteURL).WrapErrors();
+            _popupsController.ShowShareBoardPopup(Application.absoluteURL);
         }
         else if (selectedIndex != -1)
         {
-            _popupsController.ShowShareBoardPopup("https://xr-dreams.com/GOD?board=" + boardNames[selectedIndex]).WrapErrors();
+            _popupsController.ShowShareBoardPopup("https://xr-dreams.com/GOD?board=" + boardNames[selectedIndex]);
         }
     }
 }
