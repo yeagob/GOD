@@ -1,11 +1,15 @@
 {
     "BoardNames": [
-      "parent",    
+      "bienestar",
+	  "monstruo",
+      "proplayer",
+      "rimas",                
       "detox",
-      "crecimiento",
+      "parent",
       "adolescencia",
       "videojuegos_actuales",
-      "circulo",
-      "placer"
+      "crecimiento",
+      "fortnite",
+      "series"
     ]
   }

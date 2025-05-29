@@ -204,6 +204,9 @@ public class EditBoardPopup : MonoBehaviour
 		_questionsToValidateText.color = Color.red;
 		_challengesToValidateText.color = Color.red;
 
+		_tittleInput.onEndEdit.AddListener(UpdateTittleData);
+		_proposalInput.onEndEdit.AddListener(UpdateProposalData);
+
 		// Set questions and challenges for the slider
 		_questionsChallengesSlider.minValue = 0;
 		_questionsChallengesSlider.maxValue = 25;
@@ -251,6 +254,17 @@ public class EditBoardPopup : MonoBehaviour
 		}
 
 		return _gameData;
+	}
+
+	private void UpdateTittleData(string data)
+	{
+		_gameData.tittle = data;
+	}
+
+	private void UpdateProposalData(string data)
+	{
+		_gameData.proposal = data;
+
 	}
 
 	public static GameData ConvertBoardDataToGameData(BoardData boardData, List<string> challengeTypes)
@@ -321,7 +335,7 @@ public class EditBoardPopup : MonoBehaviour
 
 		// Set question and challenge counts based on slider
 		newGameData.challengesCount = Mathf.RoundToInt(_questionsChallengesSlider.value);
-		newGameData.questionsCount = 25 - newGameData.challengesCount;
+		newGameData.questionsCount = (int)_questionsChallengesSlider.maxValue - newGameData.challengesCount;
 
 		//Challenges Types
 		foreach (Button challengeButton in _challengeTypesButtons)
@@ -349,7 +363,7 @@ public class EditBoardPopup : MonoBehaviour
 	private void SliderUpdated(float value)
 	{
 		_gameData.challengesCount = Mathf.RoundToInt(_questionsChallengesSlider.value);
-		_gameData.questionsCount = 25 - _gameData.challengesCount;
+		_gameData.questionsCount = (int)_questionsChallengesSlider.maxValue - _gameData.challengesCount;
 
 		_challengesCountText.text = "Desafíos: " + _gameData.challengesCount;
 		_questionsCountText.text = "Preguntas: " + _gameData.questionsCount;
@@ -508,19 +522,19 @@ public class EditBoardPopup : MonoBehaviour
 	private void ValidateQuestion()
 	{
 		// Collect the first question data
-		QuestionData question = new QuestionData
-		{
-			statement = _statementInput.text,
-			options = new string[_answersText.Length],
-			correctId = Array.FindIndex(_correctAnswerToggle, t => t.isOn)
-		};
+		//QuestionData question = new QuestionData
+		//{
+		//	statement = _statementInput.text,
+		//	options = new string[_answersText.Length],
+		//	correctId = Array.FindIndex(_correctAnswerToggle, t => t.isOn)
+		//};
 
-		for (int i = 0; i < _answersText.Length; i++)
-		{
-			question.options[i] = _answersText[i].text;
-		}
+		//for (int i = 0; i < _answersText.Length; i++)
+		//{
+		//	question.options[i] = _answersText[i].text;
+		//}
 
-		_gameData.questions[_validatedQuestionsCount] = question;
+		//_gameData.questions[_validatedQuestionsCount] = question;
 
 		_validatedQuestionsCount++;
 
@@ -581,7 +595,7 @@ public class EditBoardPopup : MonoBehaviour
 	int _validationChallengeIndex = 0;
 	private void ValidateChallenge()
 	{
-		_gameData.challenges[_validatedChallengesCount] = _challengeDescriptionInput.text;
+		//_gameData.challenges[_validatedChallengesCount] = _challengeDescriptionInput.text;
 
 		_validatedChallengesCount++;
 

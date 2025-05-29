@@ -6,6 +6,10 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System;
 using System.Linq;
+using UI.UIPopups;
+using Network.Infrastructure;
+using Network.Models;
+using Network;
 
 public class PlayerCreationController : MonoBehaviour
 {
@@ -23,15 +27,18 @@ public class PlayerCreationController : MonoBehaviour
 
 	#region Fields
 
+	[SerializeField] private MultiplayerPanel _multiplayerPanel;
 	[SerializeField] private TMP_InputField[] _playerNameInputs;
 	[SerializeField] private Image[] _playerImageColors;
 	[SerializeField] private Button _okButton;
+	[SerializeField] private Button _multiplayerButton;
 	[SerializeField] private PlayerToken _playerTokenPrefab;
 	private Color[] _playerColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.cyan, Color.black };
 	private List<Player> _players = new List<Player>();
 	private List<Player> _previousPlayers = new List<Player>();
 
-
+	private IMatchModel _matchModel;
+	private NetworkInstaller _networkInstaller;
 	private const string PLAYERS_KEY = "players";
 
 	#endregion
@@ -44,27 +51,62 @@ public class PlayerCreationController : MonoBehaviour
 		{
 			_playerImageColors[i].color = _playerColors[i];
 		}
+		
+		InitializeNetworking();
 	}
 
 	private void Start()
 	{
 		_okButton.onClick.AddListener(CreatePlayers);
+		_multiplayerButton.onClick.AddListener(StartMultiplayer);
 	}
-
 
 	private void Update()
 	{
 		bool play = false;
 		for (int i = 0; i < _playerNameInputs.Length; i++)
+		{
 			if (_playerNameInputs[i].text != "")
+			{
 				play = true;
+			}
+		}
 		_okButton.gameObject.SetActive(play);
 	}
+
 	#endregion
 
 	#region Private Methods
 
-	//TODO: No mola que sea este quien crea los players!!
+	private void InitializeNetworking()
+	{
+		_networkInstaller = FindObjectOfType<NetworkInstaller>();
+		if (_networkInstaller == null)
+		{
+			GameObject networkObj = new GameObject("NetworkInstaller");
+			_networkInstaller = networkObj.AddComponent<NetworkInstaller>();
+			DontDestroyOnLoad(networkObj);
+			Debug.Log("PlayerCreationController: Created NetworkInstaller");
+		}
+
+		StartCoroutine(WaitForNetworkInitialization());
+	}
+
+	private System.Collections.IEnumerator WaitForNetworkInitialization()
+	{
+		yield return new WaitForSeconds(NetworkConstants.NETWORK_INITIALIZATION_DELAY);
+		
+		_matchModel = NetworkInstaller.Resolve<IMatchModel>();
+		if (_matchModel == null)
+		{
+			Debug.LogError("PlayerCreationController: MatchModel not found after initialization!");
+		}
+		else
+		{
+			Debug.Log("PlayerCreationController: MatchModel successfully resolved");
+		}
+	}
+
 	private void CreatePlayers()
 	{
 		for (int i = 0; i < _playerNameInputs.Length; i++)
@@ -88,42 +130,143 @@ public class PlayerCreationController : MonoBehaviour
 			}
 		}
 
-		//Destroy old players
 		if (_previousPlayers.Count > 0)
 		{
 			foreach (Player player in _previousPlayers)
+			{
 				Destroy(player.Token.gameObject);
+			}
 			_previousPlayers.Clear();
 		}
 
 		CloseInputPlayers();
 	}
 
+	private void StartMultiplayer()
+	{
+		Debug.Log("PlayerCreationController: StartMultiplayer called");
 
-	internal async Task<List<Player>> ShowAsync(List<Player> players = null)
+		if (_matchModel == null)
+		{
+			Debug.LogError("PlayerCreationController: MatchModel not initialized, attempting to resolve again...");
+			_matchModel = NetworkInstaller.Resolve<IMatchModel>();
+			
+			if (_matchModel == null)
+			{
+				Debug.LogError("PlayerCreationController: Failed to resolve MatchModel. Cannot start multiplayer.");
+				return;
+			}
+		}
+
+		string currentUrl = GetCurrentGameUrl();
+		Debug.Log($"PlayerCreationController: Creating match with URL: {currentUrl}");
+
+		_matchModel.CreateMatch(currentUrl, NetworkConstants.MATCH_STATE_WAITING, (matchData) => {
+			HandleMatchCreationResult(matchData, currentUrl);
+		});
+	}
+
+	private string GetCurrentGameUrl()
+	{
+		string currentUrl = Application.absoluteURL;
+		
+		if (string.IsNullOrEmpty(currentUrl))
+		{
+			currentUrl = "https://gameofduckai.netlify.app/";
+			Debug.Log("PlayerCreationController: Using default URL (no absoluteURL available)");
+		}
+		else
+		{
+			Debug.Log($"PlayerCreationController: Using current URL: {currentUrl}");
+		}
+
+		return currentUrl;
+	}
+
+	private void HandleMatchCreationResult(MatchData matchData, string originalUrl)
+	{
+		if (!string.IsNullOrEmpty(matchData._id))
+		{
+			Debug.Log($"PlayerCreationController: Match created successfully!");
+			Debug.Log($"PlayerCreationController: Match ID: {matchData._id}");
+			Debug.Log($"PlayerCreationController: Match URL: {matchData._url}");
+			Debug.Log($"PlayerCreationController: Match State: {matchData._state} ({GetMatchStateDescription(matchData._state)})");
+			Debug.Log($"PlayerCreationController: Created At: {matchData._createdAt}");
+			Debug.Log($"PlayerCreationController: Max Players: {matchData._maxPlayers}");
+			Debug.Log($"PlayerCreationController: Game Mode: {matchData._gameMode}");
+			
+			string multiplayerUrl = BuildMultiplayerUrl(originalUrl, matchData._id);
+			Debug.Log($"PlayerCreationController: Generated multiplayer URL: {multiplayerUrl}");
+			
+			if (_multiplayerPanel != null)
+			{
+				_multiplayerPanel.gameObject.SetActive(true);
+				Debug.Log("PlayerCreationController: MultiplayerPanel activated");
+			}
+			else
+			{
+				Debug.LogWarning("PlayerCreationController: MultiplayerPanel is null!");
+			}
+		}
+		else
+		{
+			Debug.LogError("PlayerCreationController: Failed to create match - received empty match data");
+		}
+	}
+
+	private string GetMatchStateDescription(int state)
+	{
+		switch (state)
+		{
+			case NetworkConstants.MATCH_STATE_WAITING:
+				return "Waiting for players";
+			case NetworkConstants.MATCH_STATE_PLAYING:
+				return "Game in progress";
+			case NetworkConstants.MATCH_STATE_FINISHED:
+				return "Game finished";
+			case NetworkConstants.MATCH_STATE_CANCELLED:
+				return "Game cancelled";
+			default:
+				return "Unknown state";
+		}
+	}
+
+	private string BuildMultiplayerUrl(string baseUrl, string matchId)
+	{
+		string separator = baseUrl.Contains("?") ? "&" : "?";
+		return $"{baseUrl}{separator}match={matchId}&multiplayer=true";
+	}
+
+	internal async Task<List<Player>> ShowAsync(bool multiplayer, List<Player> players = null)
 	{
 		if (players != null)
+		{
 			_previousPlayers = new List<Player>(players);
+		}
 
 		_players.Clear();
 		ShowInputPlayers();
 
 		while(gameObject.activeSelf)
+		{
 			await Task.Yield();
+		}
 
 		return _players;
-
 	}
 
 	private void ShowInputPlayers()
 	{
 		if(GameController.GameState == GameStateState.Playing)
+		{
 			LoadPlayers(_previousPlayers);
+		}
 		else
+		{
 			LoadPlayers();
+		}
 
 		EventSystem.current.SetSelectedGameObject(_playerNameInputs[0].gameObject);
-
 		gameObject.SetActive(true);
 	}
 
@@ -133,17 +276,13 @@ public class PlayerCreationController : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	/// <summary>
-	/// Load the players data from PlayerPrefs and populate the input fields.
-	/// </summary>
 	public void LoadPlayers(List<Player> previousPlayers = null)
 	{
-		//Editing
 		if (previousPlayers != null)
 		{
 			foreach (Player player in previousPlayers)
 			{
-					_playerNameInputs[player.Id].text = player.Name;
+				_playerNameInputs[player.Id].text = player.Name;
 			}
 			return;
 		}
@@ -163,9 +302,6 @@ public class PlayerCreationController : MonoBehaviour
 		}
 	}
 
-	/// <summary>
-	/// Save the players data to PlayerPrefs as JSON.
-	/// </summary>
 	private void SavePlayers()
 	{
 		List<PlayerList> players = new List<PlayerList>();
@@ -188,5 +324,4 @@ public class PlayerCreationController : MonoBehaviour
 	}
 
 	#endregion
-
 }

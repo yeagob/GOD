@@ -1,831 +1,469 @@
 using GOD.Utils;
 using Sirenix.OdinInspector;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 
-/// <summary>
-/// Manages the game cycle and holds references to the Board and BoardController.
-/// </summary>
 public class GameController : MonoBehaviour
 {
-
-	#region Fields
-
-	[DllImport("__Internal")]
-	private static extern void GeneratePDFFromUnity(string base64Image, string name);
-
-	[SerializeField] private string _defaultBoard = "parent.json";
-
-	[Header("TEMP Elements")]
-	[SerializeField] private bool _loadDefault = false;
-	[SerializeField] private Button _saveButton;
-	[SerializeField] private Button _downloadButton;
-	[SerializeField] private Button _shareButton;
-	[SerializeField] private Camera _downloadCamera;
-	[SerializeField] private GameObject _winEffects;
-	[SerializeField] private MusicController _musicController;
-
-	[Header("Controllers")]
-	[SerializeField] private AIJsonGenerator _aiJsonGenerator;
-	[SerializeField] private DiceController _diceController;
-	[SerializeField] private BoardController _boardController;
-	[SerializeField] private GameOfDuckBoardCreator _boardCreator;
-	[SerializeField] private PopupsController _popupsController;
-	[SerializeField] private EmailSender _emailSender;
-	[SerializeField] private VolumeControl _volumeControl;
-
-	[SerializeField, ReadOnly] private TurnController _turnController;
-
-	private bool _loadFromURLParam = false;
-
-	private static GameStateState _prevGameState;
-	private static GameStateState _gameState;
-
-	private const string BOARDS_COLLECTION_FILE = "boardsCollection.json";
-
-	private List<string> _boardNames = new List<string>();
-
-	#endregion
-
-	#region Properties
-
-	public BoardController BoardController => _boardController;
-
-	public TurnController TurnController { get => _turnController; }
-
-	private Player CurrentPlayer => _turnController.CurrentPlayer;
-	private Tile CurrentTile => CurrentPlayer.CurrentTile;
-
-	public static GameStateState GameState
-	{
-		get => _gameState;
-
-		set
-		{
-			if (_prevGameState != _gameState)
-			{
-				_prevGameState = _gameState;
-			}
-
-			_gameState = value;
-		}
-	}
-
-	public event Action OnCuack;
-	public event Action OnHappy;
-
-	public event Action OnSad;
-	public event Action OnRollDices;
-	public event Action OnGameStarts;
-
-	public static bool JumpToCreateNew;
-	public static int SelectedIndex = -1;
-
-	#endregion
-
-	#region Unity Callbacks
-
-	private void Awake()
-	{
-		Debug.Log("url:" + Application.absoluteURL);
-		if (Application.absoluteURL.Contains("board"))
-			_loadFromURLParam = true;
-
-		_saveButton.onClick.AddListener(SaveBoard);
-		_shareButton.onClick.AddListener(ShareBoard);
-		_downloadButton.onClick.AddListener(DownloadBoard);
-		_downloadCamera.gameObject.SetActive(false);
-	}
-
-	private void Update()
-	{
-		_downloadButton.gameObject.SetActive(GameState == GameStateState.Playing);
-	}
-
-	private async void Start()
-	{
-		SelectedIndex = -1;
-		_saveButton.gameObject.SetActive(false);
-		_shareButton.gameObject.SetActive(false);
-
-		BoardData boardData = null;
-		GameState = GameStateState.Welcome;
-		_volumeControl.Initialize();
-		_musicController.PlayBase();
-
-		//LOAD BOARD
-		if (_loadDefault)
-		{
-			string boardJson = await LoadTextFileAsync(_defaultBoard);
-			boardData = new BoardData(boardJson);
-			//BOARD INFO
-			await _popupsController.ShowBoardInfoPopup(boardData);
-		}
-		//BOARD FROM URL PARAM
-		else if (_loadFromURLParam)
-		{
-			string boardParam = Application.absoluteURL.Split("board=")[1];
-
-			_shareButton.gameObject.SetActive(true);
-
-			if (boardParam.Contains("&"))
-				boardParam = boardParam.Split('&')[0];
-
-			boardData = await LoadBoardData(boardParam);
-
-			//BOARD INFO
-			await _popupsController.ShowBoardInfoPopup(boardData);
-		}
-		else
-		{
-			bool creating = true;
-
-			if (!JumpToCreateNew)
-			{
-				//WELCOME
-				await _popupsController.ShowWelcome();
-				OnCuack.Invoke();
-
-				creating = await _popupsController.ShowCreateOrChooseBoard();
-				OnCuack.Invoke();
-			}
-
-			if (creating)
-			{
-				JumpToCreateNew = false;
-
-				//First promt User Question
-				string promptBase = await _popupsController.ShowCreateBoardQuestionPopup();
-
-				OnCuack.Invoke();
-				//Back
-				if (promptBase == "")
-				{
-					Start();
-					return;
-				}
-
-
-				_popupsController.PatoCienciaPopup.Show("Preparando la propuesta...");
-
-				//Create First Game Data
-				_aiJsonGenerator = new AIJsonGenerator();
-				//TODO: sHOW LOADING
-				GameData gameData = await _aiJsonGenerator.CreateBaseGameData(promptBase);
-
-				_popupsController.PatoCienciaPopup.Hide();
-
-				//Creating seccond Game Data. Edit Board Mode
-				GameData boardGameData = await _popupsController.ShowEditBoardPopup(gameData);
-
-				if (boardGameData == null)
-				{
-					JumpToCreateNew = true;
-					Start();
-					return;
-				}
-
-				_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
-
-				//Creating Board
-				boardData = await _aiJsonGenerator.GetJsonBoard(boardGameData);
-
-				_popupsController.PatoCienciaPopup.Hide();
-				_saveButton.gameObject.SetActive(true);
-			}
-			//Select Board
-			else
-			{
-				List<BoardData> boards = await LoadBoardsData();
-				boardData = await _popupsController.ShowChooseBoardPopup(boards);
-
-				OnCuack.Invoke();
-
-				//Back
-				if (boardData == null)
-				{
-					Start();
-					return;
-				}
-				
-				_shareButton.gameObject.SetActive(true);
-
-			}
-
-			//ERROR CONTROL
-			if (boardData == null)
-			{
-				OnSad.Invoke();
-				await _popupsController.ShowGenericMessage("Error generando el tablero!\n Inténtalo de nuevo!", 7);
-				OnCuack.Invoke();
-				Start();
-				return;
-			}
-		}
-
-		//EDIT BOARD
-		BoardData editedBoardData = await CheckEditMode(boardData);
-		if (editedBoardData != null)
-		{
-			boardData = editedBoardData;
-			if (GameState == GameStateState.Creating)
-			{
-				GameData gameData = EditBoardPopup.ConvertBoardDataToGameData(editedBoardData, editedBoardData.challengeTypes);
-				_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
-				boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
-				_popupsController.PatoCienciaPopup.Hide();
-			}
-		}
-		else
-			GameState = GameStateState.Welcome;
-
-		//CREATE BOARD!!!
-		CreateBoard(boardData);
-
-		OnCuack.Invoke();
-
-		_boardController.OnMoveStep += Fart;
-
-		//PLAYER LIST
-		List<Player> players = await _popupsController.PlayerCreationController.ShowAsync();
-
-
-		OnCuack.Invoke();
-
-		//TURN CONTROLLER
-		_turnController = new TurnController(players, _popupsController);
-
-		//GAME LOOP!!
-		while (true)
-		{
-			StartGame(players);
-
-			await GameLoop();
-
-			//EDITING
-			BoardData boardDataEdited = await CheckEditMode(_boardController.BoardData);
-
-			if (boardDataEdited != null)
-			{
-				if (GameState == GameStateState.Creating)
-				{
-					GameData gameData = EditBoardPopup.ConvertBoardDataToGameData(boardDataEdited, boardDataEdited.challengeTypes);
-					_popupsController.PatoCienciaPopup.Show("Creando el tablero...");
-					boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
-					_popupsController.PatoCienciaPopup.Hide();
-					_boardController.ResetBoard();
-					CreateBoard(boardData);
-				}
-				else
-				{
-					_boardController.UpdateBoard(boardDataEdited);
-					GameState = GameStateState.Playing;
-				}
-				continue;
-			}
-
-			//END GAME
-			if (_gameState == GameStateState.EndGame)
-			{
-				await FinishGame();
-				break;//Restart
-			}
-
-			//Back to Main Menu
-			if (_gameState == GameStateState.Welcome)
-			{
-				_turnController.DestroyPlayerTokens();
-				break;//Restart
-			}
-		}
-
-		//Start Game flow again
-		Start();
-	}
-
-	#endregion
-
-	#region Private Methods
-
-	private void StartGame(List<Player> players)
-	{
-		_loadDefault = false;
-
-		if (GameState != GameStateState.Playing)
-		{
-			MovePlayersToInitialTile(players);
-			_musicController.PlayRock();
-			GameState = GameStateState.Playing;
-			OnGameStarts.Invoke();
-		}
-	}
-
-	private async Task GameLoop()
-	{
-		while (_gameState == GameStateState.Playing)
-		{
-			if (CurrentPlayer == null)
-				continue;
-
-			//LOST TURN
-			if (CurrentPlayer.State == PlayerState.LostTurn)
-			{
-				CurrentPlayer.State = PlayerState.Waiting;
-				_turnController.NextTurn();
-				continue;
-			}
-
-			//CHALLENGE
-			if (CurrentPlayer.State == PlayerState.OnChallenge)
-			{
-				bool completed = await _popupsController.ShowChallengePlayer(CurrentPlayer, false);
-
-				//TODO: Control de flujo de salida!
-				if (_gameState != GameStateState.Playing)
-					break;
-
-				OnCuack.Invoke();
-
-				if (completed)
-				{
-					OnHappy.Invoke();
-					_boardController.RefreshChallenge(_turnController.Players, CurrentTile);
-				}
-				else
-				{
-					OnSad.Invoke();
-					_turnController.NextTurn();
-					continue;
-				}
-			}
-
-			if (_gameState != GameStateState.Playing) break;
-
-			//SHOW PLAYER TURN
-			await _popupsController.ShowPlayerTurn(CurrentPlayer);
-
-			if (_gameState != GameStateState.Playing) break;
-
-			//Destroyed Player Control (SOLO AQUI?)
-			if (CurrentPlayer.Token == null)
-				continue;
-
-			OnCuack.Invoke();
-
-			//ON QUESTION
-			if (CurrentPlayer.State == PlayerState.OnQuestion)
-			{
-				bool play = await _popupsController.ShowQuestion(CurrentTile.TileData.question);
-
-				//TODO: Control de flujo de salida!
-				if (_gameState != GameStateState.Playing)
-					break;
-
-				if (play)
-				{
-					OnHappy.Invoke();
-				}
-				else
-				{
-					OnSad.Invoke();
-					_turnController.NextTurn();
-					continue;
-				}
-			}
-
-			if (_gameState != GameStateState.Playing) break;
-
-			CurrentPlayer.State = PlayerState.Playing;
-
-			//DICE ROLLING
-			OnRollDices.Invoke();
-			int diceValue = await _diceController.RollDice();
-			//await _popupsController.ShowPlayerDiceValue(diceValue);
-			await _popupsController.ShowGenericMessage(diceValue.ToString(), 0.7f);
-
-			if (_gameState != GameStateState.Playing) break;
-
-			//MOVE TOKEN
-			Tile targetTile = await _boardController.MoveToken(CurrentPlayer, diceValue);
-
-			if (_gameState != GameStateState.Playing) break;
-
-			//APLLY TILE EFFECT
-			bool playAgain = await ApplyTileEffect(targetTile);
-
-			if (_gameState != GameStateState.Playing) break;
-
-			if (playAgain)
-				continue;
-
-			_turnController.NextTurn();
-		}
-	}
-
-	private async Task<bool> ApplyTileEffect(Tile targetTile)
-	{
-		switch (targetTile.TileType)
-		{
-			case TileType.Challenge:
-
-				CurrentPlayer.State = PlayerState.OnChallenge;
-				await _popupsController.ShowChallengePlayer(CurrentPlayer, true);
-				OnCuack.Invoke();
-
-				return false;
-
-			case TileType.Question:
-
-				bool playAgain = await _popupsController.ShowQuestion(targetTile.TileData.question);
-
-				if (playAgain)
-				{
-					OnHappy.Invoke();
-					CurrentPlayer.State = PlayerState.PlayAgain;
-					_boardController.RefreshQuestion(CurrentTile);
-				}
-				else
-				{
-					OnSad.Invoke();
-					CurrentPlayer.State = PlayerState.OnQuestion;
-				}
-
-				return playAgain;
-
-			case TileType.TravelToTile:
-
-				_popupsController.ShowGenericMessage("De pato a pato y tiro porque...\n CUACK!!", 2, CurrentPlayer.Token.Color).WrapErrors();
-				OnHappy.Invoke();
-				await _boardController.TravelToNextTravelTile(CurrentPlayer);
-				CurrentPlayer.State = PlayerState.PlayAgain;
-
-				return true;
-
-			case TileType.Bridge:
-
-				await _popupsController.ShowGenericMessage("De puente a puente y tiro porque me lleva la corriente.", 2, CurrentPlayer.Token.Color);
-				await _boardController.TravelToBridge(CurrentPlayer);
-				OnCuack.Invoke();
-
-				return true;
-
-			case TileType.LoseTurnsUntil:
-				OnSad.Invoke();
-				await _popupsController.ShowGenericMessage("Tu patito se ha perdido!!\n Pierdes un turno.", 5, Color.gray);
-				CurrentPlayer.State = PlayerState.LostTurn;
-
-				break;
-
-			case TileType.RollDicesAgain:
-				CurrentPlayer.State = PlayerState.PlayAgain;
-				OnHappy.Invoke();
-
-				return true;
-
-			case TileType.Die:
-				OnSad.Invoke();
-				await _popupsController.ShowGenericMessage("Casilla de la muerte.\n Vuelves al principio :(", 5, Color.black);
-				OnHappy.Invoke();
-
-				await _boardController.JumptToTile(CurrentPlayer, 0);
-				CurrentPlayer.State = PlayerState.Waiting;
-
-				return false;
-
-			case TileType.End:
-				GameState = GameStateState.EndGame;
-
-				return false;
-		}
-
-		return false;
-	}
-
-	private async Task<BoardData> CheckEditMode(BoardData boardData)
-	{
-		if (_gameState == GameStateState.Editing)
-		{
-
-			_popupsController.HideAll();
-
-			boardData = await _popupsController.ShowEditBoardPopup(boardData);
-
-			if (boardData != null)
-				_saveButton.gameObject.SetActive(true);
-			else
-				GameState = GameStateState.Playing;
-
-			return boardData;
-
-		}
-
-		return null;
-	}
-
-	private async Task FinishGame()
-	{
-		_musicController.PlayDrumBass();
-		_winEffects.gameObject.SetActive(true);
-		//duck Win Effects
-		foreach (Player player in _turnController.Players)
-		{
-			if (player.CurrentTile.TileType == TileType.End)
-				player.Token.Win();
-			else
-				player.Token.Loose();
-		}
-
-		bool userInteraction = false;
-		while (!userInteraction)
-		{
-			OnHappy.Invoke();
-			userInteraction = await _popupsController.ShowGenericMessage("Ha Ganado " + CurrentPlayer.Name + "!!!", 2);
-			float time = 1;
-			while (time > 0)
-			{
-				time -= Time.deltaTime;
-				await Task.Yield();
-			}
-		}
-		_turnController.DestroyPlayerTokens();
-
-		_winEffects.gameObject.SetActive(false);
-		_musicController.PlayBase();
-
-	}
-
-	private void CreateBoard(BoardData boardData)
-	{
-		_boardController = new BoardController(boardData, _boardCreator);
-	}
-
-	//TODO: Move to Board o turn?!!
-	private void MovePlayersToInitialTile(List<Player> players)
-	{
-		foreach (Player player in players)
-		{
-			player.State = PlayerState.Waiting;
-			player.Token.ResetState();
-			_boardController.JumptToTile(player, 0).WrapErrors();
-		}
-	}
-
-	//MOVER!
-
-	private void SaveBoard()
-	{
-		ShowPublish().WrapErrors();
-	}
-
-	private async Task ShowPublish()
-	{
-		string mail = await _popupsController.ShowPublishBoardPopup();
-
-		if (mail != "")
-		{
-			_boardController.BoardData.autor = mail;
-			_emailSender.SendEmail(_boardController.BoardData);
-			await _popupsController.ShowGenericMessage("Solicitud de publicacion enviada!!");
-		}
-	}
-
-	//MOVER!
-
-	/// <summary>
-	/// Loads all BoardData from the JSON files in StreamingAssets.
-	/// </summary>
-	public async Task<List<BoardData>> LoadBoardsData()
-	{
-		List<BoardData> boards = new List<BoardData>();
-
-		// Load the board names collection
-		string boardsCollectionJson = await LoadTextFileAsync(BOARDS_COLLECTION_FILE);
-		if (string.IsNullOrEmpty(boardsCollectionJson))
-		{
-			Debug.LogError("Boards collection file is empty or could not be loaded.");
-			return boards;
-		}
-
-		// Deserialize the collection of board names
-		BoardsCollection boardsCollection = JsonUtility.FromJson<BoardsCollection>(boardsCollectionJson);
-		_boardNames.Clear();
-
-		// Load each board's data
-		foreach (string boardName in boardsCollection.BoardNames)
-		{
-			string boardJson = await LoadTextFileAsync($"{boardName}.json");
-			if (string.IsNullOrEmpty(boardJson))
-			{
-				Debug.LogError($"Failed to load board data for {boardName}");
-				continue;
-			}
-
-			BoardData boardData = JsonUtility.FromJson<BoardData>(boardJson);
-			boards.Add(boardData);
-			_boardNames.Add(boardName);
-		}
-
-		return boards;
-	}
-
-	public async Task<BoardData> LoadBoardData(string boardName)
-	{
-		// Check if the board name is provided
-		if (string.IsNullOrEmpty(boardName))
-		{
-			Debug.LogError("Board name is empty or null.");
-			return null;
-		}
-
-		// Load the specific board data
-		string boardJson = await LoadTextFileAsync($"{boardName}.json");
-
-		if (string.IsNullOrEmpty(boardJson))
-		{
-			Debug.LogError($"Failed to load board data for {boardName}");
-			return null;
-		}
-
-		// Deserialize the board data
-		BoardData boardData = JsonUtility.FromJson<BoardData>(boardJson);
-
-		return boardData;
-	}
-
-
-	[System.Serializable]
-	private class BoardsCollection
-	{
-		public List<string> BoardNames;
-	}
-	//MOVER!
-
-	private void Fart()
-	{
-		CurrentPlayer.Token.Fart();
-
-	}
-
-	//MOVER!!!
-
-	/// <summary>
-	/// Loads a text file asynchronously from StreamingAssets and returns its content.
-	/// </summary>
-	private async Task<string> LoadTextFileAsync(string fileName)
-	{
-		string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
-
-		// For WebGL, we need to access the file via UnityWebRequest
-		if (filePath.Contains("://") || filePath.Contains(":///"))
-		{
-			using (UnityWebRequest www = UnityWebRequest.Get(filePath))
-			{
-				var request = www.SendWebRequest();
-
-				// Wait until the request is done
-				while (!request.isDone)
-				{
-					await Task.Yield();
-				}
-
-				if (www.result != UnityWebRequest.Result.Success)
-				{
-					Debug.LogError("Error loading file: " + www.error);
-					return null;
-				}
-				else
-				{
-					return www.downloadHandler.text;
-				}
-			}
-		}
-		else
-		{
-			// For non-WebGL platforms, we can read directly from the file system
-			if (File.Exists(filePath))
-			{
-				return await Task.Run(() => File.ReadAllText(filePath));
-			}
-			else
-			{
-				Debug.LogError("File not found: " + filePath);
-				return null;
-			}
-		}
-	}
-
-	private void DownloadBoard()
-	{
-		StartCoroutine(DownloadBoardCorrutine());
-	}
-
-	private IEnumerator DownloadBoardCorrutine()
-	{
-		_downloadCamera.gameObject.SetActive(true);
-		_boardController.EnableTextTiles(true);
-
-		yield return null;
-
-		RenderTexture renderTexture = new RenderTexture(1920, 1080, 24);
-		_downloadCamera.targetTexture = renderTexture;
-		Texture2D screenShot = new Texture2D(1920, 1080, TextureFormat.RGB24, false);
-
-		_downloadCamera.Render();
-		RenderTexture.active = renderTexture;
-		screenShot.ReadPixels(new Rect(0, 0, 1920, 1080), 0, 0);
-		screenShot.Apply();
-
-		_downloadCamera.targetTexture = null;
-		RenderTexture.active = null;
-		Destroy(renderTexture);
-
-		byte[] bytes = screenShot.EncodeToPNG();
-		string base64Image = System.Convert.ToBase64String(bytes);
-
-		// Llamar a la función JS para generar el PDF
-		GeneratePDFFromUnity(base64Image, _boardController.BoardData.tittle);
-
-		yield return null;
-
-		_downloadCamera.gameObject.SetActive(false);
-		_boardController.EnableTextTiles(false);
-	}
-
-	private void ShareBoard()
-	{
-		if (_loadFromURLParam)
-			_popupsController.ShowShareBoardPopup(Application.absoluteURL).WrapErrors();
-		else
-			if (SelectedIndex != -1)
-				_popupsController.ShowShareBoardPopup("https://xr-dreams.com/GOD?board="+_boardNames[SelectedIndex]).WrapErrors();
-	}
-	#endregion
-
-	#region Public Methods
-	public async Task RerollGame()
-	{
-		GameState = GameStateState.Creating;
-		_popupsController.HideAll();
-		_popupsController.PatoCienciaPopup.Show("Regenerando el tablero...");
-		GameData gameData = EditBoardPopup.ConvertBoardDataToGameData(_boardController.BoardData, _boardController.BoardData.challengeTypes);
-
-		_boardController.ResetBoard();
-		BoardData boardData = await _aiJsonGenerator.GetJsonBoard(gameData);
-		CreateBoard(boardData);
-		_popupsController.PatoCienciaPopup.Hide();
-		GameState = GameStateState.Playing;
-	}
-
-	public void BackToMainMenu()
-	{
-		if (_gameState == GameStateState.Editing)
-			Debug.Log("Salir del modo edición??");
-
-		GameState = GameStateState.Welcome;
-		_popupsController.HideAll();
-		_boardController.ResetBoard();
-	}
-
-	public void RestartGame()
-	{
-		_popupsController.HideAll();
-		MovePlayersToInitialTile(_turnController.Players);
-	}
-
-	public async Task EditPlayers()
-	{
-		//PLAYER LIST
-		List<Player> players = await _popupsController.PlayerCreationController.ShowAsync(_turnController.Players);
-		_turnController.Players = players;
-
-		OnCuack.Invoke();
-	}
-
-	#endregion
-
-	#region EDITOR
-
-	[Button]
-	public async void MoveCurrentPLayer(int tileId)
-	{
-		Tile targetTile = await _boardController.JumptToTile(CurrentPlayer, tileId);
-		await ApplyTileEffect(targetTile);
-		_turnController.NextTurn();
-	}
-
-	internal void EnterEditMode()
-	{
-		GameState = GameStateState.Editing;
-		_popupsController.HideAll();
-	}
-
-	#endregion
+    #region Fields
+
+    [SerializeField] private string _defaultBoard = "parent.json";
+
+    [Header("TEMP Elements")]
+    [SerializeField] private bool _loadDefault = false;
+    [SerializeField] private Button _saveButton;
+    [SerializeField] private Button _downloadButton;
+    [SerializeField] private Button _shareButton;
+    [SerializeField] private Camera _downloadCamera;
+    [SerializeField] private GameObject _winEffects;
+    [SerializeField] private MusicController _musicController;
+
+    [Header("Controllers")]
+    [SerializeField] private DiceController _diceController;
+    [SerializeField] private GameOfDuckBoardCreator _boardCreator;
+    [SerializeField] private PopupsController _popupsController;
+    [SerializeField] private EmailSender _emailSender;
+    [SerializeField] private VolumeControl _volumeControl;
+
+    [SerializeField, ReadOnly] private TurnController _turnController;
+
+    private GameStateManager _gameStateManager;
+    private URLParameterHandler _urlParameterHandler;
+    private BoardDataService _boardDataService;
+    private ScreenshotService _screenshotService;
+    private BoardEditModeHandler _boardEditModeHandler;
+    private GameFlowController _gameFlowController;
+    private BoardCreationService _boardCreationService;
+    private ShareService _shareService;
+
+    private BoardController _boardController;
+
+    public static bool JumpToCreateNew;
+    public static int SelectedIndex = -1;
+
+    #endregion
+
+    #region Properties
+
+    public BoardController BoardController => _boardController;
+    public TurnController TurnController => _turnController;
+    private Player CurrentPlayer => _turnController?.CurrentPlayer;
+
+    public static GameStateState GameState
+    {
+        get => GameStateManager.GameState;
+        set => GameStateManager.GameState = value;
+    }
+
+    public event Action OnCuack;
+    public event Action OnHappy;
+    public event Action OnSad;
+    public event Action OnRollDices;
+    public event Action OnGameStarts;
+
+    #endregion
+
+    #region Unity Callbacks
+
+    private void Awake()
+    {
+        InitializeServices();
+        SetupUI();
+        _urlParameterHandler.LogCurrentURL();
+    }
+
+    private void Update()
+    {
+        _downloadButton.gameObject.SetActive(_gameStateManager.IsInState(GameStateState.Playing));
+    }
+
+    private async void Start()
+    {
+        await InitializeGame();
+    }
+
+    #endregion
+
+    #region Initialization
+
+    private void InitializeServices()
+    {
+        _gameStateManager = new GameStateManager();
+        _urlParameterHandler = new URLParameterHandler();
+        _boardDataService = new BoardDataService();
+        _screenshotService = gameObject.AddComponent<ScreenshotService>();
+        _screenshotService.Initialize(_downloadCamera);
+        _boardEditModeHandler = new BoardEditModeHandler(_popupsController, _gameStateManager);
+        _boardCreationService = new BoardCreationService();
+        _shareService = new ShareService(_popupsController, _emailSender, _urlParameterHandler);
+    }
+
+    private void SetupUI()
+    {
+        _saveButton.onClick.AddListener(SaveBoard);
+        _shareButton.onClick.AddListener(ShareBoard);
+        _downloadButton.onClick.AddListener(DownloadBoard);
+        _downloadCamera.gameObject.SetActive(false);
+    }
+
+    private async Task InitializeGame()
+    {
+        SelectedIndex = -1;
+        _saveButton.gameObject.SetActive(false);
+        _shareButton.gameObject.SetActive(false);
+
+        _gameStateManager.SetGameState(GameStateState.Welcome);
+        _volumeControl.Initialize();
+        _musicController.PlayBase();
+
+        BoardData boardData = await LoadInitialBoard();
+
+        if (boardData == null)
+        {
+            OnSad?.Invoke();
+            await _popupsController.ShowGenericMessage("Error generando el tablero!\\n IntÃ©ntalo de nuevo!", 7);
+            OnCuack?.Invoke();
+            Start();
+            return;
+        }
+
+        BoardData editedBoardData = await _boardEditModeHandler.HandleEditMode(boardData);
+        if (editedBoardData != null)
+        {
+            boardData = await ProcessEditedBoard(editedBoardData);
+        }
+        else
+        {
+            _gameStateManager.SetGameState(GameStateState.Welcome);
+        }
+
+        CreateBoard(boardData);
+        OnCuack?.Invoke();
+
+        _boardController.OnMoveStep += () => CurrentPlayer?.Token?.Fart();
+
+        await StartGameLoop();
+    }
+
+    #endregion
+
+    #region Board Loading
+
+    private async Task<BoardData> LoadInitialBoard()
+    {
+        if (_loadDefault)
+        {
+            BoardData boardData = await _boardDataService.LoadDefaultBoard(_defaultBoard);
+            await _popupsController.ShowBoardInfoPopup(boardData);
+            return boardData;
+        }
+        else if (_urlParameterHandler.ShouldLoadFromURL)
+        {
+            string boardParam = _urlParameterHandler.GetBoardParameter();
+            _shareButton.gameObject.SetActive(true);
+            BoardData boardData = await _boardDataService.LoadBoardData(boardParam);
+            await _popupsController.ShowBoardInfoPopup(boardData);
+            return boardData;
+        }
+        else
+        {
+            return await HandleBoardSelection();
+        }
+    }
+
+    private async Task<BoardData> HandleBoardSelection()
+    {
+        bool creating = true;
+
+        if (!JumpToCreateNew)
+        {
+            await _popupsController.ShowWelcome();
+            OnCuack?.Invoke();
+            creating = await _popupsController.ShowCreateOrChooseBoard();
+            OnCuack?.Invoke();
+        }
+
+        if (creating)
+        {
+            return await CreateNewBoard();
+        }
+        else
+        {
+            return await SelectExistingBoard();
+        }
+    }
+
+    private async Task<BoardData> CreateNewBoard()
+    {
+        JumpToCreateNew = false;
+
+        string promptBase = await _popupsController.ShowCreateBoardQuestionPopup();
+        OnCuack?.Invoke();
+
+        if (promptBase == "")
+        {
+            Start();
+            return null;
+        }
+
+        _popupsController.PatoCienciaPopup.Show("Preparando la propuesta...");
+
+        GameData gameData = await _boardCreationService.CreateBaseGameData(promptBase);
+        _popupsController.PatoCienciaPopup.Hide();
+
+        if (gameData == null)
+        {
+            await _popupsController.ShowGenericMessage("Error Creando tablero. Intentalo de nuevo!", 5);
+            JumpToCreateNew = true;
+            Start();
+            return null;
+        }
+
+        GameData initialGameData = await _popupsController.ShowEditBoardPopup(gameData);
+        _popupsController.PatoCienciaPopup.Show("Creando el tablero...");
+
+        BoardData boardData = await _boardCreationService.CreateBoardFromGamedata(initialGameData);
+        _popupsController.PatoCienciaPopup.Hide();
+        _saveButton.gameObject.SetActive(true);
+
+        return boardData;
+    }
+
+    private async Task<BoardData> SelectExistingBoard()
+    {
+        List<BoardData> boards = await _boardDataService.LoadBoardsData();
+        BoardData boardData = await _popupsController.ShowChooseBoardPopup(boards);
+        OnCuack?.Invoke();
+
+        if (boardData == null)
+        {
+            Start();
+            return null;
+        }
+
+        _shareButton.gameObject.SetActive(true);
+        return boardData;
+    }
+
+    #endregion
+
+    #region Game Flow
+
+    private async Task StartGameLoop()
+    {
+        List<Player> players = await _popupsController.PlayerCreationController.ShowAsync(false);
+        OnCuack?.Invoke();
+
+        _turnController = new TurnController(players, _popupsController);
+        InitializeGameFlowController();
+
+        while (true)
+        {
+            _gameFlowController.StartGame(players);
+            await _gameFlowController.GameLoop();
+
+            BoardData boardDataEdited = await _boardEditModeHandler.HandleEditMode(_boardController.BoardData);
+
+            if (boardDataEdited != null)
+            {
+                await ProcessEditedBoardDuringGame(boardDataEdited);
+                continue;
+            }
+
+            if (_gameStateManager.IsInState(GameStateState.EndGame))
+            {
+                await FinishGame();
+            }
+
+            if (_gameStateManager.IsInState(GameStateState.Welcome))
+            {
+                _turnController.DestroyPlayerTokens();
+                break;
+            }
+        }
+
+        Start();
+    }
+
+    private void InitializeGameFlowController()
+    {
+        _gameFlowController = new GameFlowController(
+            _boardController,
+            _diceController,
+            _popupsController,
+            _turnController,
+            _gameStateManager,
+            _emailSender,
+            _musicController);
+
+        _gameFlowController.OnCuack += () => OnCuack?.Invoke();
+        _gameFlowController.OnHappy += () => OnHappy?.Invoke();
+        _gameFlowController.OnSad += () => OnSad?.Invoke();
+        _gameFlowController.OnRollDices += () => OnRollDices?.Invoke();
+        _gameFlowController.OnGameStarts += () => OnGameStarts?.Invoke();
+    }
+
+    #endregion
+
+    #region Board Management
+
+    private async Task<BoardData> ProcessEditedBoard(BoardData editedBoardData)
+    {
+        if (_gameStateManager.IsInState(GameStateState.Creating))
+        {
+            GameData initialGameData = EditBoardPopup.ConvertBoardDataToGameData(editedBoardData, editedBoardData.challengeTypes);
+            _popupsController.PatoCienciaPopup.Show("Creando el tablero...");
+            BoardData boardData = await _boardCreationService.CreateBoardFromGamedata(initialGameData);
+            _popupsController.PatoCienciaPopup.Hide();
+            return boardData;
+        }
+        return editedBoardData;
+    }
+
+    private async Task ProcessEditedBoardDuringGame(BoardData boardDataEdited)
+    {
+        if (_gameStateManager.IsInState(GameStateState.Creating))
+        {
+            GameData initialGameData = EditBoardPopup.ConvertBoardDataToGameData(boardDataEdited, boardDataEdited.challengeTypes);
+            _popupsController.PatoCienciaPopup.Show("Creando el tablero...");
+            BoardData boardData = await _boardCreationService.CreateBoardFromGamedata(initialGameData);
+            _popupsController.PatoCienciaPopup.Hide();
+            _boardController.ResetBoard();
+            CreateBoard(boardData);
+        }
+        else
+        {
+            _boardController.UpdateBoard(boardDataEdited);
+            _gameStateManager.SetGameState(GameStateState.Playing);
+        }
+    }
+
+    private void CreateBoard(BoardData boardData)
+    {
+        _boardController = _boardCreationService.CreateBoard(boardData, _boardCreator);
+    }
+
+    #endregion
+
+    #region Game End
+
+    private async Task FinishGame()
+    {
+        _musicController.PlayDrumBass();
+        _winEffects.gameObject.SetActive(true);
+
+        foreach (Player player in _turnController.Players)
+        {
+            if (player.CurrentTile.TileType == TileType.End)
+            {
+                player.Token.Win();
+            }
+            else
+            {
+                player.Token.Loose();
+            }
+        }
+
+        bool userInteraction = false;
+        while (!userInteraction)
+        {
+            OnHappy?.Invoke();
+            userInteraction = await _popupsController.ShowGenericMessage("Ha Ganado " + CurrentPlayer.Name + "!!!", 2);
+            float time = 1;
+            while (time > 0)
+            {
+                time -= Time.deltaTime;
+                await Task.Yield();
+            }
+        }
+
+        _musicController.PlayBase();
+        _winEffects.gameObject.SetActive(false);
+        await _popupsController.ShowSettings();
+    }
+
+    #endregion
+
+    #region UI Event Handlers
+
+    private void SaveBoard()
+    {
+        _shareService.PublishBoard(_boardController.BoardData).WrapErrors();
+    }
+
+    private void DownloadBoard()
+    {
+        _screenshotService.DownloadBoard(_boardController);
+    }
+
+    private void ShareBoard()
+    {
+        _shareService.ShareBoard(_boardDataService.GetBoardNames(), SelectedIndex);
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    public async Task RerollGame()
+    {
+        _gameStateManager.SetGameState(GameStateState.Creating);
+        _popupsController.HideAll();
+
+        GameData initialGameData = EditBoardPopup.ConvertBoardDataToGameData(_boardController.BoardData, _boardController.BoardData.challengeTypes);
+        _popupsController.PatoCienciaPopup.Show("Regenerando el tablero...");
+
+        BoardData boardData = await _boardCreationService.CreateBoardFromGamedata(initialGameData);
+        _popupsController.PatoCienciaPopup.Hide();
+
+        _boardController.ResetBoard();
+        CreateBoard(boardData);
+        _gameStateManager.SetGameState(GameStateState.Playing);
+    }
+
+    public void BackToMainMenu()
+    {
+        if (_gameStateManager.IsInState(GameStateState.Editing))
+        {
+            Debug.Log("Salir del modo ediciÃ³n??");
+        }
+
+        _gameFlowController?.BackToMainMenu();
+    }
+
+    public void RestartGame()
+    {
+        _gameFlowController?.RestartGame();
+    }
+
+    public async Task EditPlayers()
+    {
+        List<Player> players = await _popupsController.PlayerCreationController.ShowAsync(false, _turnController.Players);
+        _turnController.Players = players;
+        OnCuack?.Invoke();
+    }
+
+    #endregion
+
+    #region Editor Methods
+
+    [Button]
+    public async void MoveCurrentPLayer(int tileId)
+    {
+        if (_gameFlowController != null)
+        {
+            await _gameFlowController.MoveCurrentPlayer(tileId);
+        }
+    }
+
+    internal void EnterEditMode()
+    {
+        _boardEditModeHandler.EnterEditMode();
+    }
+
+    #endregion
 }
-

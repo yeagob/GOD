@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static Michsky.DreamOS.GameHubData;
+using Random = UnityEngine.Random;
 
 /// <summary>
 /// Representa un tablero de juego que contiene tiles y gestiona su ciclo de vida.
@@ -72,7 +73,10 @@ public class BoardData
 
 	public BoardData(GameData data)
 	{
+		data.ShuffleQuestionOptions();
+
 		Debug.Log("DAta: " +JsonUtility.ToJson(data));	
+
 		int[] rollAgainIds = new int[] { 2, 10, 17, 24, 29 };
 		int[] travelToIds = new int[] { 1, 7, 13, 21, 25, 33 };
 		int[] loseTurnIds = new int[] { 6, 18, 22, 30, 27, 34 };
@@ -176,50 +180,120 @@ public class BoardData
 		// Mezclar las posiciones vacantes para aleatoriedad
 		Shuffle(availablePositions);
 
-		// Distribuir desafíos (challengesCount)
-		for (int i = 0; i < data.challengesCount && availableChallenges.Count > 0 && availablePositions.Count > 0; i++)
+		// Distribuir desafíos y preguntas de manera proporcional
+		while (availablePositions.Count > 0 && (availableChallenges.Count > 0 || availableQuestions.Count > 0))
 		{
-			int position = availablePositions[0];
-			availablePositions.RemoveAt(0);
+			int positionIndex = Random.Range(0, availablePositions.Count);
+			int position = availablePositions[positionIndex];
+			availablePositions.RemoveAt(positionIndex);
 
-			string challengeDescription = availableChallenges[0];
-			availableChallenges.RemoveAt(0);
-
-			tiles[position] = new TileData
+			if (availableChallenges.Count > 0 && availableQuestions.Count > 0)
 			{
-				id = position,
-				type = TileType.Challenge.ToString(),
-				challenge = new ChallengeData
+				int totalRemaining = availableChallenges.Count + availableQuestions.Count;
+				int randValue = Random.Range(0, totalRemaining);
+
+				if (randValue < availableChallenges.Count)
 				{
-					description = challengeDescription
-				},
-				question = null
-			};
-		}
+					// Asignar un desafío
+					string challengeDescription = availableChallenges[0];
+					availableChallenges.RemoveAt(0);
 
-		// Distribuir preguntas (questionsCount)
-		for (int i = 0; i < data.questionsCount && availableQuestions.Count > 0 && availablePositions.Count > 0; i++)
-		{
-			int position = availablePositions[0];
-			availablePositions.RemoveAt(0);
+					tiles[position] = new TileData
+					{
+						id = position,
+						type = TileType.Challenge.ToString(),
+						challenge = new ChallengeData
+						{
+							description = challengeDescription
+						},
+						question = null
+					};
+				}
+				else
+				{
+					// Asignar una pregunta
+					QuestionData question = availableQuestions[0];
+					availableQuestions.RemoveAt(0);
 
-			QuestionData question = availableQuestions[0];
-			availableQuestions.RemoveAt(0);
-
-			tiles[position] = new TileData
+					tiles[position] = new TileData
+					{
+						id = position,
+						type = TileType.Question.ToString(),
+						question = question,
+						challenge = null
+					};
+				}
+			}
+			else if (availableChallenges.Count > 0)
 			{
-				id = position,
-				type = TileType.Question.ToString(),
-				question = question,
-				challenge = null
-			};
+				// Solo quedan desafíos
+				string challengeDescription = availableChallenges[0];
+				availableChallenges.RemoveAt(0);
+
+				tiles[position] = new TileData
+				{
+					id = position,
+					type = TileType.Challenge.ToString(),
+					challenge = new ChallengeData
+					{
+						description = challengeDescription
+					},
+					question = null
+				};
+			}
+			else if (availableQuestions.Count > 0)
+			{
+				// Solo quedan preguntas
+				QuestionData question = availableQuestions[0];
+				availableQuestions.RemoveAt(0);
+
+				tiles[position] = new TileData
+				{
+					id = position,
+					type = TileType.Question.ToString(),
+					question = question,
+					challenge = null
+				};
+			}
+			else
+			{
+				// No quedan elementos para asignar
+				break;
+			}
 		}
+
+		// Fuerzo La de tipo Die que está fallando!
+		tiles[37] = new TileData
+		{
+			id = 37,
+			type = TileType.Die.ToString(),
+		};
 
 		if (availablePositions.Count > 0)
 			Debug.LogWarning("Hay casillas vacías!!");
 
 		_serializedChallenges = new List<string>(availableChallenges);
 		_serializedQuestions = new List<QuestionData>(availableQuestions);
+
+		CorrectBoardData();
+	}
+
+	public void CorrectBoardData()
+	{
+		// Aseguramos IDs consecutivos y corregimos tipos faltantes
+		bool toggleType = true;
+		for (int i = 0; i < tiles.Length; i++)
+		{
+			// Corrige el ID si no es consecutivo
+			if (tiles[i].id != i) tiles[i].id = i;
+
+			// Si no tiene tipo, asigna alternadamente entre "RollDicesAgain" y "LoseTurnsUntil"
+			if (string.IsNullOrEmpty(tiles[i].type))
+			{
+				tiles[i].type = toggleType ? "RollDicesAgain" : "LoseTurnsUntil";
+				toggleType = !toggleType;
+			}
+		}
 
 		Debug.Log("Board Data: " + JsonUtility.ToJson(this));
 	}

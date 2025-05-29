@@ -1,11 +1,4 @@
 using DG.Tweening;
-using DG.Tweening.Core;
-using DG.Tweening.Core.Enums;
-using DG.Tweening.CustomPlugins;
-using DG.Tweening.Plugins.Core;
-using DG.Tweening.Plugins.Core.PathCore;
-using DG.Tweening.Plugins.Options;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
@@ -30,6 +23,7 @@ public class PopupsController : MonoBehaviour
 	[SerializeField] private ChallengePopup _challengePopup;
 	[SerializeField] private PublishBoardPopup _publishPopup;
 	[SerializeField] private ShareBoardPopup _shareBoard;
+	[SerializeField] private SettingsController _settingsPopup;
 
 	#endregion
 
@@ -114,6 +108,11 @@ public class PopupsController : MonoBehaviour
 		await _shareBoard.ShowAsync(boardURL);
 	}
 
+	public async Task ShowSettings()
+	{
+		await _settingsPopup.ShowAsync();
+	}
+
 	public async Task<bool> ShowGenericMessage(string message, float time = 3, Color color = default)
 	{
 		bool userInteraction = false;
@@ -172,6 +171,8 @@ public class PopupsController : MonoBehaviour
 		_editBoardPopup.gameObject.SetActive(false);
 		_publishPopup.gameObject.SetActive(false);
 		_shareBoard.gameObject.SetActive(false);
+		PatoCienciaPopup.gameObject.SetActive(false);
+		_settingsPopup.gameObject.SetActive(false);
 	}
 
 	#endregion
