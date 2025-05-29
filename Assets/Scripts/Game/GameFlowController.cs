@@ -21,7 +21,7 @@ public class GameFlowController
     public event Action OnGameStarts;
 
     private Player CurrentPlayer => _turnController.CurrentPlayer;
-    private Tile CurrentTile => CurrentPlayer.CurrentTile;
+    private Tile CurrentTile => CurrentPlayer?.CurrentTile;
 
     public GameFlowController(
         BoardController boardController,
@@ -165,12 +165,10 @@ public class GameFlowController
                 break;
             }
 
-            if (playAgain)
+            if (!playAgain)
             {
-                continue;
+                _turnController.NextTurn();
             }
-
-            _turnController.NextTurn();
         }
     }
 
@@ -218,7 +216,7 @@ public class GameFlowController
                 OnSad?.Invoke();
                 await _popupsController.ShowGenericMessage("Tu patito se ha perdido!!\\n Pierdes un turno.", 5, Color.gray);
                 CurrentPlayer.State = PlayerState.LostTurn;
-                break;
+                return false;
 
             case TileType.RollDicesAgain:
                 CurrentPlayer.State = PlayerState.PlayAgain;
