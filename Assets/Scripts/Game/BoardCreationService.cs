@@ -3,46 +3,34 @@ using UnityEngine;
 
 public class BoardCreationService
 {
-    private readonly AIJsonGenerator _aiJsonGenerator;
+    private readonly OptimizedBoardCreationService _optimizedService;
     private bool _first = true;
 
     public BoardCreationService()
     {
-        _aiJsonGenerator = new AIJsonGenerator();
+        _optimizedService = new OptimizedBoardCreationService();
     }
 
     public async Task<GameData> CreateBaseGameData(string promptBase)
     {
-        return await _aiJsonGenerator.CreateBaseGameData(promptBase);
+        return await _optimizedService.CreateBaseGameData(promptBase);
     }
 
     public async Task<BoardData> CreateBoardFromGamedata(GameData initialGameData)
     {
-        string responseDataEvaluation = await _aiJsonGenerator.GetGameDataEvaluation(initialGameData);
-        GameData gameData = null;
+        var boardData = await _optimizedService.CreateBoardFromGamedata(initialGameData);
         
-        try
+        if (boardData == null && _first)
         {
-            gameData = JsonUtility.FromJson<GameData>(responseDataEvaluation);
+            _first = false;
+            return await CreateBoardFromGamedata(initialGameData);
         }
-        catch
-        {
-            if (_first)
-            {
-                _first = false;
-                return await CreateBoardFromGamedata(initialGameData);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        return new BoardData(gameData);
+        
+        return boardData;
     }
 
     public BoardController CreateBoard(BoardData boardData, GameOfDuckBoardCreator boardCreator)
     {
-        return new BoardController(boardData, boardCreator);
+        return _optimizedService.CreateBoard(boardData, boardCreator);
     }
 }
