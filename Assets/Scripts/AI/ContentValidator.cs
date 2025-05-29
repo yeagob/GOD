@@ -6,7 +6,12 @@ public class ContentValidator
 {
     private readonly List<string> _commonWrongAnswers = new List<string> 
     { 
-        "todas las anteriores", "ninguna de las anteriores", "no sé", "quizás" 
+        "todas las anteriores", "ninguna de las anteriores", "no sé", "quizás", "no lo sé", "depende"
+    };
+
+    private readonly List<string> _obviousAnswerWords = new List<string>
+    {
+        "siempre", "nunca", "todo", "nada", "todos", "nadie", "imposible", "seguro"
     };
 
     public List<ContentIssue> ValidateContent(GameData gameData)
@@ -48,7 +53,7 @@ public class ContentValidator
             
             if (HasDuplicateOptions(question.options))
             {
-                issues.Add(CreateIssue("Question", i, "Opciones duplicadas detectadas", "Medium"));
+                issues.Add(CreateIssue("Question", i, "Opciones duplicadas detectadas", "High"));
             }
             
             if (IsQuestionTooShort(question.statement))
@@ -58,12 +63,27 @@ public class ContentValidator
             
             if (HasObviousAnswer(question))
             {
-                issues.Add(CreateIssue("Question", i, "Respuesta demasiado obvia", "Medium"));
+                issues.Add(CreateIssue("Question", i, "Respuesta demasiado obvia", "High"));
             }
             
             if (HasCommonWrongAnswerPatterns(question.options))
             {
-                issues.Add(CreateIssue("Question", i, "Contiene patrones de respuesta incorrecta comunes", "Low"));
+                issues.Add(CreateIssue("Question", i, "Contiene patrones de respuesta incorrecta comunes", "Medium"));
+            }
+
+            if (HasPotentiallyIncorrectAnswer(question))
+            {
+                issues.Add(CreateIssue("Question", i, "La respuesta correcta parece incorrecta o dudosa", "Critical"));
+            }
+
+            if (AreAllAnswersSimilar(question.options))
+            {
+                issues.Add(CreateIssue("Question", i, "Todas las opciones son muy similares", "High"));
+            }
+
+            if (HasVagueOrAmbiguousOptions(question.options))
+            {
+                issues.Add(CreateIssue("Question", i, "Opciones vagas o ambiguas", "Medium"));
             }
         }
         
@@ -97,6 +117,11 @@ public class ContentValidator
             if (HasInappropriateContent(challenge))
             {
                 issues.Add(CreateIssue("Challenge", i, "Contenido potencialmente inapropiado", "High"));
+            }
+
+            if (IsChallengeVague(challenge))
+            {
+                issues.Add(CreateIssue("Challenge", i, "Desafío demasiado vago o genérico", "Medium"));
             }
         }
         
@@ -156,7 +181,38 @@ public class ContentValidator
         string correctAnswer = question.options[question.correctId].ToLower();
         string statement = question.statement.ToLower();
         
-        return statement.Contains(correctAnswer) || correctAnswer.Length < 5;
+        // Verificar si la respuesta está contenida en la pregunta
+        if (statement.Contains(correctAnswer) && correctAnswer.Length > 3)
+        {
+            return true;
+        }
+
+        // Verificar respuestas muy cortas
+        if (correctAnswer.Length < 4)
+        {
+            return true;
+        }
+
+        // Verificar palabras obvias
+        foreach (var word in _obviousAnswerWords)
+        {
+            if (correctAnswer.Contains(word))
+            {
+                return true;
+            }
+        }
+
+        // Verificar si solo una opción es diferente del resto
+        var optionLengths = question.options.Select(o => o.Length).ToList();
+        var correctLength = question.options[question.correctId].Length;
+        var otherLengths = optionLengths.Where((length, index) => index != question.correctId);
+        
+        if (correctLength > otherLengths.Max() * 2 || correctLength < otherLengths.Min() / 2)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private bool HasCommonWrongAnswerPatterns(string[] options)
@@ -164,6 +220,71 @@ public class ContentValidator
         return options.Any(option => 
             _commonWrongAnswers.Any(pattern => 
                 option.ToLower().Contains(pattern.ToLower())));
+    }
+
+    private bool HasPotentiallyIncorrectAnswer(QuestionData question)
+    {
+        string statement = question.statement.ToLower();
+        string correctAnswer = question.options[question.correctId].ToLower();
+
+        // Detectar contradicciones obvias
+        if (statement.Contains("no") && !correctAnswer.Contains("no") && correctAnswer.Contains("sí"))
+        {
+            return true;
+        }
+
+        // Detectar respuestas que contradicen la pregunta
+        var questionWords = statement.Split(' ').Where(w => w.Length > 3).ToList();
+        var answerWords = correctAnswer.Split(' ').Where(w => w.Length > 3).ToList();
+
+        var contradictions = new Dictionary<string, string[]>
+        {
+            { "mayor", new[] { "menor", "pequeño", "bajo" } },
+            { "menor", new[] { "mayor", "grande", "alto" } },
+            { "verdadero", new[] { "falso", "incorrecto" } },
+            { "falso", new[] { "verdadero", "correcto" } },
+            { "antes", new[] { "después", "posterior" } },
+            { "después", new[] { "antes", "anterior" } }
+        };
+
+        foreach (var qWord in questionWords)
+        {
+            if (contradictions.ContainsKey(qWord))
+            {
+                var contradictoryWords = contradictions[qWord];
+                if (answerWords.Any(aWord => contradictoryWords.Contains(aWord)))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private bool AreAllAnswersSimilar(string[] options)
+    {
+        if (options.Length < 2) return false;
+
+        var words = options.Select(o => o.ToLower().Split(' ')).ToList();
+        var commonWords = words[0].ToList();
+
+        foreach (var wordList in words.Skip(1))
+        {
+            commonWords = commonWords.Intersect(wordList).ToList();
+        }
+
+        // Si más del 60% de las palabras son comunes en todas las opciones
+        var averageWordsPerOption = words.Average(w => w.Length);
+        return commonWords.Count > averageWordsPerOption * 0.6;
+    }
+
+    private bool HasVagueOrAmbiguousOptions(string[] options)
+    {
+        var vagueWords = new[] { "quizás", "tal vez", "posiblemente", "probablemente", "puede ser", "depende" };
+        
+        return options.Any(option => 
+            vagueWords.Any(vague => option.ToLower().Contains(vague)));
     }
 
     private bool IsChallengeTooBrief(string challenge)
@@ -185,5 +306,14 @@ public class ContentValidator
         
         return inappropriateWords.Any(word => 
             challenge.ToLower().Contains(word.ToLower()));
+    }
+
+    private bool IsChallengeVague(string challenge)
+    {
+        var vagueWords = new[] { "algo", "cualquier", "haz algo", "piensa en", "reflexiona sobre" };
+        var challengeLower = challenge.ToLower();
+        
+        return vagueWords.Any(vague => challengeLower.Contains(vague)) ||
+               challenge.Split(' ').Length < 6;
     }
 }
