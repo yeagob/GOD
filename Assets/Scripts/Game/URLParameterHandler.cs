@@ -38,9 +38,5 @@ public class URLParameterHandler
 
         return matchParam;
     }
-
-    public void LogCurrentURL()
-    {
-        Debug.Log("url:" + Application.absoluteURL);
-    }
+    
 }

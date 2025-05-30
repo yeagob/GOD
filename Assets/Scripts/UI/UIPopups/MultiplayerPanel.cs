@@ -67,6 +67,8 @@ namespace UI.UIPopups
             }
             else
             {
+                Debug.Log($"Debug Multiplayer: Set as host. Creating match.");
+
                 CreateNewMatch();
             }
         }
