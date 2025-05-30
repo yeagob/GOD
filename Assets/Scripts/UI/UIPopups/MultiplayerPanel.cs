@@ -20,12 +20,24 @@ namespace UI.UIPopups
 
         public void Initialize()
         {
+            InitializeURLHandler();
             InitializeNetworkServices();
+            
             if (_playerPanel != null)
             {
                 StartCoroutine(FocusPlayerInput());
                 SetupPlayerInput();
                 HandleMatchFlow();
+            }
+        }
+
+        private void InitializeURLHandler()
+        {
+            _urlParameterHandler = new URLParameterHandler();
+            
+            if (_urlParameterHandler.IsMultiplayerMode)
+            {
+                _currentMatchId = _urlParameterHandler.GetMatchParameter();
             }
         }
 
@@ -63,8 +75,8 @@ namespace UI.UIPopups
 
             _currentMatchId = System.Guid.NewGuid().ToString();
             
-            //JERRY!
-            string url = $"baseurl + board parameter(boardname) + match parameter {_currentMatchId}";
+            string boardName = _urlParameterHandler.GetBoardParameter();
+            string url = $"{Application.absoluteURL.Split('?')[0]}?board={boardName}&match={_currentMatchId}";
             
             MatchData newMatch = new MatchData(
                 _currentMatchId,
@@ -89,7 +101,7 @@ namespace UI.UIPopups
         {
             if (success)
             {
-                Debug.Log("Match created successfully");
+                Debug.Log($"Match created successfully with ID: {_currentMatchId}");
             }
             else
             {
@@ -154,7 +166,6 @@ namespace UI.UIPopups
                 return;
             }
 
-            
             PlayerMatchData playerMatchData = new PlayerMatchData(
                 "",
                 playerName,
