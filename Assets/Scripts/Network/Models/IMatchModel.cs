@@ -7,8 +7,8 @@ namespace Network.Models
     {
         LocalMatchState CurrentMatchState { get; }
         
-        void CreateMatch(string url, int state, Action<MatchData> callback = null);
-        void UpdateMatchState(string matchId, int newState, Action<bool> callback = null);
+        void CreateMatch(string url, MatchState state, Action<MatchData> callback = null);
+        void UpdateMatchState(string matchId, MatchState newState, Action<bool> callback = null);
         void GetMatch(string matchId, Action<MatchData> callback);
         void ListenForMatchChanges(string matchId, Action<MatchData> callback);
         void StopListeningForMatch(string matchId);
