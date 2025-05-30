@@ -23,7 +23,6 @@ namespace Network.Repositories
             _firebaseService.SetData(path, gameEventData, result => {
                 if (result)
                 {
-                    // Indexamos por partido y jugador para consultas rápidas
                     string matchIndexPath = $"{MATCH_INDEX}/{gameEventData._matchId}/{gameEventData._id}";
                     _firebaseService.SetData(matchIndexPath, true, matchIndexResult => {
                         if (matchIndexResult)
@@ -48,33 +47,18 @@ namespace Network.Repositories
 
         public void GetGameEventsByMatchId(string matchId, Action<List<GameEventData>> callback)
         {
-            // En una implementación real, aquí se obtendría la lista de IDs de eventos
-            // asociados al matchId desde el índice, y luego se recuperaría cada uno individualmente
-            
-            // Para este ejemplo, simplemente devolvemos una lista vacía
-            Debug.Log($"Getting events for match {matchId}");
             callback?.Invoke(new List<GameEventData>());
         }
 
         public void GetGameEventsByPlayerId(string playerId, Action<List<GameEventData>> callback)
         {
-            // En una implementación real, aquí se obtendría la lista de IDs de eventos
-            // asociados al playerId desde el índice, y luego se recuperaría cada uno individualmente
-            
-            // Para este ejemplo, simplemente devolvemos una lista vacía
-            Debug.Log($"Getting events for player {playerId}");
             callback?.Invoke(new List<GameEventData>());
         }
 
         public void ListenForMatchEvents(string matchId, Action<List<GameEventData>> callback)
         {
-            // En una implementación real, aquí escucharíamos cambios en los índices de eventos
-            // por partido y actualizaríamos la lista completa cuando hubiera cambios
-            
             string path = $"{MATCH_INDEX}/{matchId}";
-            Debug.Log($"Listening for events in match {matchId}");
             
-            // Para este ejemplo, simulamos que no hay eventos
             callback?.Invoke(new List<GameEventData>());
         }
 
