@@ -31,6 +31,11 @@ public class GameController : MonoBehaviour
     [SerializeField] private EmailSender _emailSender;
     [SerializeField] private VolumeControl _volumeControl;
 
+    [Header("Debug Multiplayer")]
+    [SerializeField] private bool _debugMultiplayerMode = false;
+    [SerializeField] private string _debugMatchId = "";
+    [SerializeField] private string _debugBoardName = "parent.json";
+
     [SerializeField, ReadOnly] private TurnController _turnController;
 
     private GameStateManager _gameStateManager;
@@ -148,7 +153,7 @@ public class GameController : MonoBehaviour
             return;
         }
 
-        if (_urlParameterHandler.IsMultiplayerMode)
+        if (IsMultiplayerMode())
         {
             await HandleMultiplayerFlow(boardData);
             return;
@@ -176,12 +181,35 @@ public class GameController : MonoBehaviour
 
     #region Multiplayer Flow
 
+    private bool IsMultiplayerMode()
+    {
+        return _debugMultiplayerMode || _urlParameterHandler.IsMultiplayerMode;
+    }
+
+    private string GetMatchId()
+    {
+        if (_debugMultiplayerMode && !string.IsNullOrEmpty(_debugMatchId))
+        {
+            return _debugMatchId;
+        }
+        return _urlParameterHandler.GetMatchParameter();
+    }
+
+    private string GetBoardName()
+    {
+        if (_debugMultiplayerMode && !string.IsNullOrEmpty(_debugBoardName))
+        {
+            return _debugBoardName;
+        }
+        return _urlParameterHandler.GetBoardParameter();
+    }
+
     private async Task HandleMultiplayerFlow(BoardData boardData)
     {
         CreateBoard(boardData);
         OnCuack?.Invoke();
 
-        string matchId = _urlParameterHandler.GetMatchParameter();
+        string matchId = GetMatchId();
         
         if (_matchModel != null && !string.IsNullOrEmpty(matchId))
         {
@@ -189,6 +217,7 @@ public class GameController : MonoBehaviour
             if (existingMatch._id != null)
             {
                 _matchModel.SetAsClient(existingMatch);
+                Debug.Log($"Debug Multiplayer: Set as client for match {matchId}");
             }
         }
 
@@ -218,9 +247,9 @@ public class GameController : MonoBehaviour
             await _popupsController.ShowBoardInfoPopup(boardData);
             return boardData;
         }
-        else if (_urlParameterHandler.ShouldLoadFromURL)
+        else if (_urlParameterHandler.ShouldLoadFromURL || _debugMultiplayerMode)
         {
-            string boardParam = _urlParameterHandler.GetBoardParameter();
+            string boardParam = GetBoardName();
             _shareButton.gameObject.SetActive(true);
             BoardData boardData = await _boardDataService.LoadBoardData(boardParam);
             await _popupsController.ShowBoardInfoPopup(boardData);
