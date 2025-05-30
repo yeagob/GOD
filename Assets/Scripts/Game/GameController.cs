@@ -8,7 +8,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Network.Models;
 using Network.Infrastructure;
-using UI.UIPopups;
 
 public class GameController : MonoBehaviour
 {
@@ -31,9 +30,6 @@ public class GameController : MonoBehaviour
     [SerializeField] private PopupsController _popupsController;
     [SerializeField] private EmailSender _emailSender;
     [SerializeField] private VolumeControl _volumeControl;
-
-    [Header("Multiplayer")]
-    [SerializeField] private MultiplayerPanel _multiplayerPanel;
 
     [SerializeField, ReadOnly] private TurnController _turnController;
 
@@ -196,7 +192,7 @@ public class GameController : MonoBehaviour
             }
         }
 
-        await ShowMultiplayerPanel();
+        _popupsController.ShowMultiplayerPanel();
     }
 
     private async Task<MatchData> GetMatchDataAsync(string matchId)
@@ -208,19 +204,6 @@ public class GameController : MonoBehaviour
         });
 
         return await tcs.Task;
-    }
-
-    private async Task ShowMultiplayerPanel()
-    {
-        if (_multiplayerPanel != null)
-        {
-            _multiplayerPanel.gameObject.SetActive(true);
-            _multiplayerPanel.Initialize();
-        }
-        else
-        {
-            Debug.LogError("MultiplayerPanel not assigned in GameController");
-        }
     }
 
     #endregion
