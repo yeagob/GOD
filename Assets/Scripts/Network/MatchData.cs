@@ -33,9 +33,43 @@ namespace Network
             _gameMode = gameMode;
         }
 
-        public bool IsWaiting => _state == NetworkConstants.MATCH_STATE_WAITING;
-        public bool IsPlaying => _state == NetworkConstants.MATCH_STATE_PLAYING;
-        public bool IsFinished => _state == NetworkConstants.MATCH_STATE_FINISHED;
+        public bool IsWaitingForPlayers => _state == NetworkConstants.MATCH_STATE_WAITING_FOR_PLAYERS;
+        public bool IsPlayingGame => _state == NetworkConstants.MATCH_STATE_PLAY_GAME;
+        public bool IsEndGame => _state == NetworkConstants.MATCH_STATE_END_GAME;
         public bool IsCancelled => _state == NetworkConstants.MATCH_STATE_CANCELLED;
+        public bool IsEmpty => string.IsNullOrEmpty(_id);
+    }
+
+    public struct LocalMatchState
+    {
+        public MatchData CurrentMatch { get; private set; }
+        public bool IsHost { get; private set; }
+        public bool IsInMatch => !CurrentMatch.IsEmpty;
+
+        public LocalMatchState(MatchData matchData, bool isHost)
+        {
+            CurrentMatch = matchData;
+            IsHost = isHost;
+        }
+
+        public static LocalMatchState CreateHostState(MatchData matchData)
+        {
+            return new LocalMatchState(matchData, true);
+        }
+
+        public static LocalMatchState CreateClientState(MatchData matchData)
+        {
+            return new LocalMatchState(matchData, false);
+        }
+
+        public static LocalMatchState CreateEmptyState()
+        {
+            return new LocalMatchState(default, false);
+        }
+
+        public void UpdateMatchData(MatchData newMatchData)
+        {
+            CurrentMatch = newMatchData;
+        }
     }
 }
