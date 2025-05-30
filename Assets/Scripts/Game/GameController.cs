@@ -6,6 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using Network.Models;
+using Network.Infrastructure;
+using UI.UIPopups;
 
 public class GameController : MonoBehaviour
 {
@@ -29,6 +32,9 @@ public class GameController : MonoBehaviour
     [SerializeField] private EmailSender _emailSender;
     [SerializeField] private VolumeControl _volumeControl;
 
+    [Header("Multiplayer")]
+    [SerializeField] private MultiplayerPanel _multiplayerPanel;
+
     [SerializeField, ReadOnly] private TurnController _turnController;
 
     private GameStateManager _gameStateManager;
@@ -39,6 +45,7 @@ public class GameController : MonoBehaviour
     private GameFlowController _gameFlowController;
     private BoardCreationService _boardCreationService;
     private ShareService _shareService;
+    private IMatchModel _matchModel;
 
     private BoardController _boardController;
 
@@ -100,6 +107,20 @@ public class GameController : MonoBehaviour
         _boardEditModeHandler = new BoardEditModeHandler(_popupsController, _gameStateManager);
         _boardCreationService = new BoardCreationService();
         _shareService = new ShareService(_popupsController, _emailSender, _urlParameterHandler);
+
+        InitializeMultiplayerServices();
+    }
+
+    private void InitializeMultiplayerServices()
+    {
+        try
+        {
+            _matchModel = NetworkInstaller.Resolve<IMatchModel>();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"Network services not available: {ex.Message}");
+        }
     }
 
     private void SetupUI()
@@ -131,6 +152,12 @@ public class GameController : MonoBehaviour
             return;
         }
 
+        if (_urlParameterHandler.IsMultiplayerMode)
+        {
+            await HandleMultiplayerFlow(boardData);
+            return;
+        }
+
         BoardData editedBoardData = await _boardEditModeHandler.HandleEditMode(boardData);
         if (editedBoardData != null)
         {
@@ -147,6 +174,53 @@ public class GameController : MonoBehaviour
         _boardController.OnMoveStep += () => CurrentPlayer?.Token?.Fart();
 
         await StartGameLoop();
+    }
+
+    #endregion
+
+    #region Multiplayer Flow
+
+    private async Task HandleMultiplayerFlow(BoardData boardData)
+    {
+        CreateBoard(boardData);
+        OnCuack?.Invoke();
+
+        string matchId = _urlParameterHandler.GetMatchParameter();
+        
+        if (_matchModel != null && !string.IsNullOrEmpty(matchId))
+        {
+            MatchData existingMatch = await GetMatchDataAsync(matchId);
+            if (existingMatch._id != null)
+            {
+                _matchModel.SetAsClient(existingMatch);
+            }
+        }
+
+        await ShowMultiplayerPanel();
+    }
+
+    private async Task<MatchData> GetMatchDataAsync(string matchId)
+    {
+        TaskCompletionSource<MatchData> tcs = new TaskCompletionSource<MatchData>();
+        
+        _matchModel.GetMatch(matchId, matchData => {
+            tcs.SetResult(matchData);
+        });
+
+        return await tcs.Task;
+    }
+
+    private async Task ShowMultiplayerPanel()
+    {
+        if (_multiplayerPanel != null)
+        {
+            _multiplayerPanel.gameObject.SetActive(true);
+            _multiplayerPanel.Initialize();
+        }
+        else
+        {
+            Debug.LogError("MultiplayerPanel not assigned in GameController");
+        }
     }
 
     #endregion
