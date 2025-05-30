@@ -221,7 +221,7 @@ public class GameController : MonoBehaviour
             }
         }
 
-        _popupsController.ShowMultiplayerPanel();
+        _popupsController.ShowMultiplayerPanel(matchId);
     }
 
     private async Task<MatchData> GetMatchDataAsync(string matchId)
