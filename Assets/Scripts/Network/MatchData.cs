@@ -13,30 +13,31 @@ namespace Network
         public int _maxPlayers;
         public string _gameMode;
 
-        public MatchData(string id, string url, int state)
+        public MatchData(string id, string url, MatchState state)
         {
             _id = id;
             _url = url;
-            _state = state;
+            _state = (int)state;
             _createdAt = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
             _maxPlayers = NetworkConstants.DEFAULT_MAX_PLAYERS;
             _gameMode = NetworkConstants.DEFAULT_GAME_MODE;
         }
 
-        public MatchData(string id, string url, int state, int maxPlayers, string gameMode)
+        public MatchData(string id, string url, MatchState state, int maxPlayers, string gameMode)
         {
             _id = id;
             _url = url;
-            _state = state;
+            _state = (int)state;
             _createdAt = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
             _maxPlayers = maxPlayers;
             _gameMode = gameMode;
         }
 
-        public bool IsWaitingForPlayers => _state == NetworkConstants.MATCH_STATE_WAITING_FOR_PLAYERS;
-        public bool IsPlayingGame => _state == NetworkConstants.MATCH_STATE_PLAY_GAME;
-        public bool IsEndGame => _state == NetworkConstants.MATCH_STATE_END_GAME;
-        public bool IsCancelled => _state == NetworkConstants.MATCH_STATE_CANCELLED;
+        public MatchState State => (MatchState)_state;
+        public bool IsWaitingForPlayers => State == MatchState.WaitingForPlayers;
+        public bool IsPlayingGame => State == MatchState.PlayGame;
+        public bool IsEndGame => State == MatchState.EndGame;
+        public bool IsCancelled => State == MatchState.Cancelled;
         public bool IsEmpty => string.IsNullOrEmpty(_id);
     }
 
