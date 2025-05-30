@@ -5,7 +5,7 @@ namespace Network.Models
 {
     public interface IMatchModel
     {
-        MatchState CurrentMatchState { get; }
+        LocalMatchState CurrentMatchState { get; }
         
         void CreateMatch(string url, int state, Action<MatchData> callback = null);
         void UpdateMatchState(string matchId, int newState, Action<bool> callback = null);
@@ -13,8 +13,9 @@ namespace Network.Models
         void ListenForMatchChanges(string matchId, Action<MatchData> callback);
         void StopListeningForMatch(string matchId);
         
-        void SetAsHost(string matchId);
-        void SetAsClient(string matchId);
+        void SetAsHost(MatchData matchData);
+        void SetAsClient(MatchData matchData);
+        void UpdateLocalMatch(MatchData matchData);
         void ClearMatchState();
         bool IsCurrentlyInMatch();
         bool IsHost();
