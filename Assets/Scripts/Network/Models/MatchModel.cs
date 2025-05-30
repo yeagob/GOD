@@ -7,10 +7,14 @@ namespace Network.Models
     public class MatchModel : IMatchModel
     {
         private readonly IMatchRepository _matchRepository;
+        private MatchState _currentMatchState;
+
+        public MatchState CurrentMatchState => _currentMatchState;
 
         public MatchModel(IMatchRepository matchRepository)
         {
             _matchRepository = matchRepository;
+            _currentMatchState = MatchState.CreateEmptyState();
         }
 
         public void CreateMatch(string url, int state, Action<MatchData> callback = null)
@@ -21,6 +25,7 @@ namespace Network.Models
             _matchRepository.CreateMatch(matchData, success => {
                 if (success)
                 {
+                    SetAsHost(matchId);
                     callback?.Invoke(matchData);
                 }
                 else
@@ -62,6 +67,31 @@ namespace Network.Models
         public void StopListeningForMatch(string matchId)
         {
             _matchRepository.StopListeningForMatch(matchId);
+        }
+
+        public void SetAsHost(string matchId)
+        {
+            _currentMatchState = MatchState.CreateHostState(matchId);
+        }
+
+        public void SetAsClient(string matchId)
+        {
+            _currentMatchState = MatchState.CreateClientState(matchId);
+        }
+
+        public void ClearMatchState()
+        {
+            _currentMatchState = MatchState.CreateEmptyState();
+        }
+
+        public bool IsCurrentlyInMatch()
+        {
+            return _currentMatchState.IsInMatch;
+        }
+
+        public bool IsHost()
+        {
+            return _currentMatchState.IsHost;
         }
     }
 }
