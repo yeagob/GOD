@@ -117,12 +117,12 @@ public class PopupsController : MonoBehaviour
 		await _settingsPopup.ShowAsync();
 	}
 
-	public void ShowMultiplayerPanel()
+	public void ShowMultiplayerPanel(string matchId = null)
 	{
 		if (_multiplayerPanel != null)
 		{
 			_multiplayerPanel.gameObject.SetActive(true);
-			_multiplayerPanel.Initialize();
+			_multiplayerPanel.Initialize(matchId);
 		}
 	}
 
