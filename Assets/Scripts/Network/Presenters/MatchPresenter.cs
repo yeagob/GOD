@@ -10,7 +10,6 @@ namespace Network.Presenters
         private readonly IPlayerMatchModel _playerMatchModel;
         private readonly IGameEventModel _gameEventModel;
         
-        // Estados del partido
         public const int MATCH_STATE_WAITING = 0;
         public const int MATCH_STATE_PLAYING = 1;
         public const int MATCH_STATE_FINISHED = 2;
@@ -23,6 +22,18 @@ namespace Network.Presenters
             _matchModel = matchModel;
             _playerMatchModel = playerMatchModel;
             _gameEventModel = gameEventModel;
+        }
+
+        public void CreateMatch(MatchData matchData, Action<bool> callback = null)
+        {
+            _matchModel.CreateMatch(matchData, result => {
+                callback?.Invoke(!string.IsNullOrEmpty(result._id));
+            });
+        }
+
+        public void GetMatch(string matchId, Action<MatchData> callback)
+        {
+            _matchModel.GetMatch(matchId, callback);
         }
 
         public void CreateNewMatch(string url, Action<MatchData> callback = null)
