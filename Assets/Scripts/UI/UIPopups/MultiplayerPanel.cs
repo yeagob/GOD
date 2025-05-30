@@ -204,9 +204,9 @@ namespace UI.UIPopups
 
             Debug.Log($"PlayerMatchData created: playerId='{playerMatchData._playerId}', name='{playerMatchData._playerName}', matchId='{playerMatchData._matchId}', score={playerMatchData._score}");
 
-            _localPlayerId = _playerMatchPresenter.JoinMatch(playerMatchData, OnPlayerCreated);
+            string returnedId = _playerMatchPresenter.JoinMatch(playerMatchData, OnPlayerCreated);
             
-            Debug.Log($"JoinMatch called, returned playerId: '{_localPlayerId}'");
+            Debug.Log($"JoinMatch called, returned playerId: '{returnedId}' (Note: This will likely be null due to async nature)");
         }
 
         private void OnPlayerCreated(bool success)
@@ -215,7 +215,7 @@ namespace UI.UIPopups
             
             if (success)
             {
-                Debug.Log($"Player successfully joined match with ID: {_localPlayerId}");
+                Debug.Log("Player successfully joined match");
                 if (_playerPanel?.NameInputField != null)
                 {
                     _playerPanel.NameInputField.onSubmit.RemoveListener(OnPlayerNameSubmit);
@@ -224,6 +224,7 @@ namespace UI.UIPopups
             else
             {
                 Debug.LogError("Failed to join match - check Firebase connection and match existence");
+                Debug.LogError("Possible causes: Match doesn't exist, Firebase rules, network issues");
             }
         }
 
