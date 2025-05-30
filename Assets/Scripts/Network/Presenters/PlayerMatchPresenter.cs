@@ -30,6 +30,21 @@ namespace Network.Presenters
             });
         }
 
+        public void JoinMatch(PlayerMatchData playerMatchData, Action<bool> callback = null)
+        {
+            _matchModel.GetMatch(playerMatchData._matchId, match => {
+                if (string.IsNullOrEmpty(match._id))
+                {
+                    callback?.Invoke(false);
+                    return;
+                }
+                
+                _playerMatchModel.CreatePlayerMatch(playerMatchData._name, playerMatchData._matchId, result => {
+                    callback?.Invoke(!string.IsNullOrEmpty(result._id));
+                });
+            });
+        }
+
         public void UpdateScore(string playerMatchId, int scoreChange, Action<bool> callback = null)
         {
             _playerMatchModel.GetPlayerMatch(playerMatchId, player => {
