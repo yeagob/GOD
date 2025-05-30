@@ -1,11 +1,14 @@
+using System;
+
 namespace Network
 {
-    public readonly struct PlayerMatchData
+    [Serializable]
+    public struct PlayerMatchData
     {
-        public readonly string _id;
-        public readonly string _name;
-        public readonly string _matchId;
-        public readonly int _tile;
+        public string _id;
+        public string _name;
+        public string _matchId;
+        public int _tile;
 
         public PlayerMatchData(string id, string name, string matchId, int tile)
         {

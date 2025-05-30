@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Network.Infrastructure;
 using Network.Models;
 
 namespace Network.Presenters
@@ -26,7 +27,7 @@ namespace Network.Presenters
 
         public void CreateMatch(MatchData matchData, Action<bool> callback = null)
         {
-            _matchModel.CreateMatch(matchData, result => {
+            _matchModel.CreateMatch(matchData._id, matchData._url, (MatchState)matchData._state, result => {
                 callback?.Invoke(!string.IsNullOrEmpty(result._id));
             });
         }
@@ -56,12 +57,12 @@ namespace Network.Presenters
 
         public void StartMatch(string matchId, Action<bool> callback = null)
         {
-            _matchModel.UpdateMatchState(matchId, MATCH_STATE_PLAYING, callback);
+            _matchModel.UpdateMatchState(matchId, MatchState.PlayGame, callback);
         }
 
         public void EndMatch(string matchId, Action<bool> callback = null)
         {
-            _matchModel.UpdateMatchState(matchId, MATCH_STATE_FINISHED, callback);
+            _matchModel.UpdateMatchState(matchId, MatchState.EndGame, callback);
         }
 
         public void GetCurrentMatchState(string matchId, Action<MatchData, List<PlayerMatchData>, List<GameEventData>> callback)

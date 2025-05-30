@@ -16,6 +16,7 @@ namespace UI.UIPopups
         private IPlayerMatchPresenter _playerMatchPresenter;
         private IMatchPresenter _matchPresenter;
         private string _currentMatchId;
+        private string _localPlayerId;
 
         public void Initialize()
         {
@@ -60,12 +61,14 @@ namespace UI.UIPopups
                 return;
             }
 
-            string id = System.Guid.NewGuid().ToString();
-            string url = $"baseurl + board parameter + match parameter {id}";
+            _currentMatchId = System.Guid.NewGuid().ToString();
+            
+            //JERRY!
+            string url = $"baseurl + board parameter(boardname) + match parameter {_currentMatchId}";
             
             MatchData newMatch = new MatchData(
+                _currentMatchId,
                 url,
-                id,
                 MatchState.WaitingForPlayers
             );
 
@@ -151,14 +154,15 @@ namespace UI.UIPopups
                 return;
             }
 
+            
             PlayerMatchData playerMatchData = new PlayerMatchData(
-                System.Guid.NewGuid().ToString(),
+                "",
                 playerName,
                 _currentMatchId,
                 0
             );
 
-            _playerMatchPresenter.JoinMatch(playerMatchData, OnPlayerCreated);
+            _localPlayerId = _playerMatchPresenter.JoinMatch(playerMatchData, OnPlayerCreated);
         }
 
         private void OnPlayerCreated(bool success)
@@ -166,6 +170,10 @@ namespace UI.UIPopups
             if (success)
             {
                 Debug.Log("Player successfully joined match");
+                if (_playerPanel?.NameInputField != null)
+                {
+                    _playerPanel.NameInputField.onSubmit.RemoveListener(OnPlayerNameSubmit);
+                }
             }
             else
             {

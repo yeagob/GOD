@@ -5571,6 +5571,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e11b36da827c2e46898fb03b4000c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  firebaseServicePrefab: {fileID: 0}
 --- !u!4 &340528738
 Transform:
   m_ObjectHideFlags: 0
@@ -30359,28 +30360,7 @@ MonoBehaviour:
   _downloadCamera: {fileID: 108085299}
   _winEffects: {fileID: 685978521}
   _musicController: {fileID: 1424854856}
-  _aiJsonGenerator:
-    _defaultChallengeTypes:
-    - Escribir
-    - Dibujar
-    - Decir
-    - Hacer
-    - Usando el Movil...
-    - Bailar
-    - Actuar
   _diceController: {fileID: 1116584185}
-  _boardController:
-    _boardData:
-      tittle: 
-      proposal: 
-      autor: 
-      imageURL: 
-      questionsCount: 0
-      challengesCount: 0
-      tiles: []
-      challengeTypes: []
-      _serializedQuestions: []
-      _serializedChallenges: []
   _boardCreator: {fileID: 1230041688}
   _popupsController: {fileID: 1247727802}
   _emailSender: {fileID: 1783539862}

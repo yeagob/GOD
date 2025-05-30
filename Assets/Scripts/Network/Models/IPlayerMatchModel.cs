@@ -5,13 +5,22 @@ namespace Network.Models
 {
     public interface IPlayerMatchModel
     {
-        void CreatePlayerMatch(string name, string matchId, Action<PlayerMatchData> callback = null);
-        void UpdatePlayerScore(string playerMatchId, int newScore, Action<bool> callback = null);
-        void GetPlayerMatch(string playerMatchId, Action<PlayerMatchData> callback);
-        void GetPlayersByMatch(string matchId, Action<List<PlayerMatchData>> callback);
-        void ListenForPlayerMatchChanges(string playerMatchId, Action<PlayerMatchData> callback);
-        void ListenForMatchPlayersChanges(string matchId, Action<List<PlayerMatchData>> callback);
-        void StopListeningForPlayerMatch(string playerMatchId);
-        void StopListeningForMatchPlayers(string matchId);
+        public string CreatePlayerMatch(string name, string matchId, Action<bool> callback = null);
+        
+        public string CreatePlayerMatch(string name, string matchId, Action<PlayerMatchData> callback = null);
+
+        public void UpdatePlayerScore(string playerMatchId, int newScore, Action<bool> callback = null);
+
+        public void GetPlayerMatch(string playerMatchId, Action<PlayerMatchData> callback);
+
+        public void GetPlayersByMatch(string matchId, Action<List<PlayerMatchData>> callback);
+
+        public void ListenForPlayerMatchChanges(string playerMatchId, Action<PlayerMatchData> callback);
+
+        public void ListenForMatchPlayersChanges(string matchId, Action<List<PlayerMatchData>> callback);
+
+        public void StopListeningForPlayerMatch(string playerMatchId);
+
+        public void StopListeningForMatchPlayers(string matchId);
     }
 }

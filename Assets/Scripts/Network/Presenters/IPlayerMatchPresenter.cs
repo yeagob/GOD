@@ -5,8 +5,7 @@ namespace Network.Presenters
 {
     public interface IPlayerMatchPresenter
     {
-        void JoinMatch(string matchId, string playerName, Action<PlayerMatchData> callback = null);
-        void JoinMatch(PlayerMatchData playerMatchData, Action<bool> callback = null);
+        string JoinMatch(PlayerMatchData playerMatchData, Action<bool> callback = null);
         void UpdateScore(string playerMatchId, int scoreChange, Action<bool> callback = null);
         void GetPlayerInfo(string playerMatchId, Action<PlayerMatchData> callback);
         void GetMatchPlayers(string matchId, Action<List<PlayerMatchData>> callback);
