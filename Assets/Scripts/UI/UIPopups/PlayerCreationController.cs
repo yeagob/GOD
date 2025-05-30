@@ -196,12 +196,12 @@ public class PlayerCreationController : MonoBehaviour
 			Debug.Log($"PlayerCreationController: Game Mode: {matchData._gameMode}");
 			
 			string multiplayerUrl = BuildMultiplayerUrl(originalUrl, matchData._id);
+			
 			Debug.Log($"PlayerCreationController: Generated multiplayer URL: {multiplayerUrl}");
 			
 			if (_multiplayerPanel != null)
 			{
-				_multiplayerPanel.gameObject.SetActive(true);
-				Debug.Log("PlayerCreationController: MultiplayerPanel activated");
+				_multiplayerPanel.Initialice(matchData, multiplayerUrl);
 			}
 			else
 			{

@@ -11,14 +11,19 @@ namespace UI.UIPopups
     public class MultiplayerPanel : MonoBehaviour
     {
         [SerializeField] private PlayerPanel _playerPanel;
-        
-        private URLParameterHandler _urlParameterHandler;
+
         private IPlayerMatchPresenter _playerMatchPresenter;
+        
+        private IMatchPresenter _matchPresenter;
 
         private void Awake()
         {
-            _urlParameterHandler = new URLParameterHandler();
             InitializeNetworkServices();
+        }
+
+        public void Initialice(IMatchPresenter matchPresenter, string multiplayerUrl)
+        {
+            _matchPresenter = matchPresenter;
         }
 
         private void OnEnable()
@@ -80,7 +85,8 @@ namespace UI.UIPopups
 
         private void CreatePlayerInFirebase(string playerName)
         {
-            string matchId = _urlParameterHandler.GetMatchParameter();
+            //JERRY:crea esto!
+            string matchId = _matchPresenter.GetCurrentMatchId();
             
             if (string.IsNullOrEmpty(matchId))
             {
