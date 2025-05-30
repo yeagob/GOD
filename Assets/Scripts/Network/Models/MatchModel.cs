@@ -18,10 +18,10 @@ namespace Network.Models
             _currentMatchState = LocalMatchState.CreateEmptyState();
         }
 
-        public void CreateMatch(string url, int state, Action<MatchData> callback = null)
+        public void CreateMatch(string url, MatchState state, Action<MatchData> callback = null)
         {
             string matchId = _matchRepository.GenerateMatchId();
-            MatchData matchData = new MatchData(matchId, url, NetworkConstants.MATCH_STATE_WAITING_FOR_PLAYERS);
+            MatchData matchData = new MatchData(matchId, url, MatchState.WaitingForPlayers);
             
             _matchRepository.CreateMatch(matchData, success => {
                 if (success)
@@ -36,7 +36,7 @@ namespace Network.Models
             });
         }
 
-        public void UpdateMatchState(string matchId, int newState, Action<bool> callback = null)
+        public void UpdateMatchState(string matchId, MatchState newState, Action<bool> callback = null)
         {
             _matchRepository.GetMatch(matchId, existingMatch => {
                 if (string.IsNullOrEmpty(existingMatch._id))
