@@ -82,7 +82,6 @@ public class GameController : MonoBehaviour
     {
         InitializeServices();
         SetupUI();
-        _urlParameterHandler.LogCurrentURL();
     }
 
     private void Update()

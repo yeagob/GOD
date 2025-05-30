@@ -22,7 +22,6 @@ namespace Network.Repositories
             _firebaseService.SetData(path, playerMatchData, result => {
                 if (result)
                 {
-                    // También indexamos por match para consultas más rápidas
                     string indexPath = $"{MATCH_INDEX}/{playerMatchData._matchId}/{playerMatchData._id}";
                     _firebaseService.SetData(indexPath, true, indexResult => {
                         callback?.Invoke(indexResult);
@@ -48,11 +47,6 @@ namespace Network.Repositories
 
         public void GetPlayerMatchesByMatchId(string matchId, Action<List<PlayerMatchData>> callback)
         {
-            // En una implementación real, aquí se obtendría la lista de IDs de PlayerMatch
-            // asociados al matchId desde el índice, y luego se recuperaría cada uno individualmente
-            
-            // Para este ejemplo, simplemente devolvemos una lista vacía
-            Debug.Log($"Getting players for match {matchId}");
             callback?.Invoke(new List<PlayerMatchData>());
         }
 
@@ -64,13 +58,8 @@ namespace Network.Repositories
 
         public void ListenForMatchPlayerChanges(string matchId, Action<List<PlayerMatchData>> callback)
         {
-            // En una implementación real, aquí escucharíamos cambios en los índices de jugadores
-            // por partido y actualizaríamos la lista completa cuando hubiera cambios
-            
             string path = $"{MATCH_INDEX}/{matchId}";
-            Debug.Log($"Listening for player changes in match {matchId}");
             
-            // Para este ejemplo, simulamos que no hay jugadores
             callback?.Invoke(new List<PlayerMatchData>());
         }
 

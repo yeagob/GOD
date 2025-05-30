@@ -27,8 +27,6 @@ namespace UI.UIPopups
             _currentMatchId = matchId;
             _isClientMode = !string.IsNullOrEmpty(matchId);
             
-            Debug.Log($"MultiplayerPanel.Initialize: matchId={matchId}, isClient={_isClientMode}");
-            
             if (_playerPanel != null)
             {
                 StartCoroutine(FocusPlayerInput());
@@ -54,7 +52,6 @@ namespace UI.UIPopups
             {
                 _playerMatchPresenter = NetworkInstaller.Resolve<IPlayerMatchPresenter>();
                 _matchPresenter = NetworkInstaller.Resolve<IMatchPresenter>();
-                Debug.Log("MultiplayerPanel: Network services initialized successfully");
             }
             catch (Exception ex)
             {
@@ -66,12 +63,12 @@ namespace UI.UIPopups
         {
             if (_isClientMode)
             {
-                Debug.Log($"MultiplayerPanel: Client mode - joining match {_currentMatchId}");
                 JoinExistingMatch();
             }
             else
             {
-                Debug.Log("MultiplayerPanel: Host mode - creating new match");
+                Debug.Log($"Debug Multiplayer: Set as host. Creating match.");
+
                 CreateNewMatch();
             }
         }
@@ -85,12 +82,9 @@ namespace UI.UIPopups
             }
 
             _currentMatchId = System.Guid.NewGuid().ToString();
-            Debug.Log($"MultiplayerPanel: Generated new match ID: {_currentMatchId}");
             
             string boardName = _urlParameterHandler.GetBoardParameter();
             string url = $"{Application.absoluteURL.Split('?')[0]}?board={boardName}&match={_currentMatchId}";
-            
-            Debug.Log($"MultiplayerPanel: Creating match with URL: {url}");
             
             MatchData newMatch = new MatchData(
                 _currentMatchId,
@@ -109,17 +103,12 @@ namespace UI.UIPopups
                 return;
             }
             
-            Debug.Log($"MultiplayerPanel: Attempting to join match: {_currentMatchId}");
             _matchPresenter.GetMatch(_currentMatchId, OnMatchRetrieved);
         }
 
         private void OnMatchCreated(bool success)
         {
-            if (success)
-            {
-                Debug.Log($"Match created successfully with ID: {_currentMatchId}");
-            }
-            else
+            if (!success)
             {
                 Debug.LogError("Failed to create match");
             }
@@ -129,7 +118,6 @@ namespace UI.UIPopups
         {
             if (matchData._id != null)
             {
-                Debug.Log($"Joined existing match: {matchData._id}");
                 _currentMatchId = matchData._id;
             }
             else
@@ -173,8 +161,6 @@ namespace UI.UIPopups
 
         private void OnPlayerNameSubmit(string playerName)
         {
-            Debug.Log($"MultiplayerPanel: Player name submitted: '{playerName}', matchId: '{_currentMatchId}'");
-            
             if (!string.IsNullOrEmpty(playerName.Trim()) && !string.IsNullOrEmpty(_currentMatchId))
             {
                 CreatePlayerInMatch(playerName.Trim());
@@ -193,8 +179,6 @@ namespace UI.UIPopups
                 return;
             }
 
-            Debug.Log($"MultiplayerPanel: Creating player '{playerName}' in match '{_currentMatchId}'");
-
             PlayerMatchData playerMatchData = new PlayerMatchData(
                 "",
                 playerName,
@@ -202,20 +186,13 @@ namespace UI.UIPopups
                 0
             );
 
-            Debug.Log($"PlayerMatchData created: playerId='{playerMatchData._playerId}', name='{playerMatchData._playerName}', matchId='{playerMatchData._matchId}', score={playerMatchData._score}");
-
             string returnedId = _playerMatchPresenter.JoinMatch(playerMatchData, OnPlayerCreated);
-            
-            Debug.Log($"JoinMatch called, returned playerId: '{returnedId}' (Note: This will likely be null due to async nature)");
         }
 
         private void OnPlayerCreated(bool success)
         {
-            Debug.Log($"MultiplayerPanel: OnPlayerCreated callback - success: {success}");
-            
             if (success)
             {
-                Debug.Log("Player successfully joined match");
                 if (_playerPanel?.NameInputField != null)
                 {
                     _playerPanel.NameInputField.onSubmit.RemoveListener(OnPlayerNameSubmit);

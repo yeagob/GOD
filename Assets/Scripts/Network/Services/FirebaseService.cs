@@ -18,7 +18,6 @@ namespace Network.Services
             if (!_isInitialized)
             {
                 _isInitialized = true;
-                Debug.Log($"Firebase service initialized with URL: {NetworkConstants.FIREBASE_DATABASE_URL}");
                 StartCoroutine(TestConnection());
             }
         }
@@ -33,7 +32,6 @@ namespace Network.Services
             }
 
             string json = JsonUtility.ToJson(data);
-            Debug.Log($"Firebase: Setting data at {path} with JSON: {json}");
             StartCoroutine(SetDataCoroutine(path, json, callback));
         }
 
@@ -60,14 +58,12 @@ namespace Network.Services
             if (_listeners.ContainsKey(path))
             {
                 _listeners.Remove(path);
-                Debug.Log($"Firebase: Stopped listening at path {path}");
             }
         }
 
         public string GenerateId(string path)
         {
             string id = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-            Debug.Log($"Firebase: Generated ID {id} for path {path}");
             return id;
         }
 
@@ -78,11 +74,7 @@ namespace Network.Services
             {
                 yield return request.SendWebRequest();
                 
-                if (request.result == UnityWebRequest.Result.Success)
-                {
-                    Debug.Log("Firebase: Connection test successful");
-                }
-                else
+                if (request.result != UnityWebRequest.Result.Success)
                 {
                     Debug.LogError($"Firebase: Connection test failed - {request.error}");
                     Debug.LogError($"Firebase: Response Code: {request.responseCode}");
@@ -93,7 +85,6 @@ namespace Network.Services
         private IEnumerator SetDataCoroutine(string path, string json, Action<bool> callback)
         {
             string url = $"{NetworkConstants.FIREBASE_DATABASE_URL}{path}.json";
-            Debug.Log($"Firebase: PUT to {url}");
             
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
             using (UnityWebRequest request = new UnityWebRequest(url, "PUT"))
@@ -106,12 +97,7 @@ namespace Network.Services
 
                 bool success = request.result == UnityWebRequest.Result.Success;
                 
-                if (success)
-                {
-                    Debug.Log($"Firebase: Data set successfully at path {path}");
-                    Debug.Log($"Firebase: Response: {request.downloadHandler.text}");
-                }
-                else
+                if (!success)
                 {
                     Debug.LogError($"Firebase: Failed to set data at {path}");
                     Debug.LogError($"Firebase: Error: {request.error}");
@@ -129,7 +115,6 @@ namespace Network.Services
         private IEnumerator GetDataCoroutine<T>(string path, Action<T> callback)
         {
             string url = $"{NetworkConstants.FIREBASE_DATABASE_URL}{path}.json";
-            Debug.Log($"Firebase: GET from {url}");
             
             using (UnityWebRequest request = UnityWebRequest.Get(url))
             {
@@ -138,7 +123,6 @@ namespace Network.Services
                 if (request.result == UnityWebRequest.Result.Success)
                 {
                     string responseText = request.downloadHandler.text;
-                    Debug.Log($"Firebase: Raw response from {path}: {responseText}");
                     
                     if (!string.IsNullOrEmpty(responseText) && responseText != "null")
                     {
@@ -146,7 +130,6 @@ namespace Network.Services
                         {
                             T result = JsonUtility.FromJson<T>(responseText);
                             callback?.Invoke(result);
-                            Debug.Log($"Firebase: Data retrieved and parsed from path {path}");
                         }
                         catch (Exception e)
                         {
@@ -157,7 +140,6 @@ namespace Network.Services
                     }
                     else
                     {
-                        Debug.Log($"Firebase: No data found at path {path}");
                         callback?.Invoke(default);
                     }
                 }
