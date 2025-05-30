@@ -221,7 +221,7 @@ public class GameController : MonoBehaviour
             }
         }
 
-        _popupsController.ShowMultiplayerPanel();
+        _popupsController.ShowMultiplayerPanel(matchId);
     }
 
     private async Task<MatchData> GetMatchDataAsync(string matchId)
@@ -244,7 +244,10 @@ public class GameController : MonoBehaviour
         if (_loadDefault)
         {
             BoardData boardData = await _boardDataService.LoadDefaultBoard(_defaultBoard);
-            await _popupsController.ShowBoardInfoPopup(boardData);
+            if (!IsMultiplayerMode())
+            {
+                await _popupsController.ShowBoardInfoPopup(boardData);
+            }
             return boardData;
         }
         else if (_urlParameterHandler.ShouldLoadFromURL || _debugMultiplayerMode)
@@ -252,7 +255,10 @@ public class GameController : MonoBehaviour
             string boardParam = GetBoardName();
             _shareButton.gameObject.SetActive(true);
             BoardData boardData = await _boardDataService.LoadBoardData(boardParam);
-            await _popupsController.ShowBoardInfoPopup(boardData);
+            if (!IsMultiplayerMode())
+            {
+                await _popupsController.ShowBoardInfoPopup(boardData);
+            }
             return boardData;
         }
         else
