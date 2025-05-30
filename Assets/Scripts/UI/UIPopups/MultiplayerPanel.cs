@@ -27,6 +27,8 @@ namespace UI.UIPopups
             _currentMatchId = matchId;
             _isClientMode = !string.IsNullOrEmpty(matchId);
             
+            Debug.Log($"MultiplayerPanel.Initialize: matchId={matchId}, isClient={_isClientMode}");
+            
             if (_playerPanel != null)
             {
                 StartCoroutine(FocusPlayerInput());
@@ -52,6 +54,7 @@ namespace UI.UIPopups
             {
                 _playerMatchPresenter = NetworkInstaller.Resolve<IPlayerMatchPresenter>();
                 _matchPresenter = NetworkInstaller.Resolve<IMatchPresenter>();
+                Debug.Log("MultiplayerPanel: Network services initialized successfully");
             }
             catch (Exception ex)
             {
@@ -77,13 +80,17 @@ namespace UI.UIPopups
         {
             if (_matchPresenter == null)
             {
+                Debug.LogError("MatchPresenter is null, cannot create match");
                 return;
             }
 
             _currentMatchId = System.Guid.NewGuid().ToString();
+            Debug.Log($"MultiplayerPanel: Generated new match ID: {_currentMatchId}");
             
             string boardName = _urlParameterHandler.GetBoardParameter();
             string url = $"{Application.absoluteURL.Split('?')[0]}?board={boardName}&match={_currentMatchId}";
+            
+            Debug.Log($"MultiplayerPanel: Creating match with URL: {url}");
             
             MatchData newMatch = new MatchData(
                 _currentMatchId,
@@ -98,9 +105,11 @@ namespace UI.UIPopups
         {
             if (_matchPresenter == null)
             {
+                Debug.LogError("MatchPresenter is null, cannot join match");
                 return;
             }
             
+            Debug.Log($"MultiplayerPanel: Attempting to join match: {_currentMatchId}");
             _matchPresenter.GetMatch(_currentMatchId, OnMatchRetrieved);
         }
 
@@ -125,7 +134,8 @@ namespace UI.UIPopups
             }
             else
             {
-                Debug.LogError("Failed to retrieve match data");
+                Debug.LogError("Failed to retrieve match data - received null or invalid match data");
+                Debug.LogError($"MatchData details: id={matchData._id}, url={matchData._url}, state={matchData._state}");
             }
         }
 
@@ -135,6 +145,10 @@ namespace UI.UIPopups
             {
                 _playerPanel.NameInputField.onSubmit.AddListener(OnPlayerNameSubmit);
                 SetDefaultPlayerName();
+            }
+            else
+            {
+                Debug.LogError("PlayerPanel or NameInputField is null");
             }
         }
 
@@ -159,9 +173,15 @@ namespace UI.UIPopups
 
         private void OnPlayerNameSubmit(string playerName)
         {
+            Debug.Log($"MultiplayerPanel: Player name submitted: '{playerName}', matchId: '{_currentMatchId}'");
+            
             if (!string.IsNullOrEmpty(playerName.Trim()) && !string.IsNullOrEmpty(_currentMatchId))
             {
                 CreatePlayerInMatch(playerName.Trim());
+            }
+            else
+            {
+                Debug.LogError($"Invalid input - playerName: '{playerName}', matchId: '{_currentMatchId}'");
             }
         }
 
@@ -173,6 +193,8 @@ namespace UI.UIPopups
                 return;
             }
 
+            Debug.Log($"MultiplayerPanel: Creating player '{playerName}' in match '{_currentMatchId}'");
+
             PlayerMatchData playerMatchData = new PlayerMatchData(
                 "",
                 playerName,
@@ -180,14 +202,20 @@ namespace UI.UIPopups
                 0
             );
 
+            Debug.Log($"PlayerMatchData created: playerId='{playerMatchData._playerId}', name='{playerMatchData._playerName}', matchId='{playerMatchData._matchId}', score={playerMatchData._score}");
+
             _localPlayerId = _playerMatchPresenter.JoinMatch(playerMatchData, OnPlayerCreated);
+            
+            Debug.Log($"JoinMatch called, returned playerId: '{_localPlayerId}'");
         }
 
         private void OnPlayerCreated(bool success)
         {
+            Debug.Log($"MultiplayerPanel: OnPlayerCreated callback - success: {success}");
+            
             if (success)
             {
-                Debug.Log("Player successfully joined match");
+                Debug.Log($"Player successfully joined match with ID: {_localPlayerId}");
                 if (_playerPanel?.NameInputField != null)
                 {
                     _playerPanel.NameInputField.onSubmit.RemoveListener(OnPlayerNameSubmit);
@@ -195,7 +223,7 @@ namespace UI.UIPopups
             }
             else
             {
-                Debug.LogError("Failed to join match");
+                Debug.LogError("Failed to join match - check Firebase connection and match existence");
             }
         }
 
