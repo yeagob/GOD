@@ -109,15 +109,12 @@ namespace UI.UIPopups
                 return;
             }
 
-            PlayerMatchData playerMatchData = new PlayerMatchData
-            {
-                _id = System.Guid.NewGuid().ToString(),
-                _playerId = System.Guid.NewGuid().ToString(),
-                _matchId = matchId,
-                _playerName = playerName,
-                _playerStatus = PlayerMatchStatus.Waiting,
-                _joinedAt = System.DateTime.UtcNow
-            };
+            PlayerMatchData playerMatchData = new PlayerMatchData(
+                System.Guid.NewGuid().ToString(),
+                playerName,
+                matchId,
+                0
+            );
 
             _playerMatchPresenter.JoinMatch(playerMatchData, OnPlayerCreated);
         }
