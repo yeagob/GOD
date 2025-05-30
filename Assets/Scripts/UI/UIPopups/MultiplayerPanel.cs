@@ -17,11 +17,15 @@ namespace UI.UIPopups
         private IMatchPresenter _matchPresenter;
         private string _currentMatchId;
         private string _localPlayerId;
+        private bool _isClientMode;
 
-        public void Initialize()
+        public void Initialize(string matchId = null)
         {
             InitializeURLHandler();
             InitializeNetworkServices();
+            
+            _currentMatchId = matchId;
+            _isClientMode = !string.IsNullOrEmpty(matchId);
             
             if (_playerPanel != null)
             {
@@ -35,9 +39,10 @@ namespace UI.UIPopups
         {
             _urlParameterHandler = new URLParameterHandler();
             
-            if (_urlParameterHandler.IsMultiplayerMode)
+            if (_urlParameterHandler.IsMultiplayerMode && string.IsNullOrEmpty(_currentMatchId))
             {
                 _currentMatchId = _urlParameterHandler.GetMatchParameter();
+                _isClientMode = !string.IsNullOrEmpty(_currentMatchId);
             }
         }
 
@@ -56,12 +61,14 @@ namespace UI.UIPopups
 
         private void HandleMatchFlow()
         {
-            if (!string.IsNullOrEmpty(_currentMatchId))
+            if (_isClientMode)
             {
+                Debug.Log($"MultiplayerPanel: Client mode - joining match {_currentMatchId}");
                 JoinExistingMatch();
             }
             else
             {
+                Debug.Log("MultiplayerPanel: Host mode - creating new match");
                 CreateNewMatch();
             }
         }
