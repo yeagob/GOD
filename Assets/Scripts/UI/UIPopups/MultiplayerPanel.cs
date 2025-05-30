@@ -11,19 +11,16 @@ namespace UI.UIPopups
     public class MultiplayerPanel : MonoBehaviour
     {
         [SerializeField] private PlayerPanel _playerPanel;
-
-        private IPlayerMatchPresenter _playerMatchPresenter;
         
+        private URLParameterHandler _urlParameterHandler;
+        private IPlayerMatchPresenter _playerMatchPresenter;
         private IMatchPresenter _matchPresenter;
+        private string _currentMatchId;
 
         private void Awake()
         {
+            _urlParameterHandler = new URLParameterHandler();
             InitializeNetworkServices();
-        }
-
-        public void Initialice(IMatchPresenter matchPresenter, string multiplayerUrl)
-        {
-            _matchPresenter = matchPresenter;
         }
 
         private void OnEnable()
@@ -32,6 +29,7 @@ namespace UI.UIPopups
             {
                 StartCoroutine(FocusPlayerInput());
                 SetupPlayerInput();
+                HandleMatchFlow();
             }
         }
 
@@ -40,10 +38,73 @@ namespace UI.UIPopups
             try
             {
                 _playerMatchPresenter = NetworkInstaller.Resolve<IPlayerMatchPresenter>();
+                _matchPresenter = NetworkInstaller.Resolve<IMatchPresenter>();
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to resolve PlayerMatchPresenter: {ex.Message}");
+                Debug.LogError($"Failed to resolve Network presenters: {ex.Message}");
+            }
+        }
+
+        private void HandleMatchFlow()
+        {
+            _currentMatchId = _urlParameterHandler.GetMatchParameter();
+            
+            if (!string.IsNullOrEmpty(_currentMatchId))
+            {
+                JoinExistingMatch();
+            }
+            else
+            {
+                CreateNewMatch();
+            }
+        }
+
+        private void CreateNewMatch()
+        {
+            if (_matchPresenter == null) return;
+
+            MatchData newMatch = new MatchData(
+                System.Guid.NewGuid().ToString(),
+                System.DateTime.UtcNow,
+                System.DateTime.UtcNow,
+                MatchStatus.Waiting,
+                4,
+                "duck_game"
+            );
+
+            _matchPresenter.CreateMatch(newMatch, OnMatchCreated);
+        }
+
+        private void JoinExistingMatch()
+        {
+            if (_matchPresenter == null) return;
+            
+            _matchPresenter.GetMatch(_currentMatchId, OnMatchRetrieved);
+        }
+
+        private void OnMatchCreated(bool success)
+        {
+            if (success)
+            {
+                Debug.Log("Match created successfully");
+            }
+            else
+            {
+                Debug.LogError("Failed to create match");
+            }
+        }
+
+        private void OnMatchRetrieved(MatchData matchData)
+        {
+            if (matchData._id != null)
+            {
+                Debug.Log($"Joined existing match: {matchData._id}");
+                _currentMatchId = matchData._id;
+            }
+            else
+            {
+                Debug.LogError("Failed to retrieve match data");
             }
         }
 
@@ -77,23 +138,14 @@ namespace UI.UIPopups
 
         private void OnPlayerNameSubmit(string playerName)
         {
-            if (!string.IsNullOrEmpty(playerName.Trim()))
+            if (!string.IsNullOrEmpty(playerName.Trim()) && !string.IsNullOrEmpty(_currentMatchId))
             {
-                CreatePlayerInFirebase(playerName.Trim());
+                CreatePlayerInMatch(playerName.Trim());
             }
         }
 
-        private void CreatePlayerInFirebase(string playerName)
+        private void CreatePlayerInMatch(string playerName)
         {
-            //JERRY:crea esto!
-            string matchId = _matchPresenter.GetCurrentMatchId();
-            
-            if (string.IsNullOrEmpty(matchId))
-            {
-                Debug.LogError("No match ID found in URL parameters");
-                return;
-            }
-
             if (_playerMatchPresenter == null)
             {
                 Debug.LogError("PlayerMatchPresenter not available");
@@ -103,7 +155,7 @@ namespace UI.UIPopups
             PlayerMatchData playerMatchData = new PlayerMatchData(
                 System.Guid.NewGuid().ToString(),
                 playerName,
-                matchId,
+                _currentMatchId,
                 0
             );
 
@@ -114,11 +166,11 @@ namespace UI.UIPopups
         {
             if (success)
             {
-                Debug.Log("Player successfully created in Firebase");
+                Debug.Log("Player successfully joined match");
             }
             else
             {
-                Debug.LogError("Failed to create player in Firebase");
+                Debug.LogError("Failed to join match");
             }
         }
 
