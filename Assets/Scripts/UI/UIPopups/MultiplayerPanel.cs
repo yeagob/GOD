@@ -17,14 +17,9 @@ namespace UI.UIPopups
         private IMatchPresenter _matchPresenter;
         private string _currentMatchId;
 
-        private void Awake()
+        public void Initialize()
         {
-            _urlParameterHandler = new URLParameterHandler();
             InitializeNetworkServices();
-        }
-
-        private void OnEnable()
-        {
             if (_playerPanel != null)
             {
                 StartCoroutine(FocusPlayerInput());
@@ -48,8 +43,6 @@ namespace UI.UIPopups
 
         private void HandleMatchFlow()
         {
-            _currentMatchId = _urlParameterHandler.GetMatchParameter();
-            
             if (!string.IsNullOrEmpty(_currentMatchId))
             {
                 JoinExistingMatch();
@@ -62,15 +55,18 @@ namespace UI.UIPopups
 
         private void CreateNewMatch()
         {
-            if (_matchPresenter == null) return;
+            if (_matchPresenter == null)
+            {
+                return;
+            }
 
+            string id = System.Guid.NewGuid().ToString();
+            string url = $"baseurl + board parameter + match parameter {id}";
+            
             MatchData newMatch = new MatchData(
-                System.Guid.NewGuid().ToString(),
-                System.DateTime.UtcNow,
-                System.DateTime.UtcNow,
-                MatchStatus.Waiting,
-                4,
-                "duck_game"
+                url,
+                id,
+                MatchState.WaitingForPlayers
             );
 
             _matchPresenter.CreateMatch(newMatch, OnMatchCreated);
@@ -78,7 +74,10 @@ namespace UI.UIPopups
 
         private void JoinExistingMatch()
         {
-            if (_matchPresenter == null) return;
+            if (_matchPresenter == null)
+            {
+                return;
+            }
             
             _matchPresenter.GetMatch(_currentMatchId, OnMatchRetrieved);
         }
@@ -132,7 +131,7 @@ namespace UI.UIPopups
         {
             if (_playerPanel?.NameInputField != null && string.IsNullOrEmpty(_playerPanel.NameInputField.text))
             {
-                _playerPanel.NameInputField.text = "Jugador 1";
+                _playerPanel.NameInputField.text = "Introduce tu nombre";
             }
         }
 

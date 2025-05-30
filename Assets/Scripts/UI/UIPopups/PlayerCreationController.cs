@@ -111,6 +111,7 @@ public class PlayerCreationController : MonoBehaviour
 		if (_multiplayerPanel != null)
 		{
 			_multiplayerPanel.gameObject.SetActive(true);
+			_multiplayerPanel.Initialize();
 		}
 		else
 		{

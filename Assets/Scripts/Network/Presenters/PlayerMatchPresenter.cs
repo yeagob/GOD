@@ -54,7 +54,7 @@ namespace Network.Presenters
                     return;
                 }
                 
-                int newScore = player._score + scoreChange;
+                int newScore = player._tile + scoreChange;
                 _playerMatchModel.UpdatePlayerScore(playerMatchId, newScore, callback);
             });
         }
