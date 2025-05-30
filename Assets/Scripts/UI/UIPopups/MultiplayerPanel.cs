@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using Network.Infrastructure;
+using Network.Presenters;
 
 namespace UI.UIPopups
 {
@@ -9,11 +12,13 @@ namespace UI.UIPopups
         [SerializeField] private PlayerPanel _playerPanel;
         
         private URLParameterHandler _urlParameterHandler;
+        private IPlayerMatchPresenter _playerMatchPresenter;
         private bool _isInMatchFlow;
 
         private void Awake()
         {
             _urlParameterHandler = new URLParameterHandler();
+            InitializeNetworkServices();
         }
 
         private void Start()
@@ -26,6 +31,18 @@ namespace UI.UIPopups
             if (_isInMatchFlow && _playerPanel != null)
             {
                 StartCoroutine(FocusPlayerInput());
+            }
+        }
+
+        private void InitializeNetworkServices()
+        {
+            try
+            {
+                _playerMatchPresenter = NetworkInstaller.Resolve<IPlayerMatchPresenter>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to resolve PlayerMatchPresenter: {ex.Message}");
             }
         }
 
@@ -86,7 +103,35 @@ namespace UI.UIPopups
                 return;
             }
 
-            Debug.Log($"Creating player '{playerName}' for match '{matchId}' using Network flow");
+            if (_playerMatchPresenter == null)
+            {
+                Debug.LogError("PlayerMatchPresenter not available");
+                return;
+            }
+
+            PlayerMatchData playerMatchData = new PlayerMatchData
+            {
+                _id = System.Guid.NewGuid().ToString(),
+                _playerId = System.Guid.NewGuid().ToString(),
+                _matchId = matchId,
+                _playerName = playerName,
+                _playerStatus = PlayerMatchStatus.Waiting,
+                _joinedAt = System.DateTime.UtcNow
+            };
+
+            _playerMatchPresenter.JoinMatch(playerMatchData, OnPlayerCreated);
+        }
+
+        private void OnPlayerCreated(bool success)
+        {
+            if (success)
+            {
+                Debug.Log("Player successfully created in Firebase");
+            }
+            else
+            {
+                Debug.LogError("Failed to create player in Firebase");
+            }
         }
 
         private void OnDestroy()
