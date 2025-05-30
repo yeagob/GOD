@@ -14,7 +14,6 @@ namespace UI.UIPopups
         
         private URLParameterHandler _urlParameterHandler;
         private IPlayerMatchPresenter _playerMatchPresenter;
-        private bool _isInMatchFlow;
 
         private void Awake()
         {
@@ -22,16 +21,12 @@ namespace UI.UIPopups
             InitializeNetworkServices();
         }
 
-        private void Start()
-        {
-            CheckMatchFlow();
-        }
-
         private void OnEnable()
         {
-            if (_isInMatchFlow && _playerPanel != null)
+            if (_playerPanel != null)
             {
                 StartCoroutine(FocusPlayerInput());
+                SetupPlayerInput();
             }
         }
 
@@ -47,22 +42,11 @@ namespace UI.UIPopups
             }
         }
 
-        private void CheckMatchFlow()
-        {
-            _isInMatchFlow = _urlParameterHandler.HasMatchParameter;
-            
-            if (_isInMatchFlow)
-            {
-                SetupMatchFlow();
-            }
-        }
-
-        private void SetupMatchFlow()
+        private void SetupPlayerInput()
         {
             if (_playerPanel?.NameInputField != null)
             {
                 _playerPanel.NameInputField.onSubmit.AddListener(OnPlayerNameSubmit);
-                StartCoroutine(FocusPlayerInput());
                 SetDefaultPlayerName();
             }
         }
