@@ -3,7 +3,6 @@ using UnityEngine;
 public class URLParameterHandler
 {
     public bool ShouldLoadFromURL => Application.absoluteURL.Contains("board");
-    public bool IsMultiplayerMode => Application.absoluteURL.Contains("multiplayer");
 
     public string GetBoardParameter()
     {
@@ -20,6 +19,23 @@ public class URLParameterHandler
         }
 
         return boardParam;
+    }
+
+    public string GetMatchParameter()
+    {
+        if (!Application.absoluteURL.Contains("match="))
+        {
+            return string.Empty;
+        }
+
+        string matchParam = Application.absoluteURL.Split("match=")[1];
+        
+        if (matchParam.Contains("&"))
+        {
+            matchParam = matchParam.Split('&')[0];
+        }
+
+        return matchParam;
     }
 
     public void LogCurrentURL()

@@ -34,10 +34,12 @@ namespace Network
         }
 
         public MatchState State => (MatchState)_state;
+        
         public bool IsWaitingForPlayers => State == MatchState.WaitingForPlayers;
         public bool IsPlayingGame => State == MatchState.PlayGame;
         public bool IsEndGame => State == MatchState.EndGame;
         public bool IsCancelled => State == MatchState.Cancelled;
+        
         public bool IsEmpty => string.IsNullOrEmpty(_id);
     }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Network.Infrastructure;
 using Network.Models;
 using Network.Presenters;
 
@@ -50,10 +51,16 @@ namespace Network.Tests
         public Action<string, Action<List<PlayerMatchData>>> OnListenForMatchPlayersChanges { get; set; }
         public Action<string> OnStopListeningForPlayerMatch { get; set; }
         public Action<string> OnStopListeningForMatchPlayers { get; set; }
-        
-        public void CreatePlayerMatch(string name, string matchId, Action<PlayerMatchData> callback = null)
+
+        public string CreatePlayerMatch(string name, string matchId, Action<bool> callback = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string CreatePlayerMatch(string name, string matchId, Action<PlayerMatchData> callback = null)
         {
             OnCreatePlayerMatch?.Invoke(name, matchId, callback);
+            return "";
         }
         
         public void UpdatePlayerScore(string playerMatchId, int newScore, Action<bool> callback = null)
@@ -109,7 +116,24 @@ namespace Network.Tests
         {
             OnUpdateMatchState?.Invoke(matchId, newState, callback);
         }
+
+        public LocalMatchState CurrentMatchState { get; }
         
+        public void CreateMatch(string url, MatchState state, Action<MatchData> callback = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreateMatch(string matchId, string url, MatchState state, Action<MatchData> callback = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateMatchState(string matchId, MatchState newState, Action<bool> callback = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public void GetMatch(string matchId, Action<MatchData> callback)
         {
             OnGetMatch?.Invoke(matchId, callback);
@@ -123,6 +147,36 @@ namespace Network.Tests
         public void StopListeningForMatch(string matchId)
         {
             OnStopListeningForMatch?.Invoke(matchId);
+        }
+
+        public void SetAsHost(MatchData matchData)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetAsClient(MatchData matchData)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateLocalMatch(MatchData matchData)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ClearMatchState()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsCurrentlyInMatch()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsHost()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -13,7 +13,11 @@ namespace Network.Models
             _playerMatchRepository = playerMatchRepository;
         }
 
-        public void CreatePlayerMatch(string name, string matchId, Action<PlayerMatchData> callback = null)
+        public string CreatePlayerMatch(string name, string matchId, Action<PlayerMatchData> callback = null)
+        {
+            throw new NotImplementedException();
+        }
+        public string CreatePlayerMatch(string name, string matchId, Action<bool> callback = null)
         {
             string playerMatchId = _playerMatchRepository.GeneratePlayerMatchId();
             PlayerMatchData playerMatchData = new PlayerMatchData(playerMatchId, name, matchId, 0);
@@ -21,13 +25,15 @@ namespace Network.Models
             _playerMatchRepository.CreatePlayerMatch(playerMatchData, success => {
                 if (success)
                 {
-                    callback?.Invoke(playerMatchData);
+                    callback?.Invoke(true);
                 }
                 else
                 {
-                    callback?.Invoke(default);
+                    callback?.Invoke(false);
                 }
             });
+
+            return playerMatchId;
         }
 
         public void UpdatePlayerScore(string playerMatchId, int newScore, Action<bool> callback = null)

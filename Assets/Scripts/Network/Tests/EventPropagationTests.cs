@@ -164,7 +164,7 @@ namespace Network.Tests
             
             // Assert
             Assert.IsTrue(matchPresenterPlayerCalled, "MatchPresenter no fue notificado del cambio de puntuación del jugador");
-            Assert.AreEqual(15, updatedPlayer._score); // 5 (original) + 10 (incremento)
+            Assert.AreEqual(15, updatedPlayer._tile); // 5 (original) + 10 (incremento)
         }
     }
 }

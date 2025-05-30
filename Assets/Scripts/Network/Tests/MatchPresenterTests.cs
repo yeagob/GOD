@@ -43,7 +43,7 @@ namespace Network.Tests
             
             _mockMatchModel.OnCreateMatch = (url, state, callback) => {
                 passedState = state;
-                createdMatch = new MatchData(TestMatchId, url, state);
+                createdMatch = new MatchData(TestMatchId, url, (MatchState)state);
                 callback?.Invoke(createdMatch);
             };
             
@@ -54,9 +54,9 @@ namespace Network.Tests
             });
             
             // Assert
-            Assert.AreEqual(MatchPresenter.MATCH_STATE_WAITING, passedState);
+            Assert.AreEqual(MatchState.PlayGame, (MatchState)passedState);
             Assert.AreEqual(TestUrl, result._url);
-            Assert.AreEqual(MatchPresenter.MATCH_STATE_WAITING, result._state);
+            Assert.AreEqual(MatchState.PlayGame, (MatchState)result._state);
         }
         
         [Test]
@@ -99,7 +99,7 @@ namespace Network.Tests
         public void JoinMatch_ShouldFailWhenMatchIsNotWaiting()
         {
             // Arrange
-            MatchData playingMatch = new MatchData(TestMatchId, TestUrl, MatchPresenter.MATCH_STATE_PLAYING);
+            MatchData playingMatch = new MatchData(TestMatchId, TestUrl, MatchState.PlayGame);
             bool playerAdded = false;
             
             _mockMatchModel.OnGetMatch = (matchId, callback) => {
@@ -143,7 +143,7 @@ namespace Network.Tests
             
             // Assert
             Assert.AreEqual(TestMatchId, updatedMatchId);
-            Assert.AreEqual(MatchPresenter.MATCH_STATE_PLAYING, updatedState);
+            Assert.AreEqual(MatchState.PlayGame, (MatchState)updatedState);
             Assert.IsTrue(result);
         }
         
@@ -168,7 +168,7 @@ namespace Network.Tests
             
             // Assert
             Assert.AreEqual(TestMatchId, updatedMatchId);
-            Assert.AreEqual(MatchPresenter.MATCH_STATE_FINISHED, updatedState);
+            Assert.AreEqual(MatchState.EndGame, (MatchState)updatedState);
             Assert.IsTrue(result);
         }
         

@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
 using Network.Repositories;
 using Network.Infrastructure;
+using UnityEngine;
 
 namespace Network.Models
 {
@@ -21,6 +21,11 @@ namespace Network.Models
         public void CreateMatch(string url, MatchState state, Action<MatchData> callback = null)
         {
             string matchId = _matchRepository.GenerateMatchId();
+            CreateMatch(matchId, url, state, callback);
+        }
+        
+        public void CreateMatch(string matchId, string url, MatchState state, Action<MatchData> callback = null)
+        {
             MatchData matchData = new MatchData(matchId, url, MatchState.WaitingForPlayers);
             
             _matchRepository.CreateMatch(matchData, success => {
@@ -44,7 +49,7 @@ namespace Network.Models
                     callback?.Invoke(false);
                     return;
                 }
-                
+
                 MatchData updatedMatch = new MatchData(
                     existingMatch._id,
                     existingMatch._url,
