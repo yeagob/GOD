@@ -3,6 +3,7 @@ using UnityEngine;
 public class URLParameterHandler
 {
     public bool ShouldLoadFromURL => Application.absoluteURL.Contains("board");
+    public bool IsMultiplayerMode => Application.absoluteURL.Contains("match=");
 
     public string GetBoardParameter()
     {

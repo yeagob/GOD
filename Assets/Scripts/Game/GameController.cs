@@ -4,8 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Network;
 using UnityEngine;
 using UnityEngine.UI;
+using Network.Models;
+using Network.Infrastructure;
 
 public class GameController : MonoBehaviour
 {
@@ -29,6 +32,11 @@ public class GameController : MonoBehaviour
     [SerializeField] private EmailSender _emailSender;
     [SerializeField] private VolumeControl _volumeControl;
 
+    [Header("Debug Multiplayer")]
+    [SerializeField] private bool _debugMultiplayerMode = false;
+    [SerializeField] private string _debugMatchId = "";
+    [SerializeField] private string _debugBoardName = "parent.json";
+
     [SerializeField, ReadOnly] private TurnController _turnController;
 
     private GameStateManager _gameStateManager;
@@ -39,6 +47,7 @@ public class GameController : MonoBehaviour
     private GameFlowController _gameFlowController;
     private BoardCreationService _boardCreationService;
     private ShareService _shareService;
+    private IMatchModel _matchModel;
 
     private BoardController _boardController;
 
@@ -100,6 +109,20 @@ public class GameController : MonoBehaviour
         _boardEditModeHandler = new BoardEditModeHandler(_popupsController, _gameStateManager);
         _boardCreationService = new BoardCreationService();
         _shareService = new ShareService(_popupsController, _emailSender, _urlParameterHandler);
+
+        InitializeMultiplayerServices();
+    }
+
+    private void InitializeMultiplayerServices()
+    {
+        try
+        {
+            _matchModel = NetworkInstaller.Resolve<IMatchModel>();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"Network services not available: {ex.Message}");
+        }
     }
 
     private void SetupUI()
@@ -131,6 +154,12 @@ public class GameController : MonoBehaviour
             return;
         }
 
+        if (IsMultiplayerMode())
+        {
+            await HandleMultiplayerFlow(boardData);
+            return;
+        }
+
         BoardData editedBoardData = await _boardEditModeHandler.HandleEditMode(boardData);
         if (editedBoardData != null)
         {
@@ -151,6 +180,64 @@ public class GameController : MonoBehaviour
 
     #endregion
 
+    #region Multiplayer Flow
+
+    private bool IsMultiplayerMode()
+    {
+        return _debugMultiplayerMode || _urlParameterHandler.IsMultiplayerMode;
+    }
+
+    private string GetMatchId()
+    {
+        if (_debugMultiplayerMode && !string.IsNullOrEmpty(_debugMatchId))
+        {
+            return _debugMatchId;
+        }
+        return _urlParameterHandler.GetMatchParameter();
+    }
+
+    private string GetBoardName()
+    {
+        if (_debugMultiplayerMode && !string.IsNullOrEmpty(_debugBoardName))
+        {
+            return _debugBoardName;
+        }
+        return _urlParameterHandler.GetBoardParameter();
+    }
+
+    private async Task HandleMultiplayerFlow(BoardData boardData)
+    {
+        CreateBoard(boardData);
+        OnCuack?.Invoke();
+
+        string matchId = GetMatchId();
+        
+        if (_matchModel != null && !string.IsNullOrEmpty(matchId))
+        {
+            MatchData existingMatch = await GetMatchDataAsync(matchId);
+            if (existingMatch._id != null)
+            {
+                _matchModel.SetAsClient(existingMatch);
+                Debug.Log($"Debug Multiplayer: Set as client for match {matchId}");
+            }
+        }
+
+        _popupsController.ShowMultiplayerPanel(matchId);
+    }
+
+    private async Task<MatchData> GetMatchDataAsync(string matchId)
+    {
+        TaskCompletionSource<MatchData> tcs = new TaskCompletionSource<MatchData>();
+        
+        _matchModel.GetMatch(matchId, matchData => {
+            tcs.SetResult(matchData);
+        });
+
+        return await tcs.Task;
+    }
+
+    #endregion
+
     #region Board Loading
 
     private async Task<BoardData> LoadInitialBoard()
@@ -158,15 +245,21 @@ public class GameController : MonoBehaviour
         if (_loadDefault)
         {
             BoardData boardData = await _boardDataService.LoadDefaultBoard(_defaultBoard);
-            await _popupsController.ShowBoardInfoPopup(boardData);
+            if (!IsMultiplayerMode())
+            {
+                await _popupsController.ShowBoardInfoPopup(boardData);
+            }
             return boardData;
         }
-        else if (_urlParameterHandler.ShouldLoadFromURL)
+        else if (_urlParameterHandler.ShouldLoadFromURL || _debugMultiplayerMode)
         {
-            string boardParam = _urlParameterHandler.GetBoardParameter();
+            string boardParam = GetBoardName();
             _shareButton.gameObject.SetActive(true);
             BoardData boardData = await _boardDataService.LoadBoardData(boardParam);
-            await _popupsController.ShowBoardInfoPopup(boardData);
+            if (!IsMultiplayerMode())
+            {
+                await _popupsController.ShowBoardInfoPopup(boardData);
+            }
             return boardData;
         }
         else
