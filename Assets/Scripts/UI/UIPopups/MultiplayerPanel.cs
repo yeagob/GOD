@@ -147,11 +147,40 @@ namespace UI.UIPopups
             if (matchData._id != null)
             {
                 _currentMatchId = matchData._id;
+                LoadExistingPlayersInMatch();
             }
             else
             {
                 Debug.LogError("Failed to retrieve match data - received null or invalid match data");
                 Debug.LogError($"MatchData details: url={matchData._url}, state={matchData._state}");
+            }
+        }
+
+        private void LoadExistingPlayersInMatch()
+        {
+            if (_playerMatchPresenter == null || string.IsNullOrEmpty(_currentMatchId))
+            {
+                Debug.LogError("Cannot load existing players - PlayerMatchPresenter or MatchId is null");
+                return;
+            }
+
+            _playerMatchPresenter.GetMatchPlayers(_currentMatchId, OnExistingPlayersLoaded);
+        }
+
+        private void OnExistingPlayersLoaded(List<PlayerMatchData> existingPlayers)
+        {
+            if (existingPlayers != null && existingPlayers.Count > 0)
+            {
+                Debug.Log($"Loaded {existingPlayers.Count} existing players in match");
+                
+                if (_playerPanelManager != null)
+                {
+                    _playerPanelManager.UpdatePlayerPanels(existingPlayers);
+                }
+            }
+            else
+            {
+                Debug.Log("No existing players found in match or empty list received");
             }
         }
 
