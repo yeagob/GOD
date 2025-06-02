@@ -18,16 +18,16 @@ namespace Network.Presenters
         }
         
 
-        private void HandleMatchJoin(MatchData match, string matchId, string playerName,
+        private void HandleMatchJoin(MatchData match, PlayerMatchData playerMatchData,
             Action<bool> callback, ref string playerMatchId)
         {
-            if (string.IsNullOrEmpty(match._id) )
+            if (string.IsNullOrEmpty(match._id))
             {
                 callback?.Invoke(default);
                 return;
             }
 
-            playerMatchId = _playerMatchModel.CreatePlayerMatch(playerName, matchId, callback);
+            playerMatchId = _playerMatchModel.CreatePlayerMatch(playerMatchData, callback);
         }
 
         public string JoinMatch(PlayerMatchData playerMatchData, Action<bool> callback = null)
@@ -35,7 +35,7 @@ namespace Network.Presenters
             string playerMatchId = null;
 
             _matchModel.GetMatch(playerMatchData._matchId,
-                match => HandleMatchJoin(match, playerMatchData._matchId, playerMatchData._name, callback, ref playerMatchId));
+                match => HandleMatchJoin(match, playerMatchData, callback, ref playerMatchId));
 
             return playerMatchId;
         }
