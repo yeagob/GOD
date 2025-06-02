@@ -61,47 +61,96 @@ namespace Network.Repositories
         {
             Debug.Log($"[PlayerMatchRepository] GetPlayerMatchesByMatchId called for MatchId: {matchId}");
             
+            // Primero intentar con el índice
             string indexPath = $"{MATCH_INDEX}/{matchId}";
-            Debug.Log($"[PlayerMatchRepository] Querying index path: {indexPath}");
+            Debug.Log($"[PlayerMatchRepository] Trying index path: {indexPath}");
             
             _firebaseService.GetData<Dictionary<string, object>>(indexPath, indexData => {
-                Debug.Log($"[PlayerMatchRepository] Index query result - Found {indexData?.Count ?? 0} player references");
+                if (indexData != null && indexData.Count > 0)
+                {
+                    Debug.Log($"[PlayerMatchRepository] Index found - {indexData.Count} player references");
+                    FetchPlayersFromIndex(indexData, callback);
+                }
+                else
+                {
+                    Debug.LogWarning($"[PlayerMatchRepository] No index found, falling back to full scan for MatchId: {matchId}");
+                    // Fallback: escanear todos los jugadores para encontrar los del match
+                    ScanAllPlayersForMatch(matchId, callback);
+                }
+            });
+        }
+
+        private void FetchPlayersFromIndex(Dictionary<string, object> indexData, Action<List<PlayerMatchData>> callback)
+        {
+            List<PlayerMatchData> players = new List<PlayerMatchData>();
+            int completedRequests = 0;
+            int totalRequests = indexData.Count;
+
+            foreach (string playerId in indexData.Keys)
+            {
+                Debug.Log($"[PlayerMatchRepository] Fetching player data for ID: {playerId}");
                 
-                if (indexData == null || indexData.Count == 0)
-                {
-                    Debug.LogWarning($"[PlayerMatchRepository] No players found in match index for MatchId: {matchId}");
-                    callback?.Invoke(new List<PlayerMatchData>());
-                    return;
-                }
-
-                List<PlayerMatchData> players = new List<PlayerMatchData>();
-                int completedRequests = 0;
-                int totalRequests = indexData.Count;
-
-                foreach (string playerId in indexData.Keys)
-                {
-                    Debug.Log($"[PlayerMatchRepository] Fetching player data for ID: {playerId}");
+                GetPlayerMatch(playerId, playerData => {
+                    completedRequests++;
                     
-                    GetPlayerMatch(playerId, playerData => {
-                        completedRequests++;
-                        
-                        if (!string.IsNullOrEmpty(playerData._id))
-                        {
-                            players.Add(playerData);
-                            Debug.Log($"[PlayerMatchRepository] Added player: {playerData._name} (ID: {playerData._id}) - {completedRequests}/{totalRequests}");
-                        }
-                        else
-                        {
-                            Debug.LogWarning($"[PlayerMatchRepository] Player data is empty for ID: {playerId}");
-                        }
+                    if (!string.IsNullOrEmpty(playerData._id))
+                    {
+                        players.Add(playerData);
+                        Debug.Log($"[PlayerMatchRepository] Added player: {playerData._name} (ID: {playerData._id}) - {completedRequests}/{totalRequests}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[PlayerMatchRepository] Player data is empty for ID: {playerId}");
+                    }
 
-                        if (completedRequests >= totalRequests)
+                    if (completedRequests >= totalRequests)
+                    {
+                        Debug.Log($"[PlayerMatchRepository] All players fetched from index - Total: {players.Count}");
+                        callback?.Invoke(players);
+                    }
+                });
+            }
+        }
+
+        private void ScanAllPlayersForMatch(string matchId, Action<List<PlayerMatchData>> callback)
+        {
+            Debug.Log($"[PlayerMatchRepository] Scanning all players for MatchId: {matchId}");
+            
+            _firebaseService.GetData<Dictionary<string, PlayerMatchData>>(PATH, allPlayersData => {
+                Debug.Log($"[PlayerMatchRepository] Full scan result - Found {allPlayersData?.Count ?? 0} total players");
+                
+                List<PlayerMatchData> matchingPlayers = new List<PlayerMatchData>();
+                
+                if (allPlayersData != null)
+                {
+                    foreach (var kvp in allPlayersData)
+                    {
+                        PlayerMatchData playerData = kvp.Value;
+                        Debug.Log($"[PlayerMatchRepository] Checking player: {playerData._name} (MatchId: {playerData._matchId})");
+                        
+                        if (playerData._matchId == matchId)
                         {
-                            Debug.Log($"[PlayerMatchRepository] All players fetched - Total: {players.Count}");
-                            callback?.Invoke(players);
+                            matchingPlayers.Add(playerData);
+                            Debug.Log($"[PlayerMatchRepository] MATCH! Added player: {playerData._name} (ID: {playerData._id})");
+                            
+                            // Crear el índice para este jugador para futuros usos
+                            CreateMissingIndex(playerData);
                         }
-                    });
+                    }
                 }
+                
+                Debug.Log($"[PlayerMatchRepository] Scan complete - Found {matchingPlayers.Count} matching players for match {matchId}");
+                callback?.Invoke(matchingPlayers);
+            });
+        }
+
+        private void CreateMissingIndex(PlayerMatchData playerData)
+        {
+            string indexPath = $"{MATCH_INDEX}/{playerData._matchId}/{playerData._id}";
+            Debug.Log($"[PlayerMatchRepository] Creating missing index at: {indexPath}");
+            
+            _firebaseService.SetData(indexPath, true, result => {
+                Debug.Log($"[PlayerMatchRepository] Missing index creation result: {result}");
             });
         }
 
@@ -122,30 +171,13 @@ namespace Network.Repositories
                 
                 if (indexData == null || indexData.Count == 0)
                 {
-                    callback?.Invoke(new List<PlayerMatchData>());
+                    // Si no hay índice, hacer fallback al scan completo
+                    Debug.LogWarning($"[PlayerMatchRepository] Listener fallback - scanning all players for match {matchId}");
+                    ScanAllPlayersForMatch(matchId, callback);
                     return;
                 }
 
-                List<PlayerMatchData> players = new List<PlayerMatchData>();
-                int completedRequests = 0;
-                int totalRequests = indexData.Count;
-
-                foreach (string playerId in indexData.Keys)
-                {
-                    GetPlayerMatch(playerId, playerData => {
-                        completedRequests++;
-                        
-                        if (!string.IsNullOrEmpty(playerData._id))
-                        {
-                            players.Add(playerData);
-                        }
-
-                        if (completedRequests >= totalRequests)
-                        {
-                            callback?.Invoke(players);
-                        }
-                    });
-                }
+                FetchPlayersFromIndex(indexData, callback);
             });
         }
 
