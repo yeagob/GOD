@@ -9,6 +9,8 @@ namespace Network.Models
         
         public string CreatePlayerMatch(string name, string matchId, Action<PlayerMatchData> callback = null);
 
+        public string CreatePlayerMatch(PlayerMatchData playerMatchData, Action<bool> callback = null);
+
         public void UpdatePlayerScore(string playerMatchId, int newScore, Action<bool> callback = null);
 
         public void GetPlayerMatch(string playerMatchId, Action<PlayerMatchData> callback);
