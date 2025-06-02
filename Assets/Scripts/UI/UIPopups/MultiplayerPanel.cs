@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using Network;
@@ -11,18 +12,24 @@ namespace UI.UIPopups
     public class MultiplayerPanel : MonoBehaviour
     {
         [SerializeField] private PlayerPanel _playerPanel;
+        [SerializeField] private GameObject _playerPanelPrefab;
+        [SerializeField] private Transform _playerPanelsParent;
         
         private URLParameterHandler _urlParameterHandler;
         private IPlayerMatchPresenter _playerMatchPresenter;
         private IMatchPresenter _matchPresenter;
+        private IPlayerPanelManager _playerPanelManager;
+        
         private string _currentMatchId;
         private string _localPlayerId;
         private bool _isClientMode;
+        private bool _isListeningForPlayers;
 
         public void Initialize(string matchId = null)
         {
             InitializeURLHandler();
             InitializeNetworkServices();
+            InitializePlayerPanelManager();
             
             _currentMatchId = matchId;
             _isClientMode = !string.IsNullOrEmpty(matchId);
@@ -59,6 +66,28 @@ namespace UI.UIPopups
             }
         }
 
+        private void InitializePlayerPanelManager()
+        {
+            if (_playerPanelsParent == null)
+            {
+                _playerPanelsParent = _playerPanel?.transform.parent;
+            }
+
+            if (_playerPanelPrefab == null)
+            {
+                _playerPanelPrefab = _playerPanel?.gameObject;
+            }
+
+            if (_playerPanelsParent != null && _playerPanel != null && _playerPanelPrefab != null)
+            {
+                _playerPanelManager = new PlayerPanelManager(_playerPanelsParent, _playerPanel, _playerPanelPrefab);
+            }
+            else
+            {
+                Debug.LogError("PlayerPanelManager initialization failed - missing required references");
+            }
+        }
+
         private void HandleMatchFlow()
         {
             if (_isClientMode)
@@ -68,7 +97,6 @@ namespace UI.UIPopups
             else
             {
                 Debug.Log($"Debug Multiplayer: Set as host. Creating match.");
-
                 CreateNewMatch();
             }
         }
@@ -179,14 +207,24 @@ namespace UI.UIPopups
                 return;
             }
 
+            Color playerColor = PlayerColorGenerator.GetRandomPlayerColor();
+            string colorHex = PlayerColorGenerator.ColorToHex(playerColor);
+
             PlayerMatchData playerMatchData = new PlayerMatchData(
                 "",
                 playerName,
                 _currentMatchId,
-                0
+                0,
+                colorHex
             );
 
             string returnedId = _playerMatchPresenter.JoinMatch(playerMatchData, OnPlayerCreated);
+            
+            if (!string.IsNullOrEmpty(returnedId))
+            {
+                _localPlayerId = returnedId;
+                _playerPanelManager?.SetLocalPlayerId(_localPlayerId);
+            }
         }
 
         private void OnPlayerCreated(bool success)
@@ -197,6 +235,9 @@ namespace UI.UIPopups
                 {
                     _playerPanel.NameInputField.onSubmit.RemoveListener(OnPlayerNameSubmit);
                 }
+
+                SetupLocalPlayerPanel();
+                StartListeningForPlayers();
             }
             else
             {
@@ -205,12 +246,56 @@ namespace UI.UIPopups
             }
         }
 
+        private void SetupLocalPlayerPanel()
+        {
+            if (_playerPanelManager != null && _playerPanel != null)
+            {
+                string playerName = _playerPanel.NameInputField?.text ?? "Player";
+                _playerPanelManager.SetupLocalPlayerPanel(_playerPanel, playerName);
+            }
+        }
+
+        private void StartListeningForPlayers()
+        {
+            if (_playerMatchPresenter != null && !string.IsNullOrEmpty(_currentMatchId) && !_isListeningForPlayers)
+            {
+                _isListeningForPlayers = true;
+                _playerMatchPresenter.ListenForMatchPlayersUpdates(_currentMatchId, OnPlayersUpdated);
+            }
+        }
+
+        private void OnPlayersUpdated(List<PlayerMatchData> playersData)
+        {
+            if (_playerPanelManager != null)
+            {
+                _playerPanelManager.UpdatePlayerPanels(playersData);
+            }
+        }
+
+        private void StopListeningForPlayers()
+        {
+            if (_playerMatchPresenter != null && !string.IsNullOrEmpty(_currentMatchId) && _isListeningForPlayers)
+            {
+                _isListeningForPlayers = false;
+                _playerMatchPresenter.StopListeningForMatchPlayers(_currentMatchId);
+            }
+        }
+
         private void OnDestroy()
         {
+            StopListeningForPlayers();
+            
             if (_playerPanel?.NameInputField != null)
             {
                 _playerPanel.NameInputField.onSubmit.RemoveListener(OnPlayerNameSubmit);
             }
+
+            _playerPanelManager?.ClearAllPlayers();
+        }
+
+        private void OnDisable()
+        {
+            StopListeningForPlayers();
         }
     }
 }
