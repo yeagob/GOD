@@ -123,7 +123,7 @@ namespace UI.UIPopups
             else
             {
                 Debug.LogError("Failed to retrieve match data - received null or invalid match data");
-                Debug.LogError($"MatchData details: id={matchData._id}, url={matchData._url}, state={matchData._state}");
+                Debug.LogError($"MatchData details: url={matchData._url}, state={matchData._state}");
             }
         }
 
