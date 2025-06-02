@@ -17,12 +17,39 @@ namespace Network.Models
         {
             throw new NotImplementedException();
         }
+
         public string CreatePlayerMatch(string name, string matchId, Action<bool> callback = null)
         {
             string playerMatchId = _playerMatchRepository.GeneratePlayerMatchId();
             PlayerMatchData playerMatchData = new PlayerMatchData(playerMatchId, name, matchId, 0);
             
             _playerMatchRepository.CreatePlayerMatch(playerMatchData, success => {
+                if (success)
+                {
+                    callback?.Invoke(true);
+                }
+                else
+                {
+                    callback?.Invoke(false);
+                }
+            });
+
+            return playerMatchId;
+        }
+
+        public string CreatePlayerMatch(PlayerMatchData playerMatchData, Action<bool> callback = null)
+        {
+            string playerMatchId = _playerMatchRepository.GeneratePlayerMatchId();
+            
+            PlayerMatchData completePlayerData = new PlayerMatchData(
+                playerMatchId,
+                playerMatchData._name,
+                playerMatchData._matchId,
+                playerMatchData._tile,
+                playerMatchData._color
+            );
+            
+            _playerMatchRepository.CreatePlayerMatch(completePlayerData, success => {
                 if (success)
                 {
                     callback?.Invoke(true);
@@ -49,7 +76,8 @@ namespace Network.Models
                     existingPlayer._id,
                     existingPlayer._name,
                     existingPlayer._matchId,
-                    newScore
+                    newScore,
+                    existingPlayer._color
                 );
                 
                 _playerMatchRepository.UpdatePlayerMatch(updatedPlayer, callback);
