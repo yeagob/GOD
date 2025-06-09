@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 public class OpenAIConfigurationData : ScriptableObject
 {
     [SerializeField, Title("OpenAI API Configuration")]
-    [InfoBox("Enter your OpenAI API Key here. This will be used for all AI-related operations.")]
+    [InfoBox("Enter your OpenAI API Key here. This will be used for all AI-related operations. Leave empty to disable AI board generation.")]
     [PropertySpace(SpaceBefore = 10, SpaceAfter = 10)]
     private string _apiKey = "";
 
@@ -23,7 +23,7 @@ public class OpenAIConfigurationData : ScriptableObject
         } 
     }
 
-    public bool IsApiKeyValid => !string.IsNullOrEmpty(_apiKey) && _apiKey.StartsWith("sk-");
+    public bool HasApiKey => !string.IsNullOrEmpty(_apiKey);
 
     private void OnValidate()
     {
@@ -34,37 +34,20 @@ public class OpenAIConfigurationData : ScriptableObject
     {
         if (string.IsNullOrEmpty(_apiKey))
         {
-            _apiKeyStatus = "Not Set";
-        }
-        else if (!_apiKey.StartsWith("sk-"))
-        {
-            _apiKeyStatus = "Invalid Format";
+            _apiKeyStatus = "Not Set - AI board generation disabled";
         }
         else
         {
-            _apiKeyStatus = $"Valid ({_apiKey.Substring(0, 7)}...)";
-        }
-    }
-
-    [Button("Validate API Key")]
-    [PropertySpace(SpaceBefore = 10)]
-    private void ValidateApiKey()
-    {
-        if (IsApiKeyValid)
-        {
-            Debug.Log("API Key format is valid!");
-        }
-        else
-        {
-            Debug.LogWarning("API Key format is invalid. OpenAI API keys should start with 'sk-'");
+            _apiKeyStatus = $"Set ({_apiKey.Substring(0, Mathf.Min(7, _apiKey.Length))}...)";
         }
     }
 
     [Button("Clear API Key")]
+    [PropertySpace(SpaceBefore = 10)]
     private void ClearApiKey()
     {
         _apiKey = "";
         UpdateApiKeyStatus();
-        Debug.Log("API Key cleared.");
+        Debug.Log("API Key cleared. AI board generation will be disabled.");
     }
 }
