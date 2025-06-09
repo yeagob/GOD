@@ -201,7 +201,7 @@ public class GameFlowController
                 return playAgain;
 
             case TileType.TravelToTile:
-                _popupsController.ShowGenericMessage("De pato a pato y tiro porque...\\n CUACK!!", 2, CurrentPlayer.Token.Color).WrapErrors();
+                _popupsController.ShowGenericMessage("De pato a pato y tiro porque...\\n CUACK!!", 2, CurrentPlayer.Token.Color);
                 OnHappy?.Invoke();
                 await _boardController.TravelToNextTravelTile(CurrentPlayer);
                 CurrentPlayer.State = PlayerState.PlayAgain;
