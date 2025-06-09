@@ -10,8 +10,8 @@ public class GameOfDuckBoardCreator : MonoBehaviour
 	[SerializeField] private LineRenderer _lineRenderer;
 
 	[Title("OpenAI Configuration")]
-	[SerializeField, Required("OpenAI Configuration is required for board generation")]
-	[InfoBox("This configuration contains the OpenAI API key needed for AI-powered board generation.")]
+	[SerializeField]
+	[InfoBox("Optional: OpenAI Configuration for AI-powered board generation. Leave empty to disable AI features.")]
 	private OpenAIConfigurationData _openAIConfig;
 
 	private const float A4_WIDTH = 29.7f;
@@ -31,7 +31,7 @@ public class GameOfDuckBoardCreator : MonoBehaviour
 		set => _openAIConfig = value; 
 	}
 
-	public bool HasValidOpenAIConfig => _openAIConfig != null && _openAIConfig.IsApiKeyValid;
+	public bool HasOpenAIConfig => _openAIConfig != null && _openAIConfig.HasApiKey;
 	#endregion
 
 	#region Public Methods
@@ -44,9 +44,8 @@ public class GameOfDuckBoardCreator : MonoBehaviour
 
 	public string GetOpenAIApiKey()
 	{
-		if (!HasValidOpenAIConfig)
+		if (_openAIConfig == null || !_openAIConfig.HasApiKey)
 		{
-			Debug.LogError("OpenAI Configuration is not set or invalid. Please assign a valid OpenAI Configuration in the inspector.");
 			return string.Empty;
 		}
 
@@ -137,14 +136,6 @@ public class GameOfDuckBoardCreator : MonoBehaviour
 			{
 				tile.SetTileData(data.tiles[i]);
 			}
-		}
-	}
-
-	private void OnValidate()
-	{
-		if (_openAIConfig != null && !_openAIConfig.IsApiKeyValid)
-		{
-			Debug.LogWarning($"OpenAI Configuration on {gameObject.name} has an invalid API key.", this);
 		}
 	}
 	#endregion
