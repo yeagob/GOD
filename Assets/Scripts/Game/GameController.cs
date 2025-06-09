@@ -106,7 +106,10 @@ public class GameController : MonoBehaviour
         _screenshotService = gameObject.AddComponent<ScreenshotService>();
         _screenshotService.Initialize(_downloadCamera);
         _boardEditModeHandler = new BoardEditModeHandler(_popupsController, _gameStateManager);
-        _boardCreationService = new BoardCreationService();
+        
+        string apiKey = _boardCreator.GetOpenAIApiKey();
+        _boardCreationService = new BoardCreationService(apiKey);
+        
         _shareService = new ShareService(_popupsController, _emailSender, _urlParameterHandler);
 
         InitializeMultiplayerServices();
@@ -142,12 +145,20 @@ public class GameController : MonoBehaviour
         _volumeControl.Initialize();
         _musicController.PlayBase();
 
+        if (!ValidateOpenAIConfiguration())
+        {
+            OnSad?.Invoke();
+            await _popupsController.ShowGenericMessage("Error: OpenAI Configuration not found or invalid.\\nPlease check the GameOfDuckBoardCreator configuration.", 7);
+            OnCuack?.Invoke();
+            return;
+        }
+
         BoardData boardData = await LoadInitialBoard();
 
         if (boardData == null)
         {
             OnSad?.Invoke();
-            await _popupsController.ShowGenericMessage("Error generando el tablero!\\n Inténtalo de nuevo!", 7);
+            await _popupsController.ShowGenericMessage("Error generando el tablero!\\nInténtalo de nuevo!", 7);
             OnCuack?.Invoke();
             Start();
             return;
@@ -175,6 +186,23 @@ public class GameController : MonoBehaviour
         _boardController.OnMoveStep += () => CurrentPlayer?.Token?.Fart();
 
         await StartGameLoop();
+    }
+
+    private bool ValidateOpenAIConfiguration()
+    {
+        if (!_boardCreator.HasValidOpenAIConfig)
+        {
+            Debug.LogError("GameController: OpenAI Configuration is not valid. Please assign a valid OpenAI Configuration to the GameOfDuckBoardCreator.");
+            return false;
+        }
+
+        if (!_boardCreationService.IsValidService)
+        {
+            Debug.LogError("GameController: BoardCreationService could not be initialized with the provided API key.");
+            return false;
+        }
+
+        return true;
     }
 
     #endregion
