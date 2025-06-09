@@ -9,7 +9,11 @@ public class GameOfDuckBoardCreator : MonoBehaviour
 	[SerializeField] private Tile _tilePrefab;
 	[SerializeField] private LineRenderer _lineRenderer;
 
-	//BOARD DIMENSIONS
+	[Title("OpenAI Configuration")]
+	[SerializeField, Required("OpenAI Configuration is required for board generation")]
+	[InfoBox("This configuration contains the OpenAI API key needed for AI-powered board generation.")]
+	private OpenAIConfigurationData _openAIConfig;
+
 	private const float A4_WIDTH = 29.7f;
 	private const float A4_HEIGHT = 21.0f;
 
@@ -20,80 +24,93 @@ public class GameOfDuckBoardCreator : MonoBehaviour
 	private List<Tile> _boardTiles = new List<Tile>();
 	#endregion
 
+	#region Properties
+	public OpenAIConfigurationData OpenAIConfig 
+	{ 
+		get => _openAIConfig; 
+		set => _openAIConfig = value; 
+	}
+
+	public bool HasValidOpenAIConfig => _openAIConfig != null && _openAIConfig.IsApiKeyValid;
+	#endregion
+
 	#region Public Methods
-	/// <summary>
-	/// Generates and instantiates the board based on BoardData provided.
-	/// </summary>
 	public List<Tile> GetBoard(BoardData data)
 	{
 		GenerateBoard(numberOfCells);
 		InstantiateBoard(data);
 		return _boardTiles;
 	}
+
+	public string GetOpenAIApiKey()
+	{
+		if (!HasValidOpenAIConfig)
+		{
+			Debug.LogError("OpenAI Configuration is not set or invalid. Please assign a valid OpenAI Configuration in the inspector.");
+			return string.Empty;
+		}
+
+		return _openAIConfig.ApiKey;
+	}
 	#endregion
 
 	#region Private Methods
 	private void GenerateBoard(int numCells)
 	{
-		_cellRects.Clear();  // Clear previous cells
+		_cellRects.Clear();
 
 		float boardWidth = A4_WIDTH - 2 * margin;
 		float boardHeight = A4_HEIGHT - 2 * margin;
 
-		// Start from top-left of the margin area
 		float currentX = margin;
 		float currentY = margin;
 
-		// Steps for the initial full width and height
 		float stepX = boardWidth / Mathf.Sqrt(numCells);
 		float stepY = boardHeight / Mathf.Sqrt(numCells);
 
-		// Boundaries that will shrink as we spiral inward
 		float leftBound = margin;
 		float rightBound = A4_WIDTH - margin;
 		float topBound = margin;
 		float bottomBound = A4_HEIGHT - margin;
 
-		int direction = 0;  // 0 = right, 1 = down, 2 = left, 3 = up
+		int direction = 0;
 
 		for (int i = 0; i < numCells; i++)
 		{
-			// Add current cell position and size
 			_cellRects.Add(new Rect(currentX, currentY, stepX, stepY));
 
-			// Move based on current direction
 			switch (direction)
 			{
-				case 0:  // Right
+				case 0:
 					currentX += stepX;
-					if (currentX + stepX >= rightBound)  // If we hit right boundary, change direction
+					if (currentX + stepX >= rightBound)
 					{
-						direction = 1;  // Change to down
-						topBound += stepY;  // Shrink the top boundary
+						direction = 1;
+						topBound += stepY;
 					}
 					break;
-				case 1:  // Down
+				case 1:
 					currentY += stepY;
-					if (currentY + stepY >= bottomBound)  // If we hit bottom boundary, change direction
+					if (currentY + stepY >= bottomBound)
 					{
-						direction = 2;  // Change to left
-						rightBound -= stepX;  // Shrink the right boundary
+						direction = 2;
+						rightBound -= stepX;
 					}
 					break;
-				case 2:  // Left
+				case 2:
 					currentX -= stepX;
-					if (currentX - stepX <= leftBound)  // If we hit left boundary, change direction
+					if (currentX - stepX <= leftBound)
 					{
-						direction = 3;  // Change to up
-						bottomBound -= stepY;  // Shrink the bottom boundary
+						direction = 3;
+						bottomBound -= stepY;
 					}
 					break;
-				case 3:  // Up
+				case 3:
 					currentY -= stepY;
-					if (currentY - stepY <= topBound)  // If we hit top boundary, change direction
+					if (currentY - stepY <= topBound)
 					{
-						direction = 0;  // Change to right
-						leftBound += stepX;  // Shrink the left boundary
+						direction = 0;
+						leftBound += stepX;
 					}
 					break;
 			}
@@ -123,5 +140,12 @@ public class GameOfDuckBoardCreator : MonoBehaviour
 		}
 	}
 
+	private void OnValidate()
+	{
+		if (_openAIConfig != null && !_openAIConfig.IsApiKeyValid)
+		{
+			Debug.LogWarning($"OpenAI Configuration on {gameObject.name} has an invalid API key.", this);
+		}
+	}
 	#endregion
 }
