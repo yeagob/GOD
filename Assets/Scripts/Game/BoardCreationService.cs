@@ -3,21 +3,42 @@ using UnityEngine;
 
 public class BoardCreationService
 {
-    private readonly AIJsonGenerator _aiJsonGenerator;
+    private AIJsonGenerator _aiJsonGenerator;
     private bool _first = true;
+    private readonly string _apiKey;
 
-    public BoardCreationService()
+    public BoardCreationService(string apiKey)
     {
-        _aiJsonGenerator = new AIJsonGenerator();
+        _apiKey = apiKey;
+        
+        if (string.IsNullOrEmpty(_apiKey))
+        {
+            Debug.LogError("BoardCreationService: API Key is required for AI board generation.");
+            return;
+        }
+
+        _aiJsonGenerator = new AIJsonGenerator(_apiKey);
     }
 
     public async Task<GameData> CreateBaseGameData(string promptBase)
     {
+        if (_aiJsonGenerator == null)
+        {
+            Debug.LogError("BoardCreationService: AI service not initialized. Please provide a valid API key.");
+            return null;
+        }
+
         return await _aiJsonGenerator.CreateBaseGameData(promptBase);
     }
 
     public async Task<BoardData> CreateBoardFromGamedata(GameData initialGameData)
     {
+        if (_aiJsonGenerator == null)
+        {
+            Debug.LogError("BoardCreationService: AI service not initialized. Please provide a valid API key.");
+            return null;
+        }
+
         string responseDataEvaluation = await _aiJsonGenerator.GetGameDataEvaluation(initialGameData);
         GameData gameData = null;
         
@@ -45,4 +66,6 @@ public class BoardCreationService
     {
         return new BoardController(boardData, boardCreator);
     }
+
+    public bool IsValidService => _aiJsonGenerator != null && !string.IsNullOrEmpty(_apiKey);
 }
