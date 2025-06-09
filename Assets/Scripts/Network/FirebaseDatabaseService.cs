@@ -44,7 +44,6 @@ namespace Network
                     
                     isInitialized = true;
                     OnInitialized?.Invoke();
-                    Debug.Log("Firebase initialized successfully");
                 }
                 else
                 {

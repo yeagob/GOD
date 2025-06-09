@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Network.Infrastructure;
 using Network.Models;
 
 namespace Network.Presenters
@@ -10,7 +11,6 @@ namespace Network.Presenters
         private readonly IPlayerMatchModel _playerMatchModel;
         private readonly IGameEventModel _gameEventModel;
         
-        // Estados del partido
         public const int MATCH_STATE_WAITING = 0;
         public const int MATCH_STATE_PLAYING = 1;
         public const int MATCH_STATE_FINISHED = 2;
@@ -23,6 +23,18 @@ namespace Network.Presenters
             _matchModel = matchModel;
             _playerMatchModel = playerMatchModel;
             _gameEventModel = gameEventModel;
+        }
+
+        public void CreateMatch(MatchData matchData, Action<bool> callback = null)
+        {
+            _matchModel.CreateMatch(matchData._id, matchData._url, (MatchState)matchData._state, result => {
+                callback?.Invoke(!string.IsNullOrEmpty(result._id));
+            });
+        }
+
+        public void GetMatch(string matchId, Action<MatchData> callback)
+        {
+            _matchModel.GetMatch(matchId, callback);
         }
 
         public void CreateNewMatch(string url, Action<MatchData> callback = null)
@@ -45,12 +57,12 @@ namespace Network.Presenters
 
         public void StartMatch(string matchId, Action<bool> callback = null)
         {
-            _matchModel.UpdateMatchState(matchId, MATCH_STATE_PLAYING, callback);
+            _matchModel.UpdateMatchState(matchId, MatchState.PlayGame, callback);
         }
 
         public void EndMatch(string matchId, Action<bool> callback = null)
         {
-            _matchModel.UpdateMatchState(matchId, MATCH_STATE_FINISHED, callback);
+            _matchModel.UpdateMatchState(matchId, MatchState.EndGame, callback);
         }
 
         public void GetCurrentMatchState(string matchId, Action<MatchData, List<PlayerMatchData>, List<GameEventData>> callback)

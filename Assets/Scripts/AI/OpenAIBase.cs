@@ -111,8 +111,8 @@ public class GPT4Mini : OpenAIBase
 				new Message
 				{
 					role = "system",
-					content = "Eres un módulo de un juego llamado Game Of Duck, inspirado en el Juego de la Oca, " +
-					"pero con preguntas y desafíos personalizables, que se encarga de analizar y generar tableros de juego."
+					content = "Eres un mÃ³dulo de un juego llamado Game Of Duck, inspirado en el Juego de la Oca, " +
+					"pero con preguntas y desafÃ­os personalizables, que se encarga de analizar y generar tableros de juego."
 				},
 				new Message
 				{
@@ -131,14 +131,6 @@ public class GPT4Mini : OpenAIBase
 
 		string jsonData = JsonUtility.ToJson(requestBody);
 
-
-		//string jsonData = "{\"model\": \"gpt-4o-mini\", \"temperature\": 0.2, \"messages\": [{\"role\":\"system\",\"content\": " +
-		//	"				\"Eres un módulo de un juego llamado Game Of Duck, " +
-		//					"inspirado en el Juego de la Oca, pero con preguntas y desafíos personalizables," +
-		//					" que se encarga de analizar y generar tableros de juego.\"}, " +
-		//					"{\"role\": \"user\", \"content\": \"" +
-		//					prompt + "\"} ]}";
-
 		string response = await SendRequest("chat/completions", jsonData);
 
 		DataResponse dataResponse = JsonUtility.FromJson<DataResponse>(response);
@@ -153,17 +145,13 @@ public class GPT4Mini : OpenAIBase
 
 public class DALLE2 : OpenAIBase
 {
-	private const string _apiKey = "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";
-
 	public DALLE2(string apiKey) : base(apiKey) { }
-	public DALLE2() : base(_apiKey) { }
 
 	public async Task<Sprite> GenerateImage(string prompt, string imageID = "default")
 	{
-		string jsonData = $"{{\"prompt\": \"{prompt}\", \"n\": 1, \"size\": \"512x512\"}}";////267x322
+		string jsonData = $"{{\"prompt\": \"{prompt}\", \"n\": 1, \"size\": \"512x512\"}}";
 		string response = await SendRequest("images/generations", jsonData);
 
-		// Procesar la respuesta JSON y extraer la URL de la imagen generada
 		DALLEResponse dalleResponse = JsonUtility.FromJson<DALLEResponse>(response);
 
 		if (dalleResponse == null || dalleResponse.data == null || dalleResponse.data.Length == 0)
@@ -179,7 +167,6 @@ public class DALLE2 : OpenAIBase
 		else
 			ImagesTagsUrls.Add(imageID, LastImageUrl);
 
-		// Descargar la imagen y convertirla en un Sprite
 		return await DownloadSprite(LastImageUrl);
 	}
 
@@ -202,27 +189,21 @@ public class DALLE2 : OpenAIBase
 
 			Texture2D texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
 
-			// Crear un Sprite a partir de la textura descargada
 			Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
 			return sprite;
 		}
 	}
 
-	/// <summary>
-	/// Loads an image asynchronously from StreamingAssets and returns it as a Sprite.
-	/// </summary>
 	public static async Task<Sprite> LoadSpriteFromStreamigAssets(string fileName)
 	{
 		string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
 
-		// For WebGL, we need to access the file via UnityWebRequest
 		if (filePath.Contains("://") || filePath.Contains(":///"))
 		{
 			using (UnityWebRequest www = UnityWebRequestTexture.GetTexture(filePath))
 			{
 				var request = www.SendWebRequest();
 
-				// Wait until the request is done
 				while (!request.isDone)
 				{
 					await Task.Yield();
@@ -242,12 +223,11 @@ public class DALLE2 : OpenAIBase
 		}
 		else
 		{
-			// For non-WebGL platforms, we can read directly from the file system
 			if (File.Exists(filePath))
 			{
 				byte[] imageData = await Task.Run(() => File.ReadAllBytes(filePath));
 				Texture2D texture = new Texture2D(2, 2);
-				texture.LoadImage(imageData); // Load the image into the texture
+				texture.LoadImage(imageData);
 				return ConvertToSprite(texture);
 			}
 			else
@@ -258,9 +238,6 @@ public class DALLE2 : OpenAIBase
 		}
 	}
 
-	/// <summary>
-	/// Converts a Texture2D to a Sprite.
-	/// </summary>
 	public static Sprite ConvertToSprite(Texture2D texture)
 	{
 		return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));

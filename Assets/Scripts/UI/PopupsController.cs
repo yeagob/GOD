@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UI.UIPopups;
 
 public class PopupsController : MonoBehaviour
 {
@@ -24,6 +25,7 @@ public class PopupsController : MonoBehaviour
 	[SerializeField] private PublishBoardPopup _publishPopup;
 	[SerializeField] private ShareBoardPopup _shareBoard;
 	[SerializeField] private SettingsController _settingsPopup;
+	[SerializeField] private MultiplayerPanel _multiplayerPanel;
 
 	#endregion
 
@@ -33,6 +35,8 @@ public class PopupsController : MonoBehaviour
 
 	//TODO: Necesito un PlayerController que no sea un POPUP!
 	public PlayerCreationController PlayerCreationController { get => _playerCreationController;  }
+
+	public MultiplayerPanel MultiplayerPanel { get => _multiplayerPanel; }
 
 	#endregion
 
@@ -113,6 +117,15 @@ public class PopupsController : MonoBehaviour
 		await _settingsPopup.ShowAsync();
 	}
 
+	public void ShowMultiplayerPanel(string matchId = null)
+	{
+		if (_multiplayerPanel != null)
+		{
+			_multiplayerPanel.gameObject.SetActive(true);
+			_multiplayerPanel.Initialize(matchId);
+		}
+	}
+
 	public async Task<bool> ShowGenericMessage(string message, float time = 3, Color color = default)
 	{
 		bool userInteraction = false;
@@ -124,16 +137,16 @@ public class PopupsController : MonoBehaviour
 		_genericText.color = color;
 		_genericText.transform.localScale = Vector3.zero;
 
-		// Animar de pequeño a grande (scale=1)
+		// Animar de pequeÃ±o a grande (scale=1)
 		Tween scaleUp = _genericText.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
 
-		// Esperar a que la animación de escala hacia arriba se complete
+		// Esperar a que la animaciÃ³n de escala hacia arriba se complete
 		await scaleUp.AsyncWaitForCompletion();
 
 		// Crear tareas para el retraso y la entrada del usuario		
 		userInteraction = await WaitForInput(time);
 
-		// Animar de grande a pequeño
+		// Animar de grande a pequeÃ±o
 		Tween scaleDown = _genericText.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack);
 		await scaleDown.AsyncWaitForCompletion();
 
@@ -173,6 +186,11 @@ public class PopupsController : MonoBehaviour
 		_shareBoard.gameObject.SetActive(false);
 		PatoCienciaPopup.gameObject.SetActive(false);
 		_settingsPopup.gameObject.SetActive(false);
+		
+		if (_multiplayerPanel != null)
+		{
+			_multiplayerPanel.gameObject.SetActive(false);
+		}
 	}
 
 	#endregion

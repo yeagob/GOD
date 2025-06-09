@@ -121,7 +121,7 @@ namespace Network.Tests
             Assert.AreEqual(TestPlayerMatchId, result._id);
             Assert.AreEqual(TestPlayerName, result._name);
             Assert.AreEqual(TestMatchId, result._matchId);
-            Assert.AreEqual(10, result._score);
+            Assert.AreEqual(10, result._tile);
         }
         
         [Test]

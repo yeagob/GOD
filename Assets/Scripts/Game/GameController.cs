@@ -4,8 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Network;
 using UnityEngine;
 using UnityEngine.UI;
+using Network.Models;
+using Network.Infrastructure;
 
 public class GameController : MonoBehaviour
 {
@@ -29,6 +32,11 @@ public class GameController : MonoBehaviour
     [SerializeField] private EmailSender _emailSender;
     [SerializeField] private VolumeControl _volumeControl;
 
+    [Header("Debug Multiplayer")]
+    [SerializeField] private bool _debugMultiplayerMode = false;
+    [SerializeField] private string _debugMatchId = "";
+    [SerializeField] private string _debugBoardName = "parent.json";
+
     [SerializeField, ReadOnly] private TurnController _turnController;
 
     private GameStateManager _gameStateManager;
@@ -39,6 +47,7 @@ public class GameController : MonoBehaviour
     private GameFlowController _gameFlowController;
     private BoardCreationService _boardCreationService;
     private ShareService _shareService;
+    private IMatchModel _matchModel;
 
     private BoardController _boardController;
 
@@ -73,7 +82,6 @@ public class GameController : MonoBehaviour
     {
         InitializeServices();
         SetupUI();
-        _urlParameterHandler.LogCurrentURL();
     }
 
     private void Update()
@@ -98,8 +106,30 @@ public class GameController : MonoBehaviour
         _screenshotService = gameObject.AddComponent<ScreenshotService>();
         _screenshotService.Initialize(_downloadCamera);
         _boardEditModeHandler = new BoardEditModeHandler(_popupsController, _gameStateManager);
-        _boardCreationService = new BoardCreationService();
+        
+        string apiKey = _boardCreator.GetOpenAIApiKey();
+        _boardCreationService = new BoardCreationService(apiKey);
+        
+        if (!_boardCreationService.HasAICapability)
+        {
+            Debug.Log("GameController: AI board generation disabled. Only pre-existing boards will be available.");
+        }
+        
         _shareService = new ShareService(_popupsController, _emailSender, _urlParameterHandler);
+
+        InitializeMultiplayerServices();
+    }
+
+    private void InitializeMultiplayerServices()
+    {
+        try
+        {
+            _matchModel = NetworkInstaller.Resolve<IMatchModel>();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"Network services not available: {ex.Message}");
+        }
     }
 
     private void SetupUI()
@@ -125,9 +155,15 @@ public class GameController : MonoBehaviour
         if (boardData == null)
         {
             OnSad?.Invoke();
-            await _popupsController.ShowGenericMessage("Error generando el tablero!\\n Inténtalo de nuevo!", 7);
+            await _popupsController.ShowGenericMessage("Error generando el tablero!\\nInténtalo de nuevo!", 7);
             OnCuack?.Invoke();
             Start();
+            return;
+        }
+
+        if (IsMultiplayerMode())
+        {
+            await HandleMultiplayerFlow(boardData);
             return;
         }
 
@@ -151,6 +187,64 @@ public class GameController : MonoBehaviour
 
     #endregion
 
+    #region Multiplayer Flow
+
+    private bool IsMultiplayerMode()
+    {
+        return _debugMultiplayerMode || _urlParameterHandler.IsMultiplayerMode;
+    }
+
+    private string GetMatchId()
+    {
+        if (_debugMultiplayerMode && !string.IsNullOrEmpty(_debugMatchId))
+        {
+            return _debugMatchId;
+        }
+        return _urlParameterHandler.GetMatchParameter();
+    }
+
+    private string GetBoardName()
+    {
+        if (_debugMultiplayerMode && !string.IsNullOrEmpty(_debugBoardName))
+        {
+            return _debugBoardName;
+        }
+        return _urlParameterHandler.GetBoardParameter();
+    }
+
+    private async Task HandleMultiplayerFlow(BoardData boardData)
+    {
+        CreateBoard(boardData);
+        OnCuack?.Invoke();
+
+        string matchId = GetMatchId();
+        
+        if (_matchModel != null && !string.IsNullOrEmpty(matchId))
+        {
+            MatchData existingMatch = await GetMatchDataAsync(matchId);
+            if (existingMatch._id != null)
+            {
+                _matchModel.SetAsClient(existingMatch);
+                Debug.Log($"Debug Multiplayer: Set as client for match {matchId}");
+            }
+        }
+
+        _popupsController.ShowMultiplayerPanel(matchId);
+    }
+
+    private async Task<MatchData> GetMatchDataAsync(string matchId)
+    {
+        TaskCompletionSource<MatchData> tcs = new TaskCompletionSource<MatchData>();
+        
+        _matchModel.GetMatch(matchId, matchData => {
+            tcs.SetResult(matchData);
+        });
+
+        return await tcs.Task;
+    }
+
+    #endregion
+
     #region Board Loading
 
     private async Task<BoardData> LoadInitialBoard()
@@ -158,15 +252,21 @@ public class GameController : MonoBehaviour
         if (_loadDefault)
         {
             BoardData boardData = await _boardDataService.LoadDefaultBoard(_defaultBoard);
-            await _popupsController.ShowBoardInfoPopup(boardData);
+            if (!IsMultiplayerMode())
+            {
+                await _popupsController.ShowBoardInfoPopup(boardData);
+            }
             return boardData;
         }
-        else if (_urlParameterHandler.ShouldLoadFromURL)
+        else if (_urlParameterHandler.ShouldLoadFromURL || _debugMultiplayerMode)
         {
-            string boardParam = _urlParameterHandler.GetBoardParameter();
+            string boardParam = GetBoardName();
             _shareButton.gameObject.SetActive(true);
             BoardData boardData = await _boardDataService.LoadBoardData(boardParam);
-            await _popupsController.ShowBoardInfoPopup(boardData);
+            if (!IsMultiplayerMode())
+            {
+                await _popupsController.ShowBoardInfoPopup(boardData);
+            }
             return boardData;
         }
         else
@@ -200,6 +300,12 @@ public class GameController : MonoBehaviour
     private async Task<BoardData> CreateNewBoard()
     {
         JumpToCreateNew = false;
+
+        if (!_boardCreationService.HasAICapability)
+        {
+            await _popupsController.ShowGenericMessage("AI board generation is not available.\\nPlease select an existing board or configure OpenAI API key.", 5);
+            return await SelectExistingBoard();
+        }
 
         string promptBase = await _popupsController.ShowCreateBoardQuestionPopup();
         OnCuack?.Invoke();
@@ -315,10 +421,23 @@ public class GameController : MonoBehaviour
     {
         if (_gameStateManager.IsInState(GameStateState.Creating))
         {
+            if (!_boardCreationService.HasAICapability)
+            {
+                await _popupsController.ShowGenericMessage("AI board generation is not available.\\nChanges will be applied without AI processing.", 3);
+                return editedBoardData;
+            }
+
             GameData initialGameData = EditBoardPopup.ConvertBoardDataToGameData(editedBoardData, editedBoardData.challengeTypes);
             _popupsController.PatoCienciaPopup.Show("Creando el tablero...");
             BoardData boardData = await _boardCreationService.CreateBoardFromGamedata(initialGameData);
             _popupsController.PatoCienciaPopup.Hide();
+            
+            if (boardData == null)
+            {
+                await _popupsController.ShowGenericMessage("AI generation failed. Using manual edits.", 3);
+                return editedBoardData;
+            }
+            
             return boardData;
         }
         return editedBoardData;
@@ -328,10 +447,27 @@ public class GameController : MonoBehaviour
     {
         if (_gameStateManager.IsInState(GameStateState.Creating))
         {
+            if (!_boardCreationService.HasAICapability)
+            {
+                await _popupsController.ShowGenericMessage("AI board generation is not available.\\nChanges will be applied without AI processing.", 3);
+                _boardController.UpdateBoard(boardDataEdited);
+                _gameStateManager.SetGameState(GameStateState.Playing);
+                return;
+            }
+
             GameData initialGameData = EditBoardPopup.ConvertBoardDataToGameData(boardDataEdited, boardDataEdited.challengeTypes);
             _popupsController.PatoCienciaPopup.Show("Creando el tablero...");
             BoardData boardData = await _boardCreationService.CreateBoardFromGamedata(initialGameData);
             _popupsController.PatoCienciaPopup.Hide();
+            
+            if (boardData == null)
+            {
+                await _popupsController.ShowGenericMessage("AI generation failed. Using manual edits.", 3);
+                _boardController.UpdateBoard(boardDataEdited);
+                _gameStateManager.SetGameState(GameStateState.Playing);
+                return;
+            }
+            
             _boardController.ResetBoard();
             CreateBoard(boardData);
         }
@@ -411,6 +547,12 @@ public class GameController : MonoBehaviour
 
     public async Task RerollGame()
     {
+        if (!_boardCreationService.HasAICapability)
+        {
+            await _popupsController.ShowGenericMessage("AI board generation is not available.\\nCannot regenerate board.", 3);
+            return;
+        }
+
         _gameStateManager.SetGameState(GameStateState.Creating);
         _popupsController.HideAll();
 
@@ -419,6 +561,13 @@ public class GameController : MonoBehaviour
 
         BoardData boardData = await _boardCreationService.CreateBoardFromGamedata(initialGameData);
         _popupsController.PatoCienciaPopup.Hide();
+
+        if (boardData == null)
+        {
+            await _popupsController.ShowGenericMessage("AI generation failed. Board unchanged.", 3);
+            _gameStateManager.SetGameState(GameStateState.Playing);
+            return;
+        }
 
         _boardController.ResetBoard();
         CreateBoard(boardData);

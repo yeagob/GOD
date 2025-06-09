@@ -16,18 +16,28 @@ namespace Network.Presenters
             _playerMatchModel = playerMatchModel;
             _matchModel = matchModel;
         }
+        
 
-        public void JoinMatch(string matchId, string playerName, Action<PlayerMatchData> callback = null)
+        private void HandleMatchJoin(MatchData match, string matchId, string playerName,
+            Action<bool> callback, ref string playerMatchId)
         {
-            _matchModel.GetMatch(matchId, match => {
-                if (string.IsNullOrEmpty(match._id) || match._state != MatchPresenter.MATCH_STATE_WAITING)
-                {
-                    callback?.Invoke(default);
-                    return;
-                }
-                
-                _playerMatchModel.CreatePlayerMatch(playerName, matchId, callback);
-            });
+            if (string.IsNullOrEmpty(match._id) )
+            {
+                callback?.Invoke(default);
+                return;
+            }
+
+            playerMatchId = _playerMatchModel.CreatePlayerMatch(playerName, matchId, callback);
+        }
+
+        public string JoinMatch(PlayerMatchData playerMatchData, Action<bool> callback = null)
+        {
+            string playerMatchId = null;
+
+            _matchModel.GetMatch(playerMatchData._matchId,
+                match => HandleMatchJoin(match, playerMatchData._matchId, playerMatchData._name, callback, ref playerMatchId));
+
+            return playerMatchId;
         }
 
         public void UpdateScore(string playerMatchId, int scoreChange, Action<bool> callback = null)
@@ -39,7 +49,7 @@ namespace Network.Presenters
                     return;
                 }
                 
-                int newScore = player._score + scoreChange;
+                int newScore = player._tile + scoreChange;
                 _playerMatchModel.UpdatePlayerScore(playerMatchId, newScore, callback);
             });
         }
