@@ -6,25 +6,28 @@ public class BoardCreationService
     private AIJsonGenerator _aiJsonGenerator;
     private bool _first = true;
     private readonly string _apiKey;
+    private readonly bool _hasApiKey;
 
     public BoardCreationService(string apiKey)
     {
         _apiKey = apiKey;
+        _hasApiKey = !string.IsNullOrEmpty(_apiKey);
         
-        if (string.IsNullOrEmpty(_apiKey))
+        if (_hasApiKey)
         {
-            Debug.LogError("BoardCreationService: API Key is required for AI board generation.");
-            return;
+            _aiJsonGenerator = new AIJsonGenerator(_apiKey);
         }
-
-        _aiJsonGenerator = new AIJsonGenerator(_apiKey);
+        else
+        {
+            Debug.Log("BoardCreationService: No API Key provided. AI board generation will be disabled.");
+        }
     }
 
     public async Task<GameData> CreateBaseGameData(string promptBase)
     {
-        if (_aiJsonGenerator == null)
+        if (!_hasApiKey || _aiJsonGenerator == null)
         {
-            Debug.LogError("BoardCreationService: AI service not initialized. Please provide a valid API key.");
+            Debug.LogWarning("BoardCreationService: AI service not available. Please provide an API key to enable AI board generation.");
             return null;
         }
 
@@ -33,9 +36,9 @@ public class BoardCreationService
 
     public async Task<BoardData> CreateBoardFromGamedata(GameData initialGameData)
     {
-        if (_aiJsonGenerator == null)
+        if (!_hasApiKey || _aiJsonGenerator == null)
         {
-            Debug.LogError("BoardCreationService: AI service not initialized. Please provide a valid API key.");
+            Debug.LogWarning("BoardCreationService: AI service not available. Please provide an API key to enable AI board generation.");
             return null;
         }
 
@@ -67,5 +70,5 @@ public class BoardCreationService
         return new BoardController(boardData, boardCreator);
     }
 
-    public bool IsValidService => _aiJsonGenerator != null && !string.IsNullOrEmpty(_apiKey);
+    public bool HasAICapability => _hasApiKey && _aiJsonGenerator != null;
 }
