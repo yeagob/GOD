@@ -62,7 +62,12 @@ namespace Network.Tests
             OnCreatePlayerMatch?.Invoke(name, matchId, callback);
             return "";
         }
-        
+
+        public string CreatePlayerMatch(PlayerMatchData playerMatchData, Action<bool> callback = null)
+        {
+            return "";
+        }
+
         public void UpdatePlayerScore(string playerMatchId, int newScore, Action<bool> callback = null)
         {
             OnUpdatePlayerScore?.Invoke(playerMatchId, newScore, callback);
