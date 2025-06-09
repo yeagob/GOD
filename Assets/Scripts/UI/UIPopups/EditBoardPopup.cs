@@ -148,7 +148,7 @@ public class EditBoardPopup : MonoBehaviour
 		_challengeTypesPanel.gameObject.SetActive(false);
 		_playButton.GetComponentInChildren<TextMeshProUGUI>().text = "Jugar";
 		_questionsToValidateText.text = $"1/{_gameData.questions.Count} Preguntas";
-		_challengesToValidateText.text = $"1/{_gameData.challenges.Count} Desafíos";
+		_challengesToValidateText.text = $"1/{_gameData.challenges.Count} Desafï¿½os";
 		_questionsCountText.text = "";
 		_challengesCountText.text = "";
 		_questionsToValidateText.color = Color.black;
@@ -173,7 +173,7 @@ public class EditBoardPopup : MonoBehaviour
 		_challengeTypesPanel.gameObject.SetActive(true);
 		_playButton.GetComponentInChildren<TextMeshProUGUI>().text = "Crear";
 		_questionsToValidateText.text = $"0/{_gameData.questions.Count} Preguntas Corregidas y Validadas";
-		_challengesToValidateText.text = $"0/{_gameData.challenges.Count} Desafíos Corregidos y Validados";
+		_challengesToValidateText.text = $"0/{_gameData.challenges.Count} Desafï¿½os Corregidos y Validados";
 		_validateChallengeButton.interactable = true;
 		_discardChallengeButton.interactable = true;
 		_validateQuestionButton.interactable = true;
@@ -365,7 +365,7 @@ public class EditBoardPopup : MonoBehaviour
 		_gameData.challengesCount = Mathf.RoundToInt(_questionsChallengesSlider.value);
 		_gameData.questionsCount = (int)_questionsChallengesSlider.maxValue - _gameData.challengesCount;
 
-		_challengesCountText.text = "Desafíos: " + _gameData.challengesCount;
+		_challengesCountText.text = "Desafï¿½os: " + _gameData.challengesCount;
 		_questionsCountText.text = "Preguntas: " + _gameData.questionsCount;
 
 		if (_gameData.questionsCount == 0)
@@ -434,15 +434,15 @@ public class EditBoardPopup : MonoBehaviour
 			.SetLoops(-1, LoopType.Restart)
 			.SetEase(Ease.Linear);
 
-		DALLE2 dalle2 = new DALLE2();
-		string prompt = "Crea una imagen que represente un juego de tablero con este título: " + _tittleInput.text + ". El/Los protagonistas de la imagen es/son patitos de goma amarillos.";
-		//string prompt = "Crea una imagen de un patito de goma.";
-		Sprite image = await dalle2.GenerateImage(prompt);
-		_boardImage.sprite = image;
-		_gameData.imageURL = DALLE2.LastImageUrl;
-
-		_rerollImageButton.transform.DOKill();
-		_rerollImageButton.interactable = true;
+		// DALLE2 dalle2 = new DALLE2();
+		// string prompt = "Crea una imagen que represente un juego de tablero con este tï¿½tulo: " + _tittleInput.text + ". El/Los protagonistas de la imagen es/son patitos de goma amarillos.";
+		// //string prompt = "Crea una imagen de un patito de goma.";
+		// Sprite image = await dalle2.GenerateImage(prompt);
+		// _boardImage.sprite = image;
+		// _gameData.imageURL = DALLE2.LastImageUrl;
+		//
+		// _rerollImageButton.transform.DOKill();
+		// _rerollImageButton.interactable = true;
 
 
 	}
@@ -554,7 +554,7 @@ public class EditBoardPopup : MonoBehaviour
 			_validateQuestionButton.interactable = false;
 			_discardQuestionButton.interactable = false;
 
-			_questionsToValidateText.text = "Validación Completada!";
+			_questionsToValidateText.text = "Validaciï¿½n Completada!";
 		}
 
 		RefreshPlayButton();
@@ -575,7 +575,7 @@ public class EditBoardPopup : MonoBehaviour
 			_validateQuestionButton.interactable = false;
 			_discardQuestionButton.interactable = false;
 
-			_questionsToValidateText.text = "Validación Completada!";
+			_questionsToValidateText.text = "Validaciï¿½n Completada!";
 		}
 	}
 
@@ -615,7 +615,7 @@ public class EditBoardPopup : MonoBehaviour
 			_validateChallengeButton.interactable = false;
 			_discardChallengeButton.interactable = false;
 
-			_challengesToValidateText.text = "Validación Completada!";
+			_challengesToValidateText.text = "Validaciï¿½n Completada!";
 
 		}
 
@@ -637,7 +637,7 @@ public class EditBoardPopup : MonoBehaviour
 			_validateChallengeButton.interactable = false;
 			_discardChallengeButton.interactable = false;
 
-			_challengesToValidateText.text = "Validación Completada!";
+			_challengesToValidateText.text = "Validaciï¿½n Completada!";
 		}
 	}
 
@@ -646,13 +646,13 @@ public class EditBoardPopup : MonoBehaviour
 		_challengeDescriptionInput.text = challenge;
 
 		if (GameController.GameState == GameStateState.Editing)
-			_challengesToValidateText.text = $"{_currentChallengeIndex}/{_gameData.challenges.Count} Desafíos";
+			_challengesToValidateText.text = $"{_currentChallengeIndex}/{_gameData.challenges.Count} Desafï¿½os";
 	}
 
 	private void RefreshValidations()
 	{
 			_questionsToValidateText.text = $"{_validatedQuestionsCount}/{_gameData.questions.Count} Preguntas Corregidas y Validadas";
-			_challengesToValidateText.text = $"{_validatedChallengesCount}/{_gameData.challenges.Count} Desafíos Corregidos y Validados";		
+			_challengesToValidateText.text = $"{_validatedChallengesCount}/{_gameData.challenges.Count} Desafï¿½os Corregidos y Validados";		
 
 		if (_validatedChallengesCount < 3)
 			_validateChallengeButton.interactable = true;

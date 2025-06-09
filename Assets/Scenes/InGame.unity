@@ -21546,6 +21546,7 @@ MonoBehaviour:
   _tilePrefab: {fileID: 7013207395195420854, guid: 1ddfee4fa6a052944aee3d34559ac2d6,
     type: 3}
   _lineRenderer: {fileID: 1230041690}
+  _openAIConfig: {fileID: 11400000, guid: 8102a19551559774ba43a5d2b5d8820e, type: 2}
   numberOfCells: 40
   margin: 0.5
 --- !u!4 &1230041689
@@ -26601,7 +26602,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1470537708
 RectTransform:
   m_ObjectHideFlags: 0
