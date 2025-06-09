@@ -110,6 +110,11 @@ public class GameController : MonoBehaviour
         string apiKey = _boardCreator.GetOpenAIApiKey();
         _boardCreationService = new BoardCreationService(apiKey);
         
+        if (!_boardCreationService.HasAICapability)
+        {
+            Debug.Log("GameController: AI board generation disabled. Only pre-existing boards will be available.");
+        }
+        
         _shareService = new ShareService(_popupsController, _emailSender, _urlParameterHandler);
 
         InitializeMultiplayerServices();
@@ -145,14 +150,6 @@ public class GameController : MonoBehaviour
         _volumeControl.Initialize();
         _musicController.PlayBase();
 
-        if (!ValidateOpenAIConfiguration())
-        {
-            OnSad?.Invoke();
-            await _popupsController.ShowGenericMessage("Error: OpenAI Configuration not found or invalid.\\nPlease check the GameOfDuckBoardCreator configuration.", 7);
-            OnCuack?.Invoke();
-            return;
-        }
-
         BoardData boardData = await LoadInitialBoard();
 
         if (boardData == null)
@@ -186,23 +183,6 @@ public class GameController : MonoBehaviour
         _boardController.OnMoveStep += () => CurrentPlayer?.Token?.Fart();
 
         await StartGameLoop();
-    }
-
-    private bool ValidateOpenAIConfiguration()
-    {
-        if (!_boardCreator.HasValidOpenAIConfig)
-        {
-            Debug.LogError("GameController: OpenAI Configuration is not valid. Please assign a valid OpenAI Configuration to the GameOfDuckBoardCreator.");
-            return false;
-        }
-
-        if (!_boardCreationService.IsValidService)
-        {
-            Debug.LogError("GameController: BoardCreationService could not be initialized with the provided API key.");
-            return false;
-        }
-
-        return true;
     }
 
     #endregion
@@ -321,6 +301,12 @@ public class GameController : MonoBehaviour
     {
         JumpToCreateNew = false;
 
+        if (!_boardCreationService.HasAICapability)
+        {
+            await _popupsController.ShowGenericMessage("AI board generation is not available.\\nPlease select an existing board or configure OpenAI API key.", 5);
+            return await SelectExistingBoard();
+        }
+
         string promptBase = await _popupsController.ShowCreateBoardQuestionPopup();
         OnCuack?.Invoke();
 
@@ -435,10 +421,23 @@ public class GameController : MonoBehaviour
     {
         if (_gameStateManager.IsInState(GameStateState.Creating))
         {
+            if (!_boardCreationService.HasAICapability)
+            {
+                await _popupsController.ShowGenericMessage("AI board generation is not available.\\nChanges will be applied without AI processing.", 3);
+                return editedBoardData;
+            }
+
             GameData initialGameData = EditBoardPopup.ConvertBoardDataToGameData(editedBoardData, editedBoardData.challengeTypes);
             _popupsController.PatoCienciaPopup.Show("Creando el tablero...");
             BoardData boardData = await _boardCreationService.CreateBoardFromGamedata(initialGameData);
             _popupsController.PatoCienciaPopup.Hide();
+            
+            if (boardData == null)
+            {
+                await _popupsController.ShowGenericMessage("AI generation failed. Using manual edits.", 3);
+                return editedBoardData;
+            }
+            
             return boardData;
         }
         return editedBoardData;
@@ -448,10 +447,27 @@ public class GameController : MonoBehaviour
     {
         if (_gameStateManager.IsInState(GameStateState.Creating))
         {
+            if (!_boardCreationService.HasAICapability)
+            {
+                await _popupsController.ShowGenericMessage("AI board generation is not available.\\nChanges will be applied without AI processing.", 3);
+                _boardController.UpdateBoard(boardDataEdited);
+                _gameStateManager.SetGameState(GameStateState.Playing);
+                return;
+            }
+
             GameData initialGameData = EditBoardPopup.ConvertBoardDataToGameData(boardDataEdited, boardDataEdited.challengeTypes);
             _popupsController.PatoCienciaPopup.Show("Creando el tablero...");
             BoardData boardData = await _boardCreationService.CreateBoardFromGamedata(initialGameData);
             _popupsController.PatoCienciaPopup.Hide();
+            
+            if (boardData == null)
+            {
+                await _popupsController.ShowGenericMessage("AI generation failed. Using manual edits.", 3);
+                _boardController.UpdateBoard(boardDataEdited);
+                _gameStateManager.SetGameState(GameStateState.Playing);
+                return;
+            }
+            
             _boardController.ResetBoard();
             CreateBoard(boardData);
         }
@@ -531,6 +547,12 @@ public class GameController : MonoBehaviour
 
     public async Task RerollGame()
     {
+        if (!_boardCreationService.HasAICapability)
+        {
+            await _popupsController.ShowGenericMessage("AI board generation is not available.\\nCannot regenerate board.", 3);
+            return;
+        }
+
         _gameStateManager.SetGameState(GameStateState.Creating);
         _popupsController.HideAll();
 
@@ -539,6 +561,13 @@ public class GameController : MonoBehaviour
 
         BoardData boardData = await _boardCreationService.CreateBoardFromGamedata(initialGameData);
         _popupsController.PatoCienciaPopup.Hide();
+
+        if (boardData == null)
+        {
+            await _popupsController.ShowGenericMessage("AI generation failed. Board unchanged.", 3);
+            _gameStateManager.SetGameState(GameStateState.Playing);
+            return;
+        }
 
         _boardController.ResetBoard();
         CreateBoard(boardData);
