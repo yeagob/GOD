@@ -4,7 +4,7 @@ Game Of Duck es una implementación digital del popular juego de mesa, desarroll
 
 ## 🚀 Características
 
-- **🎲 Juego Clásico**: Implementación fiel del \"Juego del Pato\" tradicional
+- **🎲 Juego Clásico**: Implementación del \"Juego de la Oca \" pero con preguntas y desafíos configurables.
 - **🤖 IA Integrada**: Creación de tableros personalizados mediante inteligencia artificial
 - **🌐 Modo Web**: Optimizado para navegadores con WebGL
 - **🎨 Editor Visual**: Herramientas para personalizar tableros existentes
