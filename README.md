@@ -1,4 +1,4 @@
-**Prototipo 1 cerrado el 10 de Junio de 2025**ç
+**Prototipo 1 cerrado el 10 de Junio de 2025**
 
 Game Of Duck es una implementación digital del popular juego de mesa, desarrollado en Unity con WebGL, que incluye integración con IA para la creación de tableros personalizados y soporte para modo multiplayer a través de Firebase.
 
