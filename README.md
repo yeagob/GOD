@@ -2,27 +2,6 @@
 
 Game Of Duck es una implementación digital del popular juego de mesa, desarrollado en Unity con WebGL, que incluye integración con IA para la creación de tableros personalizados y soporte para modo multiplayer a través de Firebase.
 
-## 🎮 Capturas de Pantalla
-
-### Pantalla Principal
-![Pantalla Principal](Assets/Art/Screenshots/MainScreen.png)
-
-### Selección de Tablero
-![Selección de Tablero](Assets/Art/Screenshots/EscogiendoTablero.png)
-
-### Gameplay
-![Gameplay 1](Assets/Art/Screenshots/inGame1.jpg)
-![Gameplay 2](Assets/Art/Screenshots/InGame2.jpg)
-
-### Editor de Tableros
-![Editor](Assets/Art/Screenshots/EditandoTablero.png)
-
-### Desafíos
-![Desafíos](Assets/Art/Screenshots/Desafío.jpg)
-
-### Configuraciones
-![Configuraciones](Assets/Art/Screenshots/Settings.png)
-
 ## 🚀 Características
 
 - **🎲 Juego Clásico**: Implementación fiel del \"Juego del Pato\" tradicional
@@ -80,6 +59,27 @@ Assets/
 ├── StreamingAssets/      # Tableros JSON
 └── TextMesh Pro/         # Recursos de texto
 ```
+
+## 🎮 Capturas de Pantalla
+
+### Pantalla Principal
+![Pantalla Principal](Assets/Art/Screenshots/MainScreen.png)
+
+### Selección de Tablero
+![Selección de Tablero](Assets/Art/Screenshots/EscogiendoTablero.png)
+
+### Gameplay
+![Gameplay 1](Assets/Art/Screenshots/inGame1.jpg)
+![Gameplay 2](Assets/Art/Screenshots/InGame2.jpg)
+
+### Editor de Tableros
+![Editor](Assets/Art/Screenshots/EditandoTablero.png)
+
+### Desafíos
+![Desafíos](Assets/Art/Screenshots/Desafío.jpg)
+
+### Configuraciones
+![Configuraciones](Assets/Art/Screenshots/Settings.png)
 
 ## 🎯 Scripts Principales
 
