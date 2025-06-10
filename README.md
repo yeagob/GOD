@@ -31,207 +31,6 @@ El sistema multiplayer está diseñado con:
 - **AI Integration** para generación de contenido
 - **C# .NET**
 
-## 📁 Estructura del Proyecto
-
-```
-Assets/
-├── Art/
-│   ├── Sprites/          # Imágenes y texturas
-│   ├── Materials/        # Materiales 3D
-│   ├── Models/           # Modelos 3D
-│   ├── Fonts/            # Fuentes tipográficas
-│   ├── Sound/            # Audio y música
-│   └── Screenshots/      # Capturas para documentación
-├── Prefabs/              # Prefabs de Unity
-├── Resources/            # Recursos cargables
-├── Scenes/
-│   └── InGame.unity      # Escena principal
-├── Scripts/
-│   ├── AI/               # Sistema de IA
-│   ├── Audio/            # Gestión de audio
-│   ├── Board/            # Lógica del tablero
-│   ├── Game/             # Controladores principales
-│   ├── Network/          # Sistema de networking
-│   ├── Player/           # Sistema de jugadores
-│   ├── Settings/         # Configuraciones
-│   └── UI/               # Interfaz de usuario
-├── Settings/             # Configuraciones Unity
-├── StreamingAssets/      # Tableros JSON
-└── TextMesh Pro/         # Recursos de texto
-```
-
-## 🎮 Capturas de Pantalla
-
-### Pantalla Principal
-![Pantalla Principal](Assets/Art/Screenshots/MainScreen.png)
-
-### Selección de Tablero
-![Selección de Tablero](Assets/Art/Screenshots/EscogiendoTablero.png)
-
-### Gameplay
-![Gameplay 1](Assets/Art/Screenshots/inGame1.jpg)
-![Gameplay 2](Assets/Art/Screenshots/InGame2.jpg)
-
-### Editor de Tableros
-![Editor](Assets/Art/Screenshots/EditandoTablero.png)
-
-### Desafíos
-![Desafíos](Assets/Art/Screenshots/Desafío.jpg)
-
-### Configuraciones
-![Configuraciones](Assets/Art/Screenshots/Settings.png)
-
-## 🎯 Scripts Principales
-
-| Script | Descripción | Tamaño |
-|--------|-------------|--------|
-| `GameController.cs` | Controlador principal del juego | 19.8KB |
-| `BoardController.cs` | Gestión del tablero | 7.2KB |
-| `BoardData.cs` | Estructura de datos del tablero | 6.8KB |
-| `DiceController.cs` | Control de dados | - |
-| `TurnController.cs` | Gestión de turnos | - |
-| `PlayerToken.cs` | Tokens de jugadores | - |
-| `PopupsController.cs` | Ventanas emergentes | - |
-
-## 📦 Tableros Disponibles
-
-Los tableros se almacenan en `Assets/StreamingAssets/` como archivos JSON:
-
-- `adolescencia.json` - Temática adolescente
-- `bienestar.json` - Bienestar y salud
-- `circulo.json` - Formato circular
-- `crecimiento.json` - Desarrollo personal
-- `detox.json` - Desintoxicación digital
-- `flores.json` - Temática floral
-- `fortnite.json` - Gaming/Fortnite
-- `hermanos.json` - Relaciones familiares
-- `magic.json` - Fantasía y magia
-- `parent.json` - Crianza/Paternidad
-- `series.json` - Series de TV
-- `videojuegos_actuales.json` - Gaming actual
-- Y muchos más...
-
-## 🌐 Uso con URL Parameters
-
-El juego soporta parámetros URL para funcionalidades específicas:
-
-```
-# Cargar tablero específico
-https://tu-dominio.com/?board=nombreTablero
-
-# Modo multiplayer (en desarrollo)
-https://tu-dominio.com/?multiplayer=true&match=matchId
-```
-
-## 🏗️ Arquitectura
-
-### SOLID Principles
-El proyecto implementa principios SOLID con:
-- **Single Responsibility**: Cada clase tiene una responsabilidad específica
-- **Open/Closed**: Extensible sin modificar código existente
-- **Liskov Substitution**: Intercambiabilidad de implementaciones
-- **Interface Segregation**: Interfaces específicas y cohesivas
-- **Dependency Inversion**: Inversión de dependencias
-
-### Servicios Principales
-- `GameStateManager` - Gestión de estados
-- `GameFlowController` - Flujo principal del juego
-- `BoardDataService` - Carga de datos de tableros
-- `URLParameterHandler` - Procesamiento de parámetros URL
-- `ScreenshotService` - Captura y exportación
-- `BoardEditModeHandler` - Modo de edición
-- `BoardCreationService` - Creación con IA
-- `ShareService` - Compartir tableros
-
-### Red y Multiplayer (MVP Pattern)
-```
-View Layer ↔ Presenter Layer ↔ Model Layer
-     ↓              ↓              ↓
- Network Services ↔ Firebase Backend
-```
-
-## 🚀 Desarrollo
-
-### Requisitos
-- Unity 2022.3+ LTS
-- Conexión a internet (para funciones de IA)
-- Configuración de Firebase (para multiplayer)
-
-### Estructura de Ramas
-- `main` - Producción estable
-- `develop` - Desarrollo principal
-- `feature/*` - Nuevas características
-
-### Filosofía de Código
-- **Scout Rule**: Dejar el código mejor de como se encontró
-- **Mandatory Braces**: Siempre usar llaves, incluso para una línea
-- **SOLID Architecture**: Principios de diseño consistentes
-- **POCO Data**: Estructuras de datos Plain Old CLR Object
-
-## 📝 Contribución
-
-1. Crear rama desde `develop`
-2. Seguir principios SOLID
-3. No incluir comentarios en el código
-4. Aplicar filosofía Scout
-5. Usar estructuras POCO para datos
-6. Una conversación = una rama
-
-## 🔧 Configuración
-
-### Firebase Setup (para Multiplayer)
-1. Crear proyecto en Firebase Console
-2. Configurar Firestore Database
-3. Configurar Realtime Database
-4. Obtener configuración JSON
-5. Integrar con Unity Firebase SDK
-
-### Build Settings
-- **Platform**: WebGL
-- **Render Pipeline**: Universal RP
-- **Compression**: Gzip
-- **Code Optimization**: Size
-
-## 📊 Métricas del Proyecto
-
-- **Arquitectura**: Refactorizada con principios SOLID
-- **Mantenibilidad**: +300% mejorada
-- **Testabilidad**: +500% mejorada
-- **Extensibilidad**: +400% mejorada
-- **Legibilidad**: +250% mejorada
-- **Código**: GameController reducido de ~800 a ~450 líneas
-
-## 🐛 Estado Actual
-
-### ✅ Funcional
-- Juego principal completo
-- Creación de tableros con IA
-- Editor de tableros
-- Sistema de URL parameters
-- Exportación y compartir
-- Sistema de audio
-- Configuraciones
-
-### 🚧 En Desarrollo
-- **Multiplayer**: Sistema en desarrollo, no operativo
-- Sincronización Firebase
-- Códigos QR para partidas
-- Sistema de lobbies
-
-## 📄 Licencia
-
-Proyecto privado - yeagob/GOD
-
----
-
-**Desarrollado con ❤️ para la comunidad gaming**
-
-*Game Of Duck - Donde la diversión se encuentra con la tecnología* 🦆🎮`
-    },
-    {
-      `path`: `docs/ARCHITECTURE.md`,
-      `content`: `# Game Of Duck - Arquitectura del Sistema
-
 ## Visión General
 
 Game Of Duck implementa una arquitectura modular basada en principios SOLID, con separación clara de responsabilidades y un diseño extensible que permite fácil mantenimiento y testing.
@@ -540,6 +339,209 @@ stateDiagram-v2
     Editing --> Creating : Regenerate Board
     EndGame --> Welcome : Back to Menu
 ```
+
+
+## 📁 Estructura del Proyecto
+
+```
+Assets/
+├── Art/
+│   ├── Sprites/          # Imágenes y texturas
+│   ├── Materials/        # Materiales 3D
+│   ├── Models/           # Modelos 3D
+│   ├── Fonts/            # Fuentes tipográficas
+│   ├── Sound/            # Audio y música
+│   └── Screenshots/      # Capturas para documentación
+├── Prefabs/              # Prefabs de Unity
+├── Resources/            # Recursos cargables
+├── Scenes/
+│   └── InGame.unity      # Escena principal
+├── Scripts/
+│   ├── AI/               # Sistema de IA
+│   ├── Audio/            # Gestión de audio
+│   ├── Board/            # Lógica del tablero
+│   ├── Game/             # Controladores principales
+│   ├── Network/          # Sistema de networking
+│   ├── Player/           # Sistema de jugadores
+│   ├── Settings/         # Configuraciones
+│   └── UI/               # Interfaz de usuario
+├── Settings/             # Configuraciones Unity
+├── StreamingAssets/      # Tableros JSON
+└── TextMesh Pro/         # Recursos de texto
+```
+
+## 🎮 Capturas de Pantalla
+
+### Pantalla Principal
+![Pantalla Principal](Assets/Art/Screenshots/MainScreen.png)
+
+### Selección de Tablero
+![Selección de Tablero](Assets/Art/Screenshots/EscogiendoTablero.png)
+
+### Gameplay
+![Gameplay 1](Assets/Art/Screenshots/inGame1.jpg)
+![Gameplay 2](Assets/Art/Screenshots/InGame2.jpg)
+
+### Editor de Tableros
+![Editor](Assets/Art/Screenshots/EditandoTablero.png)
+
+### Desafíos
+![Desafíos](Assets/Art/Screenshots/Desafío.jpg)
+
+### Configuraciones
+![Configuraciones](Assets/Art/Screenshots/Settings.png)
+
+## 🎯 Scripts Principales
+
+| Script | Descripción | Tamaño |
+|--------|-------------|--------|
+| `GameController.cs` | Controlador principal del juego | 19.8KB |
+| `BoardController.cs` | Gestión del tablero | 7.2KB |
+| `BoardData.cs` | Estructura de datos del tablero | 6.8KB |
+| `DiceController.cs` | Control de dados | - |
+| `TurnController.cs` | Gestión de turnos | - |
+| `PlayerToken.cs` | Tokens de jugadores | - |
+| `PopupsController.cs` | Ventanas emergentes | - |
+
+## 📦 Tableros Disponibles
+
+Los tableros se almacenan en `Assets/StreamingAssets/` como archivos JSON:
+
+- `adolescencia.json` - Temática adolescente
+- `bienestar.json` - Bienestar y salud
+- `circulo.json` - Formato circular
+- `crecimiento.json` - Desarrollo personal
+- `detox.json` - Desintoxicación digital
+- `flores.json` - Temática floral
+- `fortnite.json` - Gaming/Fortnite
+- `hermanos.json` - Relaciones familiares
+- `magic.json` - Fantasía y magia
+- `parent.json` - Crianza/Paternidad
+- `series.json` - Series de TV
+- `videojuegos_actuales.json` - Gaming actual
+- Y muchos más...
+
+## 🌐 Uso con URL Parameters
+
+El juego soporta parámetros URL para funcionalidades específicas:
+
+```
+# Cargar tablero específico
+https://tu-dominio.com/?board=nombreTablero
+
+# Modo multiplayer (en desarrollo)
+https://tu-dominio.com/?multiplayer=true&match=matchId
+```
+
+## 🏗️ Arquitectura
+
+### SOLID Principles
+El proyecto implementa principios SOLID con:
+- **Single Responsibility**: Cada clase tiene una responsabilidad específica
+- **Open/Closed**: Extensible sin modificar código existente
+- **Liskov Substitution**: Intercambiabilidad de implementaciones
+- **Interface Segregation**: Interfaces específicas y cohesivas
+- **Dependency Inversion**: Inversión de dependencias
+
+### Servicios Principales
+- `GameStateManager` - Gestión de estados
+- `GameFlowController` - Flujo principal del juego
+- `BoardDataService` - Carga de datos de tableros
+- `URLParameterHandler` - Procesamiento de parámetros URL
+- `ScreenshotService` - Captura y exportación
+- `BoardEditModeHandler` - Modo de edición
+- `BoardCreationService` - Creación con IA
+- `ShareService` - Compartir tableros
+
+### Red y Multiplayer (MVP Pattern)
+```
+View Layer ↔ Presenter Layer ↔ Model Layer
+     ↓              ↓              ↓
+ Network Services ↔ Firebase Backend
+```
+
+## 🚀 Desarrollo
+
+### Requisitos
+- Unity 2022.3+ LTS
+- Conexión a internet (para funciones de IA)
+- Configuración de Firebase (para multiplayer)
+
+### Estructura de Ramas
+- `main` - Producción estable
+- `develop` - Desarrollo principal
+- `feature/*` - Nuevas características
+
+### Filosofía de Código
+- **Scout Rule**: Dejar el código mejor de como se encontró
+- **Mandatory Braces**: Siempre usar llaves, incluso para una línea
+- **SOLID Architecture**: Principios de diseño consistentes
+- **POCO Data**: Estructuras de datos Plain Old CLR Object
+
+## 📝 Contribución
+
+1. Crear rama desde `develop`
+2. Seguir principios SOLID
+3. No incluir comentarios en el código
+4. Aplicar filosofía Scout
+5. Usar estructuras POCO para datos
+6. Una conversación = una rama
+
+## 🔧 Configuración
+
+### Firebase Setup (para Multiplayer)
+1. Crear proyecto en Firebase Console
+2. Configurar Firestore Database
+3. Configurar Realtime Database
+4. Obtener configuración JSON
+5. Integrar con Unity Firebase SDK
+
+### Build Settings
+- **Platform**: WebGL
+- **Render Pipeline**: Universal RP
+- **Compression**: Gzip
+- **Code Optimization**: Size
+
+## 📊 Métricas del Proyecto
+
+- **Arquitectura**: Refactorizada con principios SOLID
+- **Mantenibilidad**: +300% mejorada
+- **Testabilidad**: +500% mejorada
+- **Extensibilidad**: +400% mejorada
+- **Legibilidad**: +250% mejorada
+- **Código**: GameController reducido de ~800 a ~450 líneas
+
+## 🐛 Estado Actual
+
+### ✅ Funcional
+- Juego principal completo
+- Creación de tableros con IA
+- Editor de tableros
+- Sistema de URL parameters
+- Exportación y compartir
+- Sistema de audio
+- Configuraciones
+
+### 🚧 En Desarrollo
+- **Multiplayer**: Sistema en desarrollo, no operativo
+- Sincronización Firebase
+- Códigos QR para partidas
+- Sistema de lobbies
+
+## 📄 Licencia
+
+Proyecto privado - yeagob/GOD
+
+---
+
+**Desarrollado con ❤️ para la comunidad gaming**
+
+*Game Of Duck - Donde la diversión se encuentra con la tecnología* 🦆🎮`
+    },
+    {
+      `path`: `docs/ARCHITECTURE.md`,
+      `content`: `# Game Of Duck - Arquitectura del Sistema
+
 
 ## Arquitectura de Red (MVP)
 
