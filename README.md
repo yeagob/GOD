@@ -13,15 +13,6 @@ Game Of Duck es una implementación digital del popular juego de mesa, desarroll
 - **🎵 Audio System**: Efectos de sonido y música ambiente
 - **⚙️ Configuraciones**: Panel completo de ajustes del juego
 
-### 🔗 Multiplayer (En Desarrollo)
-> ⚠️ **Nota**: La funcionalidad multiplayer está actualmente en desarrollo y no está operativa.
-
-El sistema multiplayer está diseñado con:
-- Arquitectura MVP (Model-View-Presenter)
-- Integración con Firebase Firestore y Realtime Database
-- Códigos QR para unirse a partidas
-- Sincronización en tiempo real
-
 ## 🛠️ Tecnologías
 
 - **Unity 2022.3+ LTS**
